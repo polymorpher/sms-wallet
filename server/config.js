@@ -1,19 +1,19 @@
 require('dotenv').config()
 const BN = require('bn.js')
-const DEBUG = process.env['RELAYER_DEBUG'] === 'true' || process.env['RELAYER_DEBUG'] === '1'
+const DEBUG = process.env.RELAYER_DEBUG === 'true' || process.env.RELAYER_DEBUG === '1'
 const config = {
   debug: DEBUG,
   relayerId: process.env.RELAYER_ID || 'unknown',
   nullAddress: '0x0000000000000000000000000000000000000000',
-  verbose: process.env['VERBOSE'] === 'true' || process.env['VERBOSE'] === '1',
+  verbose: process.env.VERBOSE === 'true' || process.env.VERBOSE === '1',
   https: {
-    only: process.env['HTTPS_ONLY'] === 'true' || process.env['HTTPS_ONLY'] === '1',
+    only: process.env.HTTPS_ONLY === 'true' || process.env.HTTPS_ONLY === '1',
     key: DEBUG ? './certs/test.key' : './certs/privkey.pem',
     cert: DEBUG ? './certs/test.cert' : './certs/fullchain.pem'
   },
-  corsOrigins: process.env['CORS'],
-  secret: process.env['SECRET'],
-  safeNonce: process.env['SAFE_NONCE'] === '1' || process.env['SAFE_NONCE'] === 'true',
+  corsOrigins: process.env.CORS,
+  secret: process.env.SECRET,
+  safeNonce: process.env.SAFE_NONCE === '1' || process.env.SAFE_NONCE === 'true',
   pollingInterval: parseInt(process.env.pollingInterval || 1000),
   defaultNetwork: process.env.DEFAULT_NETWORK || 'harmony-mainnet',
   networks: {
@@ -48,15 +48,28 @@ const config = {
   gasLimit: parseInt(process.env.GAS_LIMIT || '12345678'),
   gasPrice: new BN(process.env.GAS_PRICE || '200'),
   cache: process.env.CACHE || 'cache',
-  es: {
-    enabled: process.env.ES_ENABLED === 'true' || process.env.ES_ENABLED === '1',
-    node: process.env.ES_NODE || 'https://localhost:9200',
-    username: process.env.ES_USERNAME,
-    password: process.env.ES_PASSWORD,
-  },
   stats: {
     // relevant to relayer root directory
     path: process.env.STATS_PATH || '../data/stats.json'
+  },
+
+  datastore: {
+    gceProjectId: process.env.GCP_PROJECT,
+    cred: !process.env.GCP_CRED_PATH ? {} : require(process.env.GCP_CRED_PATH),
+    mock: !process.env.GCP_CRED_PATH,
+    mockPort: 9000,
+    namespace: 'sms-wallet-server'
+  },
+
+  twilio: {
+    sid: process.env.TWILIO_ACCOUNT_SID,
+    token: process.env.TWILIO_AUTH_TOKEN,
+    from: process.env.TWILIO_FROM,
+  },
+
+  otp: {
+    salt: process.env.OTP_SALT,
+    interval: parseInt(process.env.OTP_INTERVAL || 60000)
   }
 }
 module.exports = config
