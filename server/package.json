@@ -4,9 +4,8 @@
   "private": true,
   "main": "app.js",
   "scripts": {
-    "start": "npm run compile && node ./bin/run.js",
-    "compile": "truffle compile",
-    "debug": "RELAYER_DEBUG=true npm run start"
+    "start": "node ./bin/run.js",
+    "debug": "DEBUG=true npm run start"
   },
   "dependencies": {
     "@harmony-js/core": "^0.1.57",
