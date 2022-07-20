@@ -1,0 +1,4 @@
+/credentials
+/certs/*
+!/certs/README.md
+!/certs/gen.sh
