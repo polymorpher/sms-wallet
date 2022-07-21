@@ -9,7 +9,11 @@ const config = {
     // gateway: process.env.IPFS_GATEWAY || 'https://gateway.pinata.cloud/ipfs/{{hash}}'
     // gateway: process.env.IPFS_GATEWAY || 'https://1wallet.mypinata.cloud/ipfs/{{hash}}'
   },
-  rootUrl: process.env.ROOT_URL || 'https://1wallet.crazy.one',
+  rpc: process.env.RPC || 'https://api.s0.t.hmny.io',
+  rootUrl: process.env.ROOT_URL || 'https://smswallet.xyz',
+  server: process.env.SERVER_URL || 'https://localhost:8443',
+  secret: process.env.SERVER_SECRET || 'none',
+  network: process.env.SERVER_NETWORK || 'harmony',
   transak: {
     staging: {
       apiKey: '50f1c430-7807-4760-a337-57583de69f73',
