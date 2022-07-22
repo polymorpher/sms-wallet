@@ -11,6 +11,7 @@ const config = {
   },
   rpc: process.env.RPC || 'https://api.s0.t.hmny.io',
   rootUrl: process.env.ROOT_URL || 'https://smswallet.xyz',
+  explorer: process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
   server: process.env.SERVER_URL || 'https://localhost:8443',
   secret: process.env.SERVER_SECRET || 'none',
   network: process.env.SERVER_NETWORK || 'harmony',
