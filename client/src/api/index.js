@@ -1,11 +1,15 @@
-const axios = require('axios')
-const Web3 = require('web3')
-const config = require('../config')
-const BN = require('bn.js')
+import { utils } from '../utils'
+import axios from 'axios'
+import Web3 from 'web3'
+import config from '../config'
+import BN from 'bn.js'
+
 const headers = ({ secret, network }) => ({
   'X-SECRET': secret,
   'X-NETWORK': network,
 })
+
+console.log(config)
 
 const TIMEOUT = 60000
 const apiBase = axios.create({
@@ -25,6 +29,12 @@ const apis = {
     },
     changeNetwork: (network) => {
       // TODO
+    },
+    getAddress: (key) => {
+      if (typeof key !== 'string') {
+        key = utils.hexString(key)
+      }
+      return web3.eth.accounts.privateKeyToAccount(key).address
     }
   },
   blockchain: {
