@@ -25,7 +25,12 @@ const apis = {
     web3,
     changeAccount: (key) => {
       web3.eth.accounts.wallet.clear()
-      web3.eth.accounts.wallet.add(key)
+      if (key) {
+        const { address } = web3.eth.accounts.wallet.add(key)
+        web3.eth.defaultAccount = address
+      } else {
+        web3.eth.defaultAccount = ''
+      }
     },
     changeNetwork: (network) => {
       // TODO
@@ -35,6 +40,14 @@ const apis = {
         key = utils.hexString(key)
       }
       return web3.eth.accounts.privateKeyToAccount(key).address
+    },
+    isValidAddress: (address) => {
+      try {
+        return web3.utils.isAddress(address)
+      } catch (ex) {
+        console.error(ex)
+        return false
+      }
     }
   },
   blockchain: {
@@ -66,5 +79,7 @@ const apis = {
     }
   }
 }
-
+if (window) {
+  window.apis = apis
+}
 export default apis
