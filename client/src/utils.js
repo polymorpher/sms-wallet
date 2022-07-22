@@ -23,7 +23,34 @@ export const utils = {
   },
   getRestoreUri: (p) => {
     return `https://${config.rootUrl}${paths.recover}?p=${p}`
-  }
+  },
+  validBalance: (balance, allowFloat) => {
+    if (typeof balance === 'number') { return true }
+    if (typeof balance !== 'string') { return false }
+    for (let i = 0; i < balance.length; i += 1) {
+      const c = balance.charCodeAt(i)
+      if (c < 48 || c > 57) {
+        if (!allowFloat) {
+          return false
+        }
+        if (c !== 46) {
+          return false
+        }
+      }
+    }
+    return true
+  },
+
+  computeBalance: (balance, price, decimals, maxPrecision) => {
+    if (!utils.validBalance(balance)) {
+      return { balance: 0, formatted: '0', fiat: 0, fiatFormatted: '0', valid: false }
+    }
+    const ones = sharedUtils.toOne(balance || 0, null, decimals)
+    const formatted = sharedUtils.formatNumber(ones, maxPrecision)
+    const fiat = (price || 0) * parseFloat(ones)
+    const fiatFormatted = sharedUtils.formatNumber(fiat)
+    return { balance, formatted, fiat, fiatFormatted, valid: true }
+  },
 }
 
 export function getWindowDimensions () {
