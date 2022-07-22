@@ -1,4 +1,7 @@
 const createKeccakHash = require('keccak')
+const Conversion = require('ethjs-unit')
+const STANDARD_DECIMAL = 18
+const BN = require('bn.js')
 
 const utils = {
   /**
@@ -51,6 +54,45 @@ const utils = {
   },
   stringToBytes: str => {
     return new TextEncoder().encode(str)
+  },
+
+
+  toFraction: (ones, unit, decimals) => {
+    const v = Conversion.toWei(ones, unit || 'ether')
+    const diff = STANDARD_DECIMAL - (decimals || STANDARD_DECIMAL)
+    const denominator = new BN(10).pow(new BN(diff))
+    return v.div(denominator)
+  },
+
+  toOne: (fractions, unit, decimals) => {
+    const diff = STANDARD_DECIMAL - (decimals || STANDARD_DECIMAL)
+    const multiplier = new BN(10).pow(new BN(diff))
+    const bfractions = new BN(fractions).mul(multiplier)
+    const v = Conversion.fromWei(bfractions, unit || 'ether')
+    return v
+  },
+
+  toBN: (numberLike) => {
+    if (typeof numberLike === 'string' && numberLike.startsWith('0x')) {
+      return new BN(numberLike.slice(2), 16)
+    }
+    if (typeof numberLike === 'number' && numberLike > 1e+14) {
+      return new BN(String(numberLike.toLocaleString('fullwide', { useGrouping: false })))
+    }
+    return new BN(numberLike)
+  },
+
+  formatNumber: (number, maxPrecision) => {
+    maxPrecision = maxPrecision || 4
+    number = parseFloat(number)
+    if (number < 10 ** (-maxPrecision)) {
+      return '0'
+    }
+    const order = Math.ceil(Math.log10(Math.max(number, 1)))
+    const digits = Math.max(0, maxPrecision - order)
+    // https://www.jacklmoore.com/notes/rounding-in-javascript/
+    const floored = Number(`${Math.floor(`${number}e+${digits}`)}e-${digits}`)
+    return floored.toString()
   },
 
 }
