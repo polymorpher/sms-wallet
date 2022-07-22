@@ -66,11 +66,9 @@ const Signup = () => {
   const [hash, setHash] = useState('')
   const [code, setCode] = useState('')
   const [countdown, setCountdown] = useState(0)
+  const [verifying, setVerifying] = useState(false)
 
-  const verify = async () => {
-    if (!(countdown <= 0)) {
-      return
-    }
+  const computeParameters = () => {
     const phoneBytes = utils.stringToBytes(phone)
     const combined = utils.bytesConcat(p, phoneBytes)
     const q = utils.keccak(combined)
@@ -79,6 +77,15 @@ const Signup = () => {
     const ekeyBytes = utils.encrypt(pk, p, iv)
     const ekey = utils.hexView(ekeyBytes)
     const address = apis.web3.getAddress(pk)
+    return { address, ekey, eseed }
+  }
+
+  const signup = async () => {
+    if (!(countdown <= 0)) {
+      return
+    }
+    setVerifying(true)
+    const { address, ekey, eseed } = computeParameters()
     try {
       const hash = await apis.server.signup({ phone, eseed, ekey, address })
       setHash(hash)
@@ -95,13 +102,39 @@ const Signup = () => {
     } catch (ex) {
       console.error(ex)
       NotificationManager.error('Signup error', ex.toString())
+    } finally {
+      setVerifying(false)
     }
   }
+  const verify = async () => {
+    const { address, ekey, eseed } = computeParameters()
+    const { signature } = apis.web3.web3.eth.accounts.sign(hash, utils.hexString(pk))
+    try {
+      setVerifying(true)
+      await apis.server.verify({ phone, address, ekey, eseed, code, signature })
+      NotificationManager.success('Signup successful')
+    } catch (ex) {
+      console.error(ex)
+      NotificationManager.error('Verification error', ex.toString())
+    } finally {
+      setCode('')
+      setVerifying(false)
+      setCountdown(0)
+    }
+  }
+
   const restart = () => {
     setPhone('')
     setCountdown(0)
     setHash('')
+    setCode('')
   }
+
+  useEffect(() => {
+    if (code?.length === 6 && !verifying) {
+      verify()
+    }
+  }, [code, verifying])
 
   return (
     <Main>
@@ -117,13 +150,13 @@ const Signup = () => {
             placeholder='Enter phone number'
             value={phone} onChange={setPhone}
           />
-          <Button onClick={verify}>Verify</Button>
+          <Button onClick={signup} disabled={verifying}>Verify</Button>
         </Desc>}
       {hash &&
         <Desc>
           <BaseText>Verify your 6-digit code</BaseText>
           <OtpBox value={code} onChange={setCode} />
-          <Button onClick={verify} disabled={!(countdown <= 0)}>Resend SMS</Button>
+          <Button onClick={signup} disabled={verifying || !(countdown <= 0)}>Resend SMS</Button>
           {countdown > 0 && <BaseText $color='#cccccc'>(wait {countdown}s)</BaseText>}
           <BaseText
             onClick={restart} style={{
