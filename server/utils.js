@@ -1,27 +1,12 @@
 const JSSHA = require('jssha')
-const createKeccakHash = require('keccak')
+const sharedUtils = require('../shared/utils')
+
+const { keccak, hexView, hexString } = sharedUtils
 
 const utils = {
-  /**
-   *
-   * @param {string | Buffer} bytes
-   * @returns {Uint8Array}
-   */
-  keccak: (bytes) => {
-    const k = createKeccakHash('keccak256')
-    // assume Buffer is poly-filled or loaded from https://github.com/feross/buffer
-    const hash = k.update(Buffer.from(bytes)).digest()
-    return new Uint8Array(hash)
-  },
-
-  hexView: (bytes) => {
-    return bytes && Array.from(bytes).map(x => x.toString(16).padStart(2, '0')).join('')
-  },
-
-  hexString: (bytes) => {
-    return '0x' + utils.hexView(bytes)
-  },
-
+  keccak,
+  hexView,
+  hexString,
   // from https://github.com/polymorpher/one-wallet
   // seed: uint8array
   genOTP: ({ seed, interval = 30000, counter = Math.floor(Date.now() / interval), n = 1, progressObserver }) => {
@@ -51,10 +36,14 @@ const utils = {
     return codes
   },
 
+  decodeOtp: (otp) => {
+    return new DataView(otp.buffer).getUint32(0, false)
+  },
+
   // from https://github.com/polymorpher/one-wallet
   genOTPStr: ({ seed, interval = 30000, counter = Math.floor(Date.now() / interval), n = 1 }) => {
     const otps = utils.genOTP({ seed, interval, counter, n })
-    const nums = new Array(6).fill(0).map((a, i) => new Uint8Array(otps.slice(i * 4, (i + 1) * 4))).map(utils.decodeOtp)
+    const nums = new Array(n).fill(0).map((a, i) => new Uint8Array(otps.slice(i * 4, (i + 1) * 4))).map(utils.decodeOtp)
     return nums.map(i => i.toString().padStart(6, '0'))
   },
 }
