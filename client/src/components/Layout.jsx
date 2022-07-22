@@ -21,3 +21,43 @@ export const Main = styled(FlexColumn)`
   width: 100%;
   align-items: center;
 `
+
+const ModalContainer = styled.div`
+  position: fixed;
+  z-index: ${props => props.$zIndex || 5};
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`
+const ModalShadow = styled.div`
+  //pointer-events: none;
+  opacity: 0.3;
+  position: fixed;
+  background: black;
+  width: 100%;
+  height: 100%;
+`
+
+const ModalBody = styled(FlexColumn)`
+  padding: 24px;
+  width: 100%;
+  height: auto;
+  background: white;
+  color: black;
+`
+
+export const Modal = ({ children, zIndex, visible, onCancel }) => {
+  if (!visible) {
+    return <></>
+  }
+  return (
+    <ModalContainer>
+      <ModalShadow onClick={onCancel} $zIndex={zIndex} />
+      <ModalBody>
+        {children}
+      </ModalBody>
+    </ModalContainer>
+  )
+}

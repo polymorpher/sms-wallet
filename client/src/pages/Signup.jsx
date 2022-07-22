@@ -5,28 +5,15 @@ import { FlexRow, Main } from '../components/Layout'
 import { Address, BaseText, Desc, Heading, Title } from '../components/Text'
 import { utils } from '../utils'
 import apis from '../api'
-import { NotificationManager } from 'react-notifications'
+import { toast } from 'react-toastify'
 import OtpBox from '../components/OtpBox'
-import { Button } from '../components/Controls'
+import { Button, Input } from '../components/Controls'
 import qrcode from 'qrcode'
 import html2canvas from 'html2canvas'
 import { useHistory } from 'react-router'
 import { useDispatch } from 'react-redux'
 import { walletActions } from '../state/modules/wallet'
 import paths from './paths'
-
-const Input = styled.input`
-  width: ${props => typeof props.width === 'number' ? `${props.width || 400}px` : (props.width || 'auto')};
-  margin-top: ${props => props.$marginTop || props.margin || '32px'};
-  margin-bottom: ${props => props.$marginBottom || props.margin || '32px'};
-  border: none;
-  border-bottom: 1px dashed black;
-  font-size: 16px;
-  padding: 4px;
-  &:hover{
-    border-bottom: 1px dashed black;
-  }
-`
 
 const QRImage = styled.img`
   border: 1px solid lightgrey;
@@ -84,10 +71,10 @@ const Signup = () => {
           clearInterval(h)
         }
       })
-      NotificationManager.success('SMS Sent', 'You will receive a 6-digit verification code')
+      toast.success('Verification SMS Sent')
     } catch (ex) {
       console.error(ex)
-      NotificationManager.error('Signup error', ex.toString())
+      toast.error('Signup error: ' + ex.toString())
     } finally {
       setVerifying(false)
     }
@@ -98,13 +85,13 @@ const Signup = () => {
     try {
       setVerifying(true)
       await apis.server.verify({ phone, address, ekey, eseed, code, signature })
-      NotificationManager.success('Signup successful')
+      toast.success('Signup successful')
       const restoreUri = utils.getRestoreUri(utils.hexView(p))
       const qr = await qrcode.toDataURL(restoreUri, { errorCorrectionLevel: 'low', width: 256 })
       setQrCodeData(qr)
     } catch (ex) {
       console.error(ex)
-      NotificationManager.error('Verification error', ex.toString())
+      toast.error('Verification error: ' + ex.toString())
     } finally {
       setCode('')
       setVerifying(false)
@@ -158,50 +145,59 @@ const Signup = () => {
   return (
     <Main>
       <Heading>SMS Wallet</Heading>
-      <Title> Create a new wallet </Title>
+
       {!hash &&
-        <Desc>
-          <BaseText>First, we need to verify your phone number via SMS</BaseText>
-          <PhoneInput
-            margin='16px'
-            inputComponent={Input}
-            defaultCountry='US'
-            placeholder='Enter phone number'
-            value={phone} onChange={setPhone}
-          />
-          <Button onClick={signup} disabled={verifying}>Verify</Button>
-        </Desc>}
+        <>
+          <Title> Create a new wallet </Title>
+          <Desc>
+            <BaseText>First, we need to verify your phone number via SMS</BaseText>
+            <PhoneInput
+              margin='16px'
+              inputComponent={Input}
+              defaultCountry='US'
+              placeholder='Enter phone number'
+              value={phone} onChange={setPhone}
+            />
+            <Button onClick={signup} disabled={verifying}>Verify</Button>
+          </Desc>
+        </>}
       {hash && !qrCodeData &&
-        <Desc>
-          <BaseText>Verify your 6-digit code</BaseText>
-          <OtpBox value={code} onChange={setCode} />
-          <Button onClick={signup} disabled={verifying || !(countdown <= 0)}>Resend SMS</Button>
-          {countdown > 0 && <BaseText $color='#cccccc'>(wait {countdown}s)</BaseText>}
-          <BaseText
-            onClick={restart} style={{
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              fontSize: 12,
-              marginTop: 32
-            }}
-          >
-            Use a different phone number
-          </BaseText>
-        </Desc>}
+        <>
+          <Title> Create a new wallet </Title>
+
+          <Desc>
+            <BaseText>Verify your 6-digit code</BaseText>
+            <OtpBox value={code} onChange={setCode} />
+            <Button onClick={signup} disabled={verifying || !(countdown <= 0)}>Resend SMS</Button>
+            {countdown > 0 && <BaseText $color='#cccccc'>(wait {countdown}s)</BaseText>}
+            <BaseText
+              onClick={restart} style={{
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                fontSize: 12,
+                marginTop: 32
+              }}
+            >
+              Use a different phone number
+            </BaseText>
+          </Desc>
+        </>}
       {hash && qrCodeData &&
-        <Desc ref={refQr}>
-          <BaseText style={{ textTransform: 'uppercase' }}>Save your recovery code</BaseText>
-          <BaseText>Scan or load this QR code to recover SMS Wallet on any device</BaseText>
-          <QRImage
-            src={qrCodeData}
-            onClick={saveQR}
-          />
-          <Address>{apis.web3.getAddress(pk)}</Address>
-          <FlexRow style={{ justifyContent: codeSaved ? 'space-between' : 'center', width: '100%' }}>
-            <Button onClick={saveQR}>Save Image</Button>
-            {codeSaved && <Button onClick={done}>Enter {' >>'}</Button>}
-          </FlexRow>
-        </Desc>}
+        <>
+          <Title>Save your recovery code </Title>
+          <Desc ref={refQr}>
+            <BaseText>Scan or load this QR code to recover SMS Wallet on any device</BaseText>
+            <QRImage
+              src={qrCodeData}
+              onClick={saveQR}
+            />
+            <Address>{apis.web3.getAddress(pk)}</Address>
+            <FlexRow style={{ justifyContent: codeSaved ? 'space-between' : 'center', width: '100%' }}>
+              <Button onClick={saveQR}>Save Image</Button>
+              {codeSaved && <Button onClick={done}>Enter {' >>'}</Button>}
+            </FlexRow>
+          </Desc>
+        </>}
     </Main>
   )
 }
