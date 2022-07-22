@@ -49,12 +49,12 @@ router.post('/signup', reqCheck, checkExistence, async (req, res) => {
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
   const hash = utils.hexView(utils.keccak(`${phoneNumber}${eseed}${ekey}${address}`))
   console.log('[Received]', { hash, phoneNumber, eseed, ekey })
-  const success = Cache.set(hash, { phoneNumber, seed, ekey, hash }, 120)
+  const success = Cache.set(hash, { phoneNumber, seed: utils.hexView(seed), ekey, hash }, 120)
   if (!success) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'please try again' })
   }
 
-  const code = utils.genOTPStr({ seed, interval: config.otp.interval })
+  const code = utils.genOTPStr({ seed, interval: config.otp.interval })[0]
   const message = await Twilio.messages.create({
     body: `SMS Wallet verification code: ${code}`,
     to: phoneNumber,
@@ -73,17 +73,19 @@ router.post('/verify', reqCheck, checkExistence, async (req, res) => {
   if (!cached) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'cannot find record' })
   }
-  if (!isEqual({ phoneNumber, seed, ekey, hash }, cached)) {
+  if (!isEqual({ phoneNumber, seed: utils.hexView(seed), ekey, hash }, cached)) {
+    console.log(cached, { phoneNumber, seed: utils.hexView(seed), ekey, hash })
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'record is inconsistent with cached' })
   }
 
-  const codeNow = utils.genOTPStr({ seed, interval: config.otp.interval })
+  const codeNow = utils.genOTPStr({ seed, interval: config.otp.interval })[0]
   const codePrev = utils.genOTPStr({
     seed,
     interval: config.otp.interval,
     counter: Math.floor(Date.now() / config.otp.interval) - 1
-  })
+  })[0]
   if (code !== codeNow && code !== codePrev) {
+    console.log({ code, codeNow, codePrev })
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'verification code incorrect' })
   }
   const recoveredAddress = w3utils.ecrecover(hash, signature)
@@ -111,7 +113,7 @@ router.post('/restore', reqCheck, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'credential with phone number does not exist' })
   }
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
-  const code = utils.genOTPStr({ seed, interval: config.otp.interval })
+  const code = utils.genOTPStr({ seed, interval: config.otp.interval })[0]
   const message = await Twilio.messages.create({
     body: `SMS Wallet verification code: ${code}`,
     to: phoneNumber,
@@ -132,12 +134,12 @@ router.post('/restore-verify', reqCheck, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'credential with phone number does not exist' })
   }
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
-  const codeNow = utils.genOTPStr({ seed, interval: config.otp.interval })
+  const codeNow = utils.genOTPStr({ seed, interval: config.otp.interval })[0]
   const codePrev = utils.genOTPStr({
     seed,
     interval: config.otp.interval,
     counter: Math.floor(Date.now() / config.otp.interval) - 1
-  })
+  })[0]
   if (code !== codeNow && code !== codePrev) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'verification code incorrect' })
   }
