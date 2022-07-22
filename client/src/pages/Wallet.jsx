@@ -83,7 +83,7 @@ const Wallet = () => {
       <Modal visible={sendModalVisible} onCancel={() => setSendModalVisible(false)}>
         <Row>
           <Label>To</Label>
-          <Input onChange={({ target: { value } }) => setTo(value)} value={to} margin='16px' style={{ fontSize: 10, flex: 1 }} />
+          <Input onChange={({ target: { value } }) => setTo(value)} value={to} margin='16px' style={{ fontSize: 11, flex: 1 }} />
         </Row>
         <Row>
           <Label>Amount</Label>
