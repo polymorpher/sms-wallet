@@ -7,6 +7,7 @@ import { utils } from '../utils'
 import apis from '../api'
 import { NotificationManager } from 'react-notifications'
 import OtpBox from '../components/OtpBox'
+import { Button } from '../components/Controls'
 
 const Main = styled(FlexColumn)`
   gap: 32px;
@@ -15,6 +16,7 @@ const Main = styled(FlexColumn)`
 `
 
 const Heading = styled.div`
+  text-transform: uppercase;
   padding: 16px;
   background: black;
   color: white;
@@ -39,18 +41,6 @@ const Desc = styled.div`
   gap: 16px;
 `
 
-const Button = styled.div`
-  width: 128px;
-  color: white;
-  background: black;
-  padding: 8px 16px;
-  text-align: center;
-  &:hover{
-    color: #dddddd;
-    background: #444444;
-    cursor: pointer;
-  }
-`
 const Input = styled.input`
   width: ${props => typeof props.width === 'number' ? `${props.width || 400}px` : (props.width || 'auto')};
   margin-top: ${props => props.$marginTop || props.margin || '32px'};
@@ -75,8 +65,12 @@ const Signup = () => {
   const [p, setP] = useState(randomSeed())
   const [hash, setHash] = useState('')
   const [code, setCode] = useState('')
+  const [countdown, setCountdown] = useState(0)
 
   const verify = async () => {
+    if (!(countdown <= 0)) {
+      return
+    }
     const phoneBytes = utils.stringToBytes(phone)
     const combined = utils.bytesConcat(p, phoneBytes)
     const q = utils.keccak(combined)
@@ -88,10 +82,25 @@ const Signup = () => {
     try {
       const hash = await apis.server.signup({ phone, eseed, ekey, address })
       setHash(hash)
+      const submissionTime = Date.now()
+      setCountdown(120)
+      const h = setInterval(() => {
+        const cd = Math.max(0, Math.floor((submissionTime + 120000 - Date.now()) / 1000))
+        setCountdown(cd)
+        if (cd <= 0) {
+          clearInterval(h)
+        }
+      })
+      NotificationManager.success('SMS Sent', 'You will receive a 6-digit verification code')
     } catch (ex) {
       console.error(ex)
       NotificationManager.error('Signup error', ex.toString())
     }
+  }
+  const restart = () => {
+    setPhone('')
+    setCountdown(0)
+    setHash('')
   }
 
   return (
@@ -114,6 +123,18 @@ const Signup = () => {
         <Desc>
           <BaseText>Verify your 6-digit code</BaseText>
           <OtpBox value={code} onChange={setCode} />
+          <Button onClick={verify} disabled={!(countdown <= 0)}>Resend SMS</Button>
+          {countdown > 0 && <BaseText $color='#cccccc'>(wait {countdown}s)</BaseText>}
+          <BaseText
+            onClick={restart} style={{
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              fontSize: 12,
+              marginTop: 32
+            }}
+          >
+            Use a different phone number
+          </BaseText>
         </Desc>}
     </Main>
   )
