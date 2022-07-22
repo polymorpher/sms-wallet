@@ -1,7 +1,8 @@
 import AES from 'aes-js'
 import sharedUtils from '../../shared/utils'
 import { useState, useEffect } from 'react'
-
+import config from './config'
+import paths from './pages/paths'
 export const utils = {
   ...sharedUtils,
   /**
@@ -19,6 +20,9 @@ export const utils = {
     // eslint-disable-next-line new-cap
     const aes = new AES.ModeOfOperation.cbc(encryptionKey, iv)
     return aes.decrypt(encryptedContent)
+  },
+  getRestoreUri: (p) => {
+    return `https://${config.rootUrl}${paths.recover}?p=${p}`
   }
 }
 
