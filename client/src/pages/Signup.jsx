@@ -174,7 +174,7 @@ const Signup = () => {
     element.click()
     URL.revokeObjectURL(element.href)
     setCodeSaved(true)
-    dispatch(walletActions.updateWallet({ address, pk, eseed }))
+    dispatch(walletActions.updateWallet({ address, pk: utils.hexView(pk), eseed }))
   }
 
   const done = () => {
