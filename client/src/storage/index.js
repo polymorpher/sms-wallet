@@ -5,7 +5,7 @@ const storage = localforage.createInstance({
   name: config.appId,
   driver: localforage.INDEXEDDB,
   version: 1.0,
-  storeName: 'ONEWalletStorage',
+  storeName: 'SMSWalletStorage',
 })
 
 export default storage

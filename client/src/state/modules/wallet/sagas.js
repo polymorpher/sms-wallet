@@ -3,17 +3,17 @@ import walletActions from './actions'
 import balanceActions from '../balance/actions'
 import api from '../../../api'
 
-function * handleFetchWallet (action) {
-  try {
-    const { address } = action.payload
-    const wallet = yield call(api.blockchain.getWallet, { address })
-    yield all([
-      put(walletActions.fetchWalletSuccess({ ...wallet })),
-    ])
-  } catch (err) {
-    console.error(err)
-  }
-}
+// function * handleFetchWallet (action) {
+//   try {
+//     const { address } = action.payload
+//     const wallet = yield call(api.blockchain.getWallet, { address })
+//     yield all([
+//       put(walletActions.fetchWalletSuccess({ ...wallet })),
+//     ])
+//   } catch (err) {
+//     console.error(err)
+//   }
+// }
 
 function * handleDeleteWallet (action) {
   yield all([
@@ -23,7 +23,7 @@ function * handleDeleteWallet (action) {
 
 function * walletSagas () {
   yield all([
-    takeEvery(walletActions.fetchWallet().type, handleFetchWallet),
+    // takeEvery(walletActions.fetchWallet().type, handleFetchWallet),
     takeEvery(walletActions.deleteWallet().type, handleDeleteWallet),
   ])
 }

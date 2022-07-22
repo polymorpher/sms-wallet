@@ -14,22 +14,22 @@ function * handleFetchBalance (action) {
   }
 }
 
-function * handleFetchTokenBalance (action) {
-  try {
-    const { address, contractAddress, tokenType, tokenId, key } = action.payload
-    const balance = yield call(api.blockchain.tokenBalance, { contractAddress, tokenType, tokenId, address })
-    yield all([
-      put(balanceActions.fetchTokenBalanceSuccess({ address, key, balance: balance.toString() })),
-    ])
-  } catch (err) {
-    console.error(err)
-  }
-}
+// function * handleFetchTokenBalance (action) {
+//   try {
+//     const { address, contractAddress, tokenType, tokenId, key } = action.payload
+//     const balance = yield call(api.blockchain.tokenBalance, { contractAddress, tokenType, tokenId, address })
+//     yield all([
+//       put(balanceActions.fetchTokenBalanceSuccess({ address, key, balance: balance.toString() })),
+//     ])
+//   } catch (err) {
+//     console.error(err)
+//   }
+// }
 
 function * balanceSagas () {
   yield all([
     takeEvery(balanceActions.fetchBalance().type, handleFetchBalance),
-    takeEvery(balanceActions.fetchTokenBalance().type, handleFetchTokenBalance),
+    // takeEvery(balanceActions.fetchTokenBalance().type, handleFetchTokenBalance),
   ])
 }
 
