@@ -14,12 +14,12 @@ const OtpBox = ({ onChange, value, inputStyle, containerStyle, numOnly = true, a
       isInputNum={numOnly}
       containerStyle={{
         flexWrap: 'wrap',
-        gap: '5px',
+        gap: '4px',
         ...containerStyle
       }}
       inputStyle={{
-        width: isMobile ? 40 : 32,
-        height: isMobile ? 40 : 32,
+        width: isMobile ? 32 : 40,
+        height: isMobile ? 32 : 40,
         borderRadius: 8,
         borderWidth: 1,
         fontSize: 16,
