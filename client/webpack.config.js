@@ -8,7 +8,7 @@ const Dotenv = require('dotenv-webpack')
 
 module.exports = {
   devServer: {
-    port: 3000,
+    port: 3100,
     https: true,
     http2: true,
     historyApiFallback: true,
@@ -104,8 +104,9 @@ module.exports = {
     modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
     extensions: ['.jsx', '.js'],
     fallback: {
+      url: require.resolve('url'),
+      assert: require.resolve('assert'),
       stream: require.resolve('stream-browserify'),
-      // TODO: remove later, after web3 is removed from dependency (for ethereum compatibility)
       http: require.resolve('stream-http'),
       fs: false,
       os: require.resolve('os-browserify/browser'),
@@ -117,12 +118,11 @@ module.exports = {
     new Dotenv(),
     new webpack.EnvironmentPlugin({
       PUBLIC_URL: '',
-      NETWORK: '',
-      SERVER: '',
       SERVER_SECRET: 'onewallet',
       DEBUG: false,
       ROOT_URL: '',
     }),
+
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
     }),
