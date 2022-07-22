@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 
 export const BaseText = styled.div`
+  color: ${props => props.$color || 'inherit'};
   font-size: 16px;
 `
 
