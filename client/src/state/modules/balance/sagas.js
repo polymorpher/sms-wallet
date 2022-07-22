@@ -5,9 +5,9 @@ import api from '../../../api'
 function * handleFetchBalance (action) {
   try {
     const { address } = action.payload
-    const balance = yield call(api.blockchain.getBalance, { address })
+    const balanceBN = yield call(api.blockchain.getBalance, { address })
     yield all([
-      put(balanceActions.fetchBalanceSuccess({ address, balance })),
+      put(balanceActions.fetchBalanceSuccess({ address, balance: balanceBN.toString() })),
     ])
   } catch (err) {
     console.error(err)
