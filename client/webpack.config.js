@@ -5,6 +5,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 // const CopyWebpackPlugin = require('copy-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 module.exports = {
   devServer: {
@@ -104,21 +105,28 @@ module.exports = {
     modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
     extensions: ['.jsx', '.js'],
     fallback: {
-      url: require.resolve('url'),
-      assert: require.resolve('assert'),
+      // url: require.resolve('url'),
+      // assert: require.resolve('assert'),
+      // stream: require.resolve('stream-browserify'),
+      // http: require.resolve('stream-http'),
+      // os: require.resolve('os-browserify/browser'),
+      // https: require.resolve('https-browserify'),
+      // crypto: require.resolve('crypto-browserify')
+      crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
+      assert: require.resolve('assert'),
       http: require.resolve('stream-http'),
-      fs: false,
-      os: require.resolve('os-browserify/browser'),
       https: require.resolve('https-browserify'),
-      crypto: require.resolve('crypto-browserify')
+      os: require.resolve('os-browserify'),
+      url: require.resolve('url')
     }
   },
   plugins: [
+    // new NodePolyfillPlugin(),
     new Dotenv(),
     new webpack.EnvironmentPlugin({
       PUBLIC_URL: '',
-      SERVER_SECRET: 'onewallet',
+      SERVER_SECRET: 'smswallet',
       DEBUG: false,
       ROOT_URL: '',
     }),
