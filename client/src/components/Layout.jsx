@@ -14,3 +14,10 @@ export const FlexColumn = styled.div`
   user-select: none;
   position: relative;
 `
+
+export const Main = styled(FlexColumn)`
+  min-height: 100vh;
+  gap: 32px;
+  width: 100%;
+  align-items: center;
+`

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import PhoneInput from 'react-phone-number-input'
 import styled from 'styled-components'
-import { FlexColumn, FlexRow } from '../components/Layout'
-import { BaseText, Title } from '../components/Text'
+import { FlexRow, Main } from '../components/Layout'
+import { Address, BaseText, Desc, Heading, Title } from '../components/Text'
 import { utils } from '../utils'
 import apis from '../api'
 import { NotificationManager } from 'react-notifications'
@@ -14,38 +14,6 @@ import { useHistory } from 'react-router'
 import { useDispatch } from 'react-redux'
 import { walletActions } from '../state/modules/wallet'
 import paths from './paths'
-
-const Main = styled(FlexColumn)`
-  gap: 32px;
-  width: 100%;
-  align-items: center;
-`
-
-const Heading = styled.div`
-  text-transform: uppercase;
-  padding: 16px;
-  background: black;
-  color: white;
-  //position: fixed;
-  height: 32px;
-  font-size: 24px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-`
-
-const Desc = styled.div`
-  box-sizing: border-box;
-  padding: 16px;
-  color: black;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 16px;
-`
 
 const Input = styled.input`
   width: ${props => typeof props.width === 'number' ? `${props.width || 400}px` : (props.width || 'auto')};
@@ -78,8 +46,8 @@ const Signup = () => {
   const history = useHistory()
   const dispatch = useDispatch()
   const [phone, setPhone] = useState()
-  const [pk, setPk] = useState(randomSeed())
-  const [p, setP] = useState(randomSeed())
+  const [pk] = useState(randomSeed())
+  const [p] = useState(randomSeed())
   const [hash, setHash] = useState('1')
   const [code, setCode] = useState('')
   const [countdown, setCountdown] = useState(0)
@@ -228,7 +196,7 @@ const Signup = () => {
             src={qrCodeData}
             onClick={saveQR}
           />
-          <BaseText style={{ wordBreak: 'break-word', padding: '8px 32px' }}>{apis.web3.getAddress(pk)}</BaseText>
+          <Address>{apis.web3.getAddress(pk)}</Address>
           <FlexRow style={{ justifyContent: codeSaved ? 'space-between' : 'center', width: '100%' }}>
             <Button onClick={saveQR}>Save Image</Button>
             {codeSaved && <Button onClick={done}>Enter {' >>'}</Button>}
