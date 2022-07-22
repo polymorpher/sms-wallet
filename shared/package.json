@@ -1,0 +1,9 @@
+{
+  "name": "sms-wallet-lib",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "keccak": "^3.0.2",
+    "lodash": "^4.17.21"
+  }
+}
