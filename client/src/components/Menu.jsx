@@ -9,7 +9,7 @@ export const MenuIconContainer = styled.div`
   align-items: end;
   height: 100%;
 `
-export const MenuIconImg = styled.img`
+export const IconImg = styled.img`
   height: 24px;
   cursor: pointer;
   object-fit: contain;

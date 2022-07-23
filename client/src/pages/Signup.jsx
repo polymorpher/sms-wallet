@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PhoneInput from 'react-phone-number-input'
 import { Main } from '../components/Layout'
-import { BaseText, Desc, Heading, Title } from '../components/Text'
+import { BaseText, Desc, Heading, LinkText, Title } from '../components/Text'
 import { processError, utils } from '../utils'
 import apis from '../api'
 import { toast } from 'react-toastify'
@@ -120,6 +120,9 @@ const Signup = () => {
               value={phone} onChange={setPhone}
             />
             <Button onClick={signup} disabled={verifying}>Verify</Button>
+            <LinkText onClick={() => history.push(paths.recover)}>
+              Recover an existing SMS Wallet
+            </LinkText>
           </Desc>
         </>}
       {hash && !qrCodeData &&
@@ -130,16 +133,9 @@ const Signup = () => {
             <OtpBox value={code} onChange={setCode} />
             <Button onClick={signup} disabled={verifying || !(countdown <= 0)}>Resend SMS</Button>
             {countdown > 0 && <BaseText $color='#cccccc'>(wait {countdown}s)</BaseText>}
-            <BaseText
-              onClick={restart} style={{
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                fontSize: 12,
-                marginTop: 32
-              }}
-            >
+            <LinkText onClick={restart}>
               Use a different phone number
-            </BaseText>
+            </LinkText>
           </Desc>
         </>}
       {hash && qrCodeData &&
