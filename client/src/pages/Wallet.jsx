@@ -5,10 +5,9 @@ import paths from './paths'
 import { Address, BaseText, Desc, Gallery, Heading, Label, Title } from '../components/Text'
 import { Col, FlexColumn, FlexRow, Main, Modal, Row } from '../components/Layout'
 import { utils } from '../utils'
-// import { useHistory } from 'react-router'
+
 import { balanceActions } from '../state/modules/balance'
 import { Button, Input, LinkWrarpper } from '../components/Controls'
-import styled from 'styled-components'
 import { toast } from 'react-toastify'
 import BN from 'bn.js'
 import apis from '../api'
@@ -117,7 +116,7 @@ const Wallet = () => {
         </Col>
       </Modal>
       <Gallery style={{ flex: '100%' }}>
-        <BaseText style={{ fontSize: 20, textTransform: 'uppercase' }}>NFT Gallary</BaseText>
+        <BaseText style={{ fontSize: 20, textTransform: 'uppercase' }}>NFT Gallery</BaseText>
         <FlexColumn style={{ justifyContent: 'center', flex: '100%' }}>
           <FlexRow style={{ justifyContent: 'center', width: '100%' }}>
             <BaseText>COMING SOON</BaseText>

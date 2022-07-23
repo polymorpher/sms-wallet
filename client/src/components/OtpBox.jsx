@@ -18,8 +18,8 @@ const OtpBox = ({ onChange, value, inputStyle, containerStyle, numOnly = true, a
         ...containerStyle
       }}
       inputStyle={{
-        width: isMobile ? 32 : 40,
-        height: isMobile ? 32 : 40,
+        width: isMobile ? 24 : 40,
+        height: isMobile ? 24 : 40,
         borderRadius: 8,
         borderWidth: 1,
         fontSize: 16,
