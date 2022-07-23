@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { BaseText, Desc, Heading, LinkText, Title } from '../components/Text'
 import { Main } from '../components/Layout'
 import QrCodeScanner from '../components/QrCodeScanner'
@@ -9,7 +9,10 @@ import { Button, Input } from '../components/Controls'
 import { processError, utils } from '../utils'
 import apis from '../api'
 import OtpBox from '../components/OtpBox'
-import { useEffect } from '@types/react'
+import { walletActions } from '../state/modules/wallet'
+import { useDispatch } from 'react-redux'
+import paths from './paths'
+import { useHistory } from 'react-router'
 const processRecoverData = (d) => {
   try {
     const q = qs.parseUrl(d)
@@ -20,9 +23,10 @@ const processRecoverData = (d) => {
   }
 }
 const Recover = () => {
+  const history = useHistory()
+  const dispatch = useDispatch()
   const [p, setP] = useState()
   const [phone, setPhone] = useState('')
-  const [pk, setPk] = useState('')
   const [restoring, setRestoring] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [readyForCode, setReadyForCode] = useState(false)
@@ -40,7 +44,7 @@ const Recover = () => {
     }
     const p = utils.hexStringToBytes(pStr)
     setP(p)
-    console.log(pStr)
+    // console.log(pStr)
   }
   const restore = async () => {
     if (!(countdown <= 0)) {
@@ -48,7 +52,7 @@ const Recover = () => {
     }
     setRestoring(true)
     const { eseed } = utils.computeParameters({ phone, p })
-    console.log({ phone, eseed })
+    // console.log({ phone, eseed })
     try {
       await apis.server.restore({ phone, eseed })
       setReadyForCode(true)
@@ -77,7 +81,31 @@ const Recover = () => {
   }
 
   const restoreVerify = async () => {
-
+    setVerifying(true)
+    const { eseed } = utils.computeParameters({ phone, p })
+    try {
+      const { ekey, address } = await apis.server.restoreVerify({ phone, eseed, code })
+      // console.log({ ekey, address })
+      const q = utils.hexStringToBytes(eseed)
+      const iv = q.slice(0, 16)
+      const pk = utils.decrypt(utils.hexStringToBytes(ekey), p, iv)
+      const derivedAddress = apis.web3.getAddress(pk)
+      if (address.toLowerCase() !== derivedAddress.toLowerCase()) {
+        console.error(address, derivedAddress)
+        toast.error(`Address mismatch ${address} ${derivedAddress}`)
+        return
+      }
+      toast.success(`Recovered wallet ${derivedAddress}`)
+      dispatch(walletActions.updateWallet({ phone, address: derivedAddress, pk: utils.hexView(pk), eseed }))
+      setTimeout(() => history.push(paths.wallet), 1000)
+    } catch (ex) {
+      console.error(ex)
+      toast.error(`Error: ${processError(ex)}`)
+    } finally {
+      setCode('')
+      setVerifying(false)
+      setCountdown(0)
+    }
   }
 
   useEffect(() => {
@@ -85,7 +113,6 @@ const Recover = () => {
       restoreVerify()
     }
   }, [code, verifying])
-
 
   return (
     <Main>
