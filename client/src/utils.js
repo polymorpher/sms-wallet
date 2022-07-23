@@ -3,6 +3,7 @@ import sharedUtils from '../../shared/utils'
 import { useState, useEffect } from 'react'
 import config from './config'
 import paths from './pages/paths'
+import apis from './api'
 export const utils = {
   ...sharedUtils,
   /**
@@ -68,6 +69,18 @@ export const utils = {
     }
     return { balance, formatted, fiat, fiatFormatted, valid: true }
   },
+
+  computeParameters: ({ phone, p, pk }) => {
+    const phoneBytes = utils.stringToBytes(phone)
+    const combined = utils.bytesConcat(p, phoneBytes)
+    const q = utils.keccak(combined)
+    const iv = q.slice(0, 16)
+    const eseed = utils.hexView(q)
+    const ekeyBytes = utils.encrypt(pk, p, iv)
+    const ekey = utils.hexView(ekeyBytes)
+    const address = apis.web3.getAddress(pk)
+    return { address, ekey, eseed }
+  }
 }
 
 export function getWindowDimensions () {
