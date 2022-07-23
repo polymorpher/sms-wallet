@@ -17,17 +17,29 @@ router.get('/health', async (req, res) => {
   res.send('OK').end()
 })
 
-const reqCheck = async (req, res, next) => {
-  const { phone: unvalidatedPhone, eseed, ekey, address } = req.body
+const partialReqCheck = async (req, res, next) => {
+  const { phone: unvalidatedPhone, eseed } = req.body
   const { isValid, phoneNumber } = phone(unvalidatedPhone)
   if (!isValid) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
   }
-  if (!(eseed?.length >= 32) || !ekey || !address) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need address, eseed, ekey' })
+  if (!(eseed?.length >= 32)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid eseed' })
   }
-  req.processedBody = { phoneNumber, eseed: eseed.toLowerCase(), ekey: ekey.toLowerCase(), address: address.toLowerCase() }
+  req.processedBody = { ...req.processedBody, phoneNumber, eseed: eseed.toLowerCase() }
   next()
+}
+
+const reqCheck = async (req, res, next) => {
+  return partialReqCheck(req, res, () => {
+    const { ekey, address } = req.body
+
+    if (!ekey || !address) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need eseed, ekey' })
+    }
+    req.processedBody = { ...req.processedBody, ekey: ekey.toLowerCase(), address: address.toLowerCase() }
+    next()
+  })
 }
 
 const checkExistence = async (req, res, next) => {
@@ -103,13 +115,13 @@ router.post('/verify', reqCheck, checkExistence, async (req, res) => {
   res.json({ success: true })
 })
 
-router.post('/restore', reqCheck, async (req, res) => {
+router.post('/restore', partialReqCheck, async (req, res) => {
   const { phoneNumber, eseed } = req.processedBody
   const u = await User.findByPhone({ phone: phoneNumber })
   if (!u) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number is not registered' })
   }
-  if (!isEqual(pick(u, ['phoneNumber', 'eseed']), { phoneNumber, eseed })) {
+  if (!isEqual(pick(u, ['phone', 'eseed']), { phone: phoneNumber, eseed })) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'credential with phone number does not exist' })
   }
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
@@ -123,7 +135,7 @@ router.post('/restore', reqCheck, async (req, res) => {
   res.json({ success: true })
 })
 
-router.post('/restore-verify', reqCheck, async (req, res) => {
+router.post('/restore-verify', partialReqCheck, async (req, res) => {
   const { phoneNumber, eseed } = req.processedBody
   const { code } = req.body
   const u = await User.findByPhone({ phone: phoneNumber })
