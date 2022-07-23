@@ -142,7 +142,7 @@ router.post('/restore-verify', partialReqCheck, async (req, res) => {
   if (!u) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number is not registered' })
   }
-  if (!isEqual(pick(u, ['phoneNumber', 'eseed']), { phoneNumber, eseed })) {
+  if (!isEqual(pick(u, ['phone', 'eseed']), { phone: phoneNumber, eseed })) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'credential with phone number does not exist' })
   }
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
