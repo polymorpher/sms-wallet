@@ -73,7 +73,7 @@ const apis = {
       return success
     },
     restoreVerify: async ({ phone, eseed, code }) => {
-      const { data } = await apiBase.post('/restore', { phone, eseed, code })
+      const { data } = await apiBase.post('/restore-verify', { phone, eseed, code })
       const { ekey, address } = data
       return { ekey, address }
     }
