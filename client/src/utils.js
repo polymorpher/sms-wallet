@@ -120,3 +120,17 @@ export function processError (ex) {
   }
   return ex.toString()
 }
+
+export const getDataURLFromFile = (img) => new Promise((resolve) => {
+  const reader = new FileReader()
+  reader.addEventListener('load', () => resolve(reader.result))
+  reader.readAsDataURL(img)
+})
+
+export const getTextFromFile = file =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.addEventListener('load', () => resolve(reader.result))
+    reader.addEventListener('error', () => reject(reader.error))
+    reader.readAsText(file)
+  })
