@@ -74,8 +74,11 @@ export const utils = {
     const phoneBytes = utils.stringToBytes(phone)
     const combined = utils.bytesConcat(p, phoneBytes)
     const q = utils.keccak(combined)
-    const iv = q.slice(0, 16)
     const eseed = utils.hexView(q)
+    if (!pk) {
+      return { eseed }
+    }
+    const iv = q.slice(0, 16)
     const ekeyBytes = utils.encrypt(pk, p, iv)
     const ekey = utils.hexView(ekeyBytes)
     const address = apis.web3.getAddress(pk)
