@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import PhoneInput from 'react-phone-number-input'
-import styled from 'styled-components'
-import { FlexRow, Main } from '../components/Layout'
-import { Address, BaseText, Desc, Heading, Title } from '../components/Text'
-import { utils } from '../utils'
+import { Main } from '../components/Layout'
+import { BaseText, Desc, Heading, Title } from '../components/Text'
+import { processError, utils } from '../utils'
 import apis from '../api'
 import { toast } from 'react-toastify'
 import OtpBox from '../components/OtpBox'
 import { Button, Input } from '../components/Controls'
 import qrcode from 'qrcode'
-import html2canvas from 'html2canvas'
 import { useHistory } from 'react-router'
 import { useDispatch } from 'react-redux'
 import { walletActions } from '../state/modules/wallet'
@@ -54,8 +52,8 @@ const Signup = () => {
       })
       toast.success('Verification SMS Sent')
     } catch (ex) {
-      console.error(ex)
-      toast.error('Signup error: ' + ex.toString())
+      console.dir(ex)
+      toast.error('Error: ' + processError(ex))
     } finally {
       setVerifying(false)
     }
@@ -73,7 +71,7 @@ const Signup = () => {
       setQrCodeData(qr)
     } catch (ex) {
       console.error(ex)
-      toast.error('Verification error: ' + ex.toString())
+      toast.error('Verification error: ' + processError(ex))
     } finally {
       setCode('')
       setVerifying(false)

@@ -26,7 +26,7 @@ export const utils = {
     return `${config.rootUrl}${paths.recover}?p=${p}`
   },
   getExplorerUri: (txHash) => {
-    return config.explorer.replace('{{tx}}', txHash)
+    return config.explorer.replace('{{txId}}', txHash)
   },
   validBalance: (balance, allowFloat) => {
     if (typeof balance === 'number') { return true }
@@ -105,4 +105,18 @@ export function useWindowDimensions () {
   }, [])
 
   return { isMobile, ...windowDimensions }
+}
+
+export function processError (ex) {
+  const { data } = ex?.response || {}
+  if (data?.error) {
+    return data.error
+  }
+  if (typeof data === 'object') {
+    return JSON.stringify(data)
+  }
+  if (data) {
+    return data
+  }
+  return ex.toString()
 }
