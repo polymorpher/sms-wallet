@@ -26,7 +26,7 @@ export const Heading = styled.div`
   padding: 16px;
   background: black;
   color: white;
-  height: 56px;
+  //height: 56px;
   font-size: 24px;
   display: flex;
   justify-content: center;
