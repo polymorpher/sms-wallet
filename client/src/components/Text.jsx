@@ -22,10 +22,11 @@ export const Title = styled.div`
 
 export const Heading = styled.div`
   text-transform: uppercase;
+  box-sizing: border-box;
   padding: 16px;
   background: black;
   color: white;
-  height: 32px;
+  height: 56px;
   font-size: 24px;
   display: flex;
   justify-content: center;
