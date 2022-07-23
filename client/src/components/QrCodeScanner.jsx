@@ -7,7 +7,7 @@ import QrIcon from '../../assets/qr.svg'
 import jsQR from 'jsqr'
 import { Button } from './Controls'
 import { IconImg } from './Menu'
-import { FlexRow, Row } from './Layout'
+import { Row } from './Layout'
 import Upload from 'rc-upload'
 import Select from 'react-select'
 import { BaseText } from './Text'
@@ -79,16 +79,6 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
 
     image.src = uri
   })
-
-  const onQrcodeChange = async (info) => {
-    if (info.file.status === 'uploading') {
-      setQrCodeImageUploading(true)
-    }
-
-    if (info.file.status === 'done') {
-
-    }
-  }
 
   const beforeUpload = async (file) => {
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'

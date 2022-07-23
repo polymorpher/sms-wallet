@@ -52,7 +52,7 @@ const Signup = () => {
       })
       toast.success('Verification SMS Sent')
     } catch (ex) {
-      console.dir(ex)
+      console.error(ex)
       toast.error('Error: ' + processError(ex))
     } finally {
       setVerifying(false)
