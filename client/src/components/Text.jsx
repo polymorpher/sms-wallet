@@ -56,3 +56,10 @@ export const Gallery = styled.div`
   background: black;
   color: white;
 `
+
+export const LinkText = styled(BaseText)`
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 32px;
+`
