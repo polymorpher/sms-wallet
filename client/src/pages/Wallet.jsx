@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import paths from './paths'
 import { Address, BaseText, Desc, Gallery, Heading, Label, Title } from '../components/Text'
-import { FlexColumn, FlexRow, Main, Modal } from '../components/Layout'
+import { Col, FlexColumn, FlexRow, Main, Modal, Row } from '../components/Layout'
 import { utils } from '../utils'
 // import { useHistory } from 'react-router'
 import { balanceActions } from '../state/modules/balance'
@@ -12,20 +12,9 @@ import styled from 'styled-components'
 import { toast } from 'react-toastify'
 import BN from 'bn.js'
 import apis from '../api'
-import { MenuIconContainer, MenuIconImg, MenuItemLink, MenuItems } from '../components/Menu'
+import { MenuIconContainer, IconImg, MenuItemLink, MenuItems } from '../components/Menu'
 import MenuIcon from '../../assets/menu.svg'
 import { walletActions } from '../state/modules/wallet'
-
-const Row = styled(FlexRow)`
-  align-items: center;
-  width: 100%;
-  gap: 16px;
-`
-
-const Col = styled(FlexColumn)`
-  width: 100%;
-  gap: 16px;
-`
 
 const Wallet = () => {
   // const history = useHistory()
@@ -90,7 +79,7 @@ const Wallet = () => {
       <Heading style={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>SMS Wallet</div>
         <MenuIconContainer $expanded={menuVisible}>
-          <MenuIconImg onClick={() => setMenuVisible(!menuVisible)} src={MenuIcon} />
+          <IconImg onClick={() => setMenuVisible(!menuVisible)} src={MenuIcon} />
           {menuVisible &&
             <MenuItems>
               <MenuItemLink onClick={() => { window.location.reload() }}>{wallet[address].phone}</MenuItemLink>

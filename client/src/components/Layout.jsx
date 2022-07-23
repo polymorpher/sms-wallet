@@ -15,6 +15,17 @@ export const FlexColumn = styled.div`
   position: relative;
 `
 
+export const Row = styled(FlexRow)`
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+`
+
+export const Col = styled(FlexColumn)`
+  width: 100%;
+  gap: 16px;
+`
+
 export const Main = styled(FlexColumn)`
   min-height: 100vh;
   gap: 32px;
