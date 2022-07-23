@@ -64,7 +64,7 @@ const Wallet = () => {
     toast.info('Submitting transaction...')
     apis.web3.changeAccount(pk)
     const { transactionHash } = await apis.web3.web3.eth.sendTransaction({ value, from: address, to, gas: 21000 })
-    console.log('done', transactionHash)
+    // console.log('done', transactionHash)
     toast.info(<><BaseText>Done! <LinkWrarpper href={utils.getExplorerUri(transactionHash)}>View transaction</LinkWrarpper></BaseText></>)
     setSendModalVisible(false)
     dispatch(balanceActions.fetchBalance({ address }))
