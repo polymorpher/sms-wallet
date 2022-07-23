@@ -12,9 +12,17 @@ import styled from 'styled-components'
 import { toast } from 'react-toastify'
 import BN from 'bn.js'
 import apis from '../api'
+import { MenuIconContainer, MenuIconImg, MenuItemLink, MenuItems } from '../components/Menu'
+import MenuIcon from '../../assets/menu.svg'
+import { walletActions } from '../state/modules/wallet'
 
 const Row = styled(FlexRow)`
   align-items: center;
+  width: 100%;
+  gap: 16px;
+`
+
+const Col = styled(FlexColumn)`
   width: 100%;
   gap: 16px;
 `
@@ -29,14 +37,10 @@ const Wallet = () => {
   const [to, setTo] = useState('')
   const [amount, setAmount] = useState('')
   const [sendModalVisible, setSendModalVisible] = useState(false)
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false)
+  const [menuVisible, setMenuVisible] = useState(false)
 
   const { formatted } = utils.computeBalance(balance)
-  console.log(balance, formatted)
-
-  const pk = wallet[address]?.pk
-  if (!pk) {
-    return <Redirect to={paths.signup} />
-  }
   useEffect(() => {
     const h = setInterval(() => {
       dispatch(balanceActions.fetchBalance({ address }))
@@ -45,6 +49,12 @@ const Wallet = () => {
       clearInterval(h)
     }
   }, [])
+
+  const pk = wallet[address]?.pk
+  if (!pk) {
+    return <Redirect to={paths.signup} />
+  }
+
   const send = async () => {
     const { balance } = utils.toBalance(amount)
     const value = balance?.toString()
@@ -70,9 +80,24 @@ const Wallet = () => {
     setSendModalVisible(false)
     dispatch(balanceActions.fetchBalance({ address }))
   }
+  const logout = () => {
+    dispatch(walletActions.deleteWallet(address))
+    setLogoutModalVisible(false)
+    setMenuVisible(false)
+  }
   return (
     <Main style={{ gap: 24 }}>
-      <Heading>SMS Wallet</Heading>
+      <Heading style={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>SMS Wallet</div>
+        <MenuIconContainer $expanded={menuVisible}>
+          <MenuIconImg onClick={() => setMenuVisible(!menuVisible)} src={MenuIcon} />
+          {menuVisible &&
+            <MenuItems>
+              <MenuItemLink onClick={() => { window.location.reload() }}>{wallet[address].phone}</MenuItemLink>
+              <MenuItemLink onClick={() => setLogoutModalVisible(true)}>Logout</MenuItemLink>
+            </MenuItems>}
+        </MenuIconContainer>
+      </Heading>
       <Title style={{ margin: 16 }}> Your Wallet </Title>
       <Desc>
         <Address>{address}</Address>
@@ -94,6 +119,13 @@ const Wallet = () => {
         <Row style={{ justifyContent: 'center', marginTop: 16 }}>
           <Button onClick={send}>Confirm</Button>
         </Row>
+      </Modal>
+      <Modal visible={logoutModalVisible} onCancel={() => setLogoutModalVisible(false)}>
+        <Col>
+          <BaseText>This will delete all data. To restore your wallet, you need to use the Recovery QR Code and to verify your phone number again</BaseText>
+          <BaseText>Are you sure?</BaseText>
+          <Row style={{ justifyContent: 'flex-end' }}><Button onClick={logout}>CONFIRM</Button></Row>
+        </Col>
       </Modal>
       <Gallery style={{ flex: '100%' }}>
         <BaseText style={{ fontSize: 20, textTransform: 'uppercase' }}>NFT Gallary</BaseText>
