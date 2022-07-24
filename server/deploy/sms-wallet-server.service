@@ -1,14 +1,14 @@
 [Unit]
-Description=ONE Wallet Relayer
-Documentation=https://github.com/polymorpher/one-wallet/
+Description=SMS Wallet Server
+Documentation=https://github.com/polymorpher/sms-wallet/
 After=network.target
 
 [Service]
 Environment=PORT=80 HTTPS_PORT=443
 Type=simple
 User=ubuntu
-WorkingDirectory=/home/ubuntu/one-wallet/code/relayer
-ExecStart=/usr/bin/node /home/ubuntu/one-wallet/code/relayer/bin/run.js
+WorkingDirectory=/home/polymorpher/sms-wallet/server
+ExecStart=/usr/bin/node /home/polymorpher/sms-wallet/server/bin/run.js
 Restart=on-failure
 
 [Install]
