@@ -31,6 +31,9 @@ const Wallet = () => {
 
   const { formatted } = utils.computeBalance(balance)
   useEffect(() => {
+    if (!address) {
+      return
+    }
     dispatch(balanceActions.fetchBalance({ address }))
     const h = setInterval(() => {
       dispatch(balanceActions.fetchBalance({ address }))
@@ -38,7 +41,7 @@ const Wallet = () => {
     return () => {
       clearInterval(h)
     }
-  }, [])
+  }, [address])
 
   const pk = wallet[address]?.pk
   if (!pk) {
