@@ -6,7 +6,7 @@ After=network.target
 [Service]
 Environment=PORT=80 HTTPS_PORT=443
 Type=simple
-User=ubuntu
+User=polymorpher
 WorkingDirectory=/home/polymorpher/sms-wallet/server
 ExecStart=/usr/bin/node /home/polymorpher/sms-wallet/server/bin/run.js
 Restart=on-failure
