@@ -4,7 +4,7 @@ import { Redirect } from 'react-router-dom'
 import paths from './paths'
 import { Address, BaseText, Desc, Gallery, Heading, Label, Title } from '../components/Text'
 import { Col, FlexColumn, FlexRow, Main, Modal, Row } from '../components/Layout'
-import { utils } from '../utils'
+import { processError, utils } from '../utils'
 
 import { balanceActions } from '../state/modules/balance'
 import { Button, Input, LinkWrarpper } from '../components/Controls'
@@ -14,6 +14,7 @@ import apis from '../api'
 import { MenuIconContainer, IconImg, MenuItemLink, MenuItems } from '../components/Menu'
 import MenuIcon from '../../assets/menu.svg'
 import { walletActions } from '../state/modules/wallet'
+import config from '../config'
 
 const Wallet = () => {
   // const history = useHistory()
@@ -30,6 +31,7 @@ const Wallet = () => {
 
   const { formatted } = utils.computeBalance(balance)
   useEffect(() => {
+    dispatch(balanceActions.fetchBalance({ address }))
     const h = setInterval(() => {
       dispatch(balanceActions.fetchBalance({ address }))
     }, 5000)
@@ -62,11 +64,22 @@ const Wallet = () => {
     }
     toast.info('Submitting transaction...')
     apis.web3.changeAccount(pk)
-    const { transactionHash } = await apis.web3.web3.eth.sendTransaction({ value, from: address, to, gas: 21000 })
-    // console.log('done', transactionHash)
-    toast.info(<><BaseText>Done! <LinkWrarpper href={utils.getExplorerUri(transactionHash)}>View transaction</LinkWrarpper></BaseText></>)
-    setSendModalVisible(false)
-    dispatch(balanceActions.fetchBalance({ address }))
+    try {
+      const { transactionHash } = await apis.web3.web3.eth.sendTransaction({ value, from: address, to, gas: 21000 })
+      // console.log('done', transactionHash)
+      toast.success(
+        <FlexRow>
+          <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
+          <LinkWrarpper target='_blank' href={utils.getExplorerUri(transactionHash)}>
+            <BaseText>View transaction</BaseText>
+          </LinkWrarpper>
+        </FlexRow>)
+      setSendModalVisible(false)
+      dispatch(balanceActions.fetchBalance({ address }))
+    } catch (ex) {
+      console.error(ex)
+      toast.error(`Error: ${processError(ex)}`)
+    }
   }
   const logout = () => {
     dispatch(walletActions.deleteWallet(address))
@@ -95,7 +108,7 @@ const Wallet = () => {
       <Modal visible={sendModalVisible} onCancel={() => setSendModalVisible(false)}>
         <Row>
           <Label>To</Label>
-          <Input onChange={({ target: { value } }) => setTo(value)} value={to} margin='16px' style={{ fontSize: 11, flex: 1 }} />
+          <Input onChange={({ target: { value } }) => setTo(value)} value={to} margin='16px' style={{ fontSize: 10, flex: 1 }} />
         </Row>
         <Row>
           <Label>Amount</Label>

@@ -67,13 +67,18 @@ router.post('/signup', reqCheck, checkExistence, async (req, res) => {
   }
 
   const code = utils.genOTPStr({ seed, interval: config.otp.interval })[0]
-  const message = await Twilio.messages.create({
-    body: `SMS Wallet verification code: ${code}`,
-    to: phoneNumber,
-    from: config.twilio.from
-  })
-  console.log('[Text]', code, message)
-  res.json({ hash })
+  try {
+    const message = await Twilio.messages.create({
+      body: `SMS Wallet verification code: ${code}`,
+      to: phoneNumber,
+      from: config.twilio.from
+    })
+    console.log('[Text]', code, message)
+    res.json({ hash })
+  } catch (ex) {
+    console.error(ex)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
+  }
 })
 
 router.post('/verify', reqCheck, checkExistence, async (req, res) => {
@@ -126,13 +131,18 @@ router.post('/restore', partialReqCheck, async (req, res) => {
   }
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
   const code = utils.genOTPStr({ seed, interval: config.otp.interval })[0]
-  const message = await Twilio.messages.create({
-    body: `SMS Wallet verification code: ${code}`,
-    to: phoneNumber,
-    from: config.twilio.from
-  })
-  console.log('[Text][Restore]', code, message)
-  res.json({ success: true })
+  try {
+    const message = await Twilio.messages.create({
+      body: `SMS Wallet verification code: ${code}`,
+      to: phoneNumber,
+      from: config.twilio.from
+    })
+    console.log('[Text][Restore]', code, message)
+    res.json({ success: true })
+  } catch (ex) {
+    console.error(ex)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
+  }
 })
 
 router.post('/restore-verify', partialReqCheck, async (req, res) => {

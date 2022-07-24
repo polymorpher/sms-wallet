@@ -31,6 +31,7 @@ const Routes = () => {
       <Switch>
         {/* <Route exact path='/' render={() => <Landing />} /> */}
         <Route exact path={paths.root} render={() => <Wallet />} />
+        <Route path={paths.wallet} render={() => <Wallet />} />
         <Route path={paths.signup} render={() => <Signup />} />
         <Route path={paths.recover} render={() => <Recover />} />
         <Redirect to={paths.root} />

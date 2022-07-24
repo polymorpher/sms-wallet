@@ -9,6 +9,7 @@ const config = {
     // gateway: process.env.IPFS_GATEWAY || 'https://gateway.pinata.cloud/ipfs/{{hash}}'
     // gateway: process.env.IPFS_GATEWAY || 'https://1wallet.mypinata.cloud/ipfs/{{hash}}'
   },
+  gasPrice: process.env.GAS_PRICE || 1000,
   rpc: process.env.RPC || 'https://api.s0.t.hmny.io',
   rootUrl: process.env.ROOT_URL || 'https://smswallet.xyz',
   explorer: process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
