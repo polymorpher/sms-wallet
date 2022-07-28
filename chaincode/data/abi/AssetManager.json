@@ -3,6 +3,7 @@
   "event AuthorizationFailed(address,uint256,uint256,string)",
   "event AuthorizationSuccesful(address,uint256,uint256)",
   "event DepositSuccesful(address,uint256,uint256)",
+  "event OwnershipTransferred(address indexed,address indexed)",
   "event SendFailed(address,address,uint256,uint256,uint256,string)",
   "event SendSuccesful(address,address,uint256,uint256,uint256)",
   "event WithdrawalFailed(address,uint256,uint256,string)",
@@ -11,7 +12,10 @@
   "function deposit() payable",
   "function getUserAuthorization(address) view returns (uint256)",
   "function getUserBalance(address) view returns (uint256)",
+  "function owner() view returns (address)",
+  "function renounceOwnership()",
   "function send(uint256,address,address)",
+  "function transferOwnership(address)",
   "function userAuthorizations(address) view returns (uint256)",
   "function userBalances(address) view returns (uint256)",
   "function withdraw(uint256) payable"

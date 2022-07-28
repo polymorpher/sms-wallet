@@ -5,7 +5,7 @@ pragma solidity ^0.8.9;
 // import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract AssetManager {
+contract AssetManager is Ownable {
     event DepositSuccesful(address user, uint256 amount, uint256 balance);
     // event DepositFailed(
     //     address depositor,
@@ -124,7 +124,7 @@ contract AssetManager {
             balance
         );
     }
-    function send(uint256 amount, address from, address to) public {
+    function send(uint256 amount, address from, address to) public onlyOwner() {
         uint256 balance =  userBalances[from];
         uint256 limit = userAuthorizations[from];
         require (amount != 0);

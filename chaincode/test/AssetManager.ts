@@ -29,7 +29,7 @@ describe("AssetManager", function () {
     // wait until the transaction is mined
     await tx.wait();
 
-    await checkBalance(alice, "9998.999919813051422810");
+    await checkBalance(alice, "9998.999919798403062629");
     await checkBalance(bob, "10000");
     await checkContractBalance(provider, assetManager, "1");
 
@@ -43,7 +43,7 @@ describe("AssetManager", function () {
     tx = await assetManager.connect(alice).authorize(ONE_ETH);
     // wait until the transaction is mined
     await tx.wait();
-    await checkBalance(alice, "9998.999838753692861129");
+    await checkBalance(alice, "9998.999838578338450628");
     await checkBalance(bob, "10000");
     await checkContractBalance(provider, assetManager, "1");
 
@@ -60,7 +60,7 @@ describe("AssetManager", function () {
 
     tx = await assetManager.connect(alice).withdraw(0);
     await tx.wait();
-    await checkBalance(alice, "9999.999782476930737945");
+    await checkBalance(alice, "9999.999782301289414870");
     await checkBalance(bob, "10000");
     await checkContractBalance(provider, assetManager, "0");
 
@@ -78,7 +78,7 @@ describe("AssetManager", function () {
     tx = await assetManager.connect(alice).authorize(ONE_ETH);
     await tx.wait();
     // wait until the transaction is mined
-    await checkBalance(alice, "9998.999643461293778967");
+    await checkBalance(alice, "9998.999643153536715376");
     await checkBalance(bob, "10000");
     await checkContractBalance(provider, assetManager, "1");
 
@@ -91,7 +91,7 @@ describe("AssetManager", function () {
 
     tx = await assetManager.send(ONE_ETH, alice.address, bob.address);
     await tx.wait();
-    await checkBalance(alice, "9998.999643461293778967");
+    await checkBalance(alice, "9998.999643153536715376");
     await checkBalance(bob, "10001");
     await checkContractBalance(provider, assetManager, "0");
 
