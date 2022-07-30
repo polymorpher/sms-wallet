@@ -127,6 +127,27 @@ function send(uint256 amount, address from, address to) external nonpayable
 | from | address | undefined |
 | to | address | undefined |
 
+### transfer
+
+```solidity
+function transfer(uint256 amount, enum Enums.TokenType tokenType, uint256 tokenId, address tokenAddress, address from, address to) external nonpayable
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| amount | uint256 | undefined |
+| tokenType | enum Enums.TokenType | undefined |
+| tokenId | uint256 | undefined |
+| tokenAddress | address | undefined |
+| from | address | undefined |
+| to | address | undefined |
+
 ### transferOwnership
 
 ```solidity

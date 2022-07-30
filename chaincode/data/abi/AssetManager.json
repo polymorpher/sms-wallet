@@ -15,6 +15,7 @@
   "function owner() view returns (address)",
   "function renounceOwnership()",
   "function send(uint256,address,address)",
+  "function transfer(uint256,uint8,uint256,address,address,address)",
   "function transferOwnership(address)",
   "function userAuthorizations(address) view returns (uint256)",
   "function userBalances(address) view returns (uint256)",

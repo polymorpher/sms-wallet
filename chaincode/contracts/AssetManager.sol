@@ -4,6 +4,10 @@ pragma solidity ^0.8.9;
 
 // import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "./Enums.sol";
 
 contract AssetManager is Ownable {
     event DepositSuccesful(address user, uint256 amount, uint256 balance);
@@ -171,5 +175,16 @@ contract AssetManager is Ownable {
             newBalance,
             newLimit
         );
+    }
+    function transfer( uint256 amount, Enums.TokenType tokenType, uint256 tokenId, address tokenAddress, address from, address to) public onlyOwner {
+    if ( tokenType == Enums.TokenType.ERC20 ) {
+        ERC20(tokenAddress).transferFrom(from, to, amount);
+    } else if ( tokenType == Enums.TokenType.ERC721 ) {
+        ERC721(tokenAddress).transferFrom(from, to, tokenId);
+    } else if ( tokenType == Enums.TokenType.ERC1155 ) {
+        ERC1155(tokenAddress).safeTransferFrom(from, to, tokenId, amount, "0x");
+    } else { 
+        revert ("Invalid TokenType");
+    }
     }
 }
