@@ -15,7 +15,7 @@
         "check": "npx hardhat check",
         "compile": "npx hardhat compile",
         "coverage": "npx hardhat coverage",
-        "deploy": "npx hardhat run scripts/deploy.ts",
+        "deploy": "npx hardhat deploy",
         "flat": "npx hardhat flatten ./contracts/AssetManager.sol >> ./flat/AssetManager.sol",
         "gas": "REPORT_GAS=true npx hardhat test",
         "test": "npx hardhat test"

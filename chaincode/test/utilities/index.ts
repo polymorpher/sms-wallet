@@ -21,7 +21,7 @@ export async function prepare(thisObject: Mocha.Context, contracts: string[]) {
   }
   thisObject.signers = await ethers.getSigners();
   thisObject.deployer = thisObject.signers[0];
-  thisObject.administrator = thisObject.signers[1];
+  thisObject.operator = thisObject.signers[1];
   thisObject.alice = thisObject.signers[2];
   thisObject.bob = thisObject.signers[3];
   thisObject.carol = thisObject.signers[4];

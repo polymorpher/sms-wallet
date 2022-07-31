@@ -12,7 +12,7 @@ const Constants = require("./utilities/constants");
 
 const ONE_ETH = ethers.utils.parseEther("1");
 
-let snapshotId: string;
+// let snapshotId: string;
 
 describe("AssetManager", function (this) {
   before(async function (this) {
@@ -21,7 +21,9 @@ describe("AssetManager", function (this) {
 
   beforeEach(async function (this) {
     this.snapshotId = await waffle.provider.send("evm_snapshot", []);
-    await deploy(this, [["assetManager", this.AssetManager, []]]);
+    await deploy(this, [
+      ["assetManager", this.AssetManager, [this.operator.address]],
+    ]);
   });
 
   afterEach(async function (this) {
@@ -42,46 +44,46 @@ describe("AssetManager", function (this) {
       });
       await tx.wait();
 
-      await checkBalance(this.alice, "9998.999919798403062629");
+      await checkBalance(this.alice, "9998.999919519792992250");
       await checkBalance(this.bob, "10000");
       await checkContractBalance(provider, this.assetManager, "1");
 
+      expect(await this.assetManager.userBalances(this.alice.address)).to.equal(
+        ethers.utils.parseEther("1.0")
+      );
       expect(
-        await this.assetManager.getUserBalance(this.alice.address)
-      ).to.equal(ethers.utils.parseEther("1.0"));
-      expect(
-        await this.assetManager.getUserAuthorization(this.alice.address)
+        await this.assetManager.userAuthorizations(this.alice.address)
       ).to.equal(ethers.utils.parseEther("0.0"));
 
       tx = await this.assetManager.connect(this.alice).authorize(ONE_ETH);
       // wait until the transaction is mined
       await tx.wait();
-      await checkBalance(this.alice, "9998.999838578338450628");
+      await checkBalance(this.alice, "9998.999838293810907798");
       await checkBalance(this.bob, "10000");
       await checkContractBalance(provider, this.assetManager, "1");
 
+      expect(await this.assetManager.userBalances(this.alice.address)).to.equal(
+        ethers.utils.parseEther("1.0")
+      );
       expect(
-        await this.assetManager.getUserBalance(this.alice.address)
-      ).to.equal(ethers.utils.parseEther("1.0"));
-      expect(
-        await this.assetManager.getUserAuthorization(this.alice.address)
+        await this.assetManager.userAuthorizations(this.alice.address)
       ).to.equal(ethers.utils.parseEther("1.0"));
 
       expect(
-        await this.assetManager.getUserAuthorization(this.alice.address)
+        await this.assetManager.userAuthorizations(this.alice.address)
       ).to.equal(ethers.utils.parseEther("1.0"));
 
       tx = await this.assetManager.connect(this.alice).withdraw(0);
       await tx.wait();
-      await checkBalance(this.alice, "9999.999782301289414870");
+      await checkBalance(this.alice, "9999.999781874383170818");
       await checkBalance(this.bob, "10000");
       await checkContractBalance(provider, this.assetManager, "0");
 
+      expect(await this.assetManager.userBalances(this.alice.address)).to.equal(
+        ethers.utils.parseEther("0.0")
+      );
       expect(
-        await this.assetManager.getUserBalance(this.alice.address)
-      ).to.equal(ethers.utils.parseEther("0.0"));
-      expect(
-        await this.assetManager.getUserAuthorization(this.alice.address)
+        await this.assetManager.userAuthorizations(this.alice.address)
       ).to.equal(ethers.utils.parseEther("0.0"));
 
       tx = await this.assetManager.connect(this.alice).deposit({
@@ -91,32 +93,30 @@ describe("AssetManager", function (this) {
       tx = await this.assetManager.connect(this.alice).authorize(ONE_ETH);
       await tx.wait();
       // wait until the transaction is mined
-      await checkBalance(this.alice, "9998.999643153536715376");
+      await checkBalance(this.alice, "9998.999642525544373548");
       await checkBalance(this.bob, "10000");
       await checkContractBalance(provider, this.assetManager, "1");
 
+      expect(await this.assetManager.userBalances(this.alice.address)).to.equal(
+        ethers.utils.parseEther("1.0")
+      );
       expect(
-        await this.assetManager.getUserBalance(this.alice.address)
-      ).to.equal(ethers.utils.parseEther("1.0"));
-      expect(
-        await this.assetManager.getUserAuthorization(this.alice.address)
+        await this.assetManager.userAuthorizations(this.alice.address)
       ).to.equal(ethers.utils.parseEther("1.0"));
 
-      tx = await this.assetManager.send(
-        ONE_ETH,
-        this.alice.address,
-        this.bob.address
-      );
+      tx = await this.assetManager
+        .connect(this.operator)
+        .send(ONE_ETH, this.alice.address, this.bob.address);
       await tx.wait();
-      await checkBalance(this.alice, "9998.999643153536715376");
+      await checkBalance(this.alice, "9998.999642525544373548");
       await checkBalance(this.bob, "10001");
       await checkContractBalance(provider, this.assetManager, "0");
 
+      expect(await this.assetManager.userBalances(this.alice.address)).to.equal(
+        ethers.utils.parseEther("0.0")
+      );
       expect(
-        await this.assetManager.getUserBalance(this.alice.address)
-      ).to.equal(ethers.utils.parseEther("0.0"));
-      expect(
-        await this.assetManager.getUserAuthorization(this.alice.address)
+        await this.assetManager.userAuthorizations(this.alice.address)
       ).to.equal(ethers.utils.parseEther("0.0"));
     });
 
@@ -157,9 +157,9 @@ describe("AssetManager", function (this) {
           this.deployer.address
         )}`
       );
-      // Deployer Sends 50 to Bob
+      // Operator Sends 3 to Bob
       tx = await this.assetManager
-        .connect(this.deployer)
+        .connect(this.operator)
         .transfer(
           BigNumber.from("3"),
           Constants.TokenType.ERC20,
