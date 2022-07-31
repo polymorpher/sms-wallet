@@ -34,6 +34,21 @@ contract AssetManager is Ownable {
         uint256 limit,
         string reason
     );
+    event TransferSuccesful(uint256 amount,
+        Enums.TokenType tokenType,
+        uint256 tokenId, 
+        address tokenAddress, 
+        address indexed from, 
+        address indexed to);
+    error TransferFailed(
+        uint256 amount,
+        Enums.TokenType tokenType,
+        uint256 tokenId, 
+        address tokenAddress, 
+        address from, 
+        address to,
+        string reason
+    );
 
     address private _operator;
     mapping(address => uint256) public userBalances;
@@ -184,13 +199,36 @@ contract AssetManager is Ownable {
     }
     function transfer( uint256 amount, Enums.TokenType tokenType, uint256 tokenId, address tokenAddress, address from, address to) public onlyOperator {
     if ( tokenType == Enums.TokenType.ERC20 ) {
-        ERC20(tokenAddress).transferFrom(from, to, amount);
+        bool success = ERC20(tokenAddress).transferFrom(from, to, amount);
+        if (success) {
+            emit TransferSuccesful(amount, tokenType, tokenId, tokenAddress, from, to);
+        } else {
+            revert TransferFailed(
+            amount,
+            tokenType,
+            tokenId,
+            tokenAddress,
+            from,
+            to,
+            "Invalid tokenType "
+            );
+        }
     } else if ( tokenType == Enums.TokenType.ERC721 ) {
-        ERC721(tokenAddress).safeTransferFrom(from, to, tokenId);
+       ERC721(tokenAddress).safeTransferFrom(from, to, tokenId);
+        emit TransferSuccesful(amount, tokenType, tokenId, tokenAddress, from, to);
     } else if ( tokenType == Enums.TokenType.ERC1155 ) {
         ERC1155(tokenAddress).safeTransferFrom(from, to, tokenId, amount, "");
+        emit TransferSuccesful(amount, tokenType, tokenId, tokenAddress, from, to);
     } else { 
-        revert ("Invalid TokenType");
+        revert TransferFailed(
+            amount,
+            tokenType,
+            tokenId,
+            tokenAddress,
+            from,
+            to,
+            "Invalid tokenType "
+            );
     }
     }
 }
