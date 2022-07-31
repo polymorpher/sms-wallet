@@ -11,6 +11,14 @@ const utils = {
       return null
     }
   },
+  isValidAddress: (address) => {
+    try {
+      return web3.utils.isAddress(address)
+    } catch (ex) {
+      console.error(ex)
+      return false
+    }
+  }
 
 }
 
