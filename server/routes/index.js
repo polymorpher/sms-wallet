@@ -11,6 +11,8 @@ const utils = require('../utils')
 const { User } = require('../src/data/user')
 const { isEqual, pick } = require('lodash')
 const w3utils = require('../w3utils')
+const stringify = require('json-stringify-deterministic')
+const { Setting } = require('../src/data/setting')
 
 router.get('/health', async (req, res) => {
   Logger.log('[/health]', req.fingerprint)
@@ -166,6 +168,56 @@ router.post('/restore-verify', partialReqCheck, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'verification code incorrect' })
   }
   res.json({ ekey: u.ekey, address: u.address })
+})
+
+// allows an existing user to lookup another user's address by their phone number, iff the phone number exists and the target user does not choose to hide its phone-address mapping (under `hide` parameter in settings)
+router.post('/lookup', async (req, res) => {
+  const { address, signature, destPhone } = req.body
+  if (!address || !signature || !destPhone) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'require address, signature, destPhone' })
+  }
+  if (!w3utils.isValidAddress(address)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
+  }
+  const { isValid, phoneNumber } = phone(destPhone)
+  if (!isValid) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
+  }
+  const expectedAddress = w3utils.ecrecover(phoneNumber, signature)
+  if (expectedAddress !== address) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
+  }
+  const u = await User.findByPhone({ phone: phoneNumber })
+  if (!u) {
+    return res.json({ address: '' })
+  }
+  const s = await Setting.get(u.id)
+  if (!s || s.hide) {
+    return res.json({ address: '' })
+  }
+  return res.json({ address: u.address })
+})
+
+// this allows a user to retrieve or update its current config. For retrieval, just pass in an empty object for `newConfig`
+// we may want to impose stronger security requirement on this, once we have some sensitive configurations. Right now the only configuration is `hide`, which determines whether another user can look up this user's address by its phone number.
+router.post('/settings', async (req, res) => {
+  const { address, signature, newConfig } = req.body
+  const msg = stringify(newConfig)
+  const expectedAddress = w3utils.ecrecover(msg, signature)
+  if (!address || !expectedAddress || address !== expectedAddress) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
+  }
+  const filteredNewConfig = pick(['hide'], newConfig)
+  const u = await User.findByAddress({ address })
+  if (!u) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'user does not exist' })
+  }
+  const isUpdate = Object.keys(filteredNewConfig).length >= 0
+  if (isUpdate) {
+    const newSetting = await Setting.update(u.id, { ...filteredNewConfig })
+    return res.json(newSetting)
+  }
+  return Setting.get(u.id)
 })
 
 // router
