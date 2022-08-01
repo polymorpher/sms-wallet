@@ -4,12 +4,13 @@ import { Redirect, useHistory } from 'react-router'
 import paths from './paths'
 import MainContainer from '../components/Container'
 import querystring from 'query-string'
-import { BaseText, Desc, DescLeft, Hint, SmallText, Title } from '../components/Text'
+import { Address, BaseText, Desc, DescLeft, Hint, SmallText, Title } from '../components/Text'
 import { Button, CancelButton, LinkWrarpper } from '../components/Controls'
 import apis from '../api'
 import { toast } from 'react-toastify'
 import { Col, Row } from '../components/Layout'
 import { utils } from '../utils'
+import { pick } from 'lodash'
 
 const decodeCalldata = (calldataB64Encoded) => {
   const calldataDecoded = Buffer.from(calldataB64Encoded || '', 'base64')
@@ -113,7 +114,8 @@ const ApproveTransaction = () => {
         <Hint>Tips: Apps often make contract calls to transfer assets, such as NFTs and tokens, or to perform custom actions. Make sure you trust this app.</Hint>
       </DescLeft>
       <DescLeft>
-        <BaseText>Contract: {dest}</BaseText>
+        <BaseText>Contract: </BaseText>
+        <Address>{dest}</Address>
         {!showDetails && <LinkWrarpper href='#' onClick={() => setShowDetails(true)}>Show Technical Details</LinkWrarpper>}
         {showDetails &&
           <>
@@ -127,8 +129,9 @@ const ApproveTransaction = () => {
               : (
                 <>
                   <SmallText>Method: {calldata.method}</SmallText>
+                  <SmallText>Parameters:</SmallText>
                   {(calldata.parameters || []).map((p, i) => {
-                    return <SmallText key={`${i}`}>Name: {p.name} Value: {p.value} {p.type && `Type: ${p.type}`}</SmallText>
+                    return <SmallText style={{ wordBreak: 'break-all' }} key={`${i}`}>{JSON.stringify(pick(p, ['name', 'value', 'type']))}</SmallText>
                   })}
                 </>)}
           </>}

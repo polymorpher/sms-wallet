@@ -51,6 +51,7 @@ export const Desc = styled.div`
 
 export const DescLeft = styled(Desc)`
   text-align: left;
+  align-items: start;
 `
 
 export const Gallery = styled.div`
