@@ -54,7 +54,7 @@ const SignMessage = () => {
       const returnUrl = new URL(callback)
       returnUrl.searchParams.append('error', 'cancelled')
       returnUrl.searchParams.append('cancelled', 'true')
-      toast.success(`Signing complete. Returning to app at ${returnUrl.hostname}`)
+      toast.info(`Signing cancelled. Returning to app at ${returnUrl.hostname}`)
       setTimeout(() => { location.href = callback.href }, 1000)
     } catch (ex) {
       console.error(ex)
