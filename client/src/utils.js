@@ -93,6 +93,13 @@ export const utils = {
     }
     return address.slice(0, 6) + '...' + address.slice(address.length - 3, address.length)
   },
+  safeURL: (callback) => {
+    try {
+      return new URL(callback)
+    } catch (ex) {
+      return null
+    }
+  }
 }
 
 export function getWindowDimensions () {

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React from 'react'
+import { useSelector } from 'react-redux'
 import { Redirect, useHistory } from 'react-router'
 import paths from './paths'
 import MainContainer from '../components/Container'
@@ -9,20 +9,14 @@ import { Button, CancelButton } from '../components/Controls'
 import apis from '../api'
 import { toast } from 'react-toastify'
 import { Row } from '../components/Layout'
+import { utils } from '../utils'
 
-const safeURL = (callback) => {
-  try {
-    return new URL(callback)
-  } catch (ex) {
-    return null
-  }
-}
 const SignMessage = () => {
   const history = useHistory()
   const wallet = useSelector(state => state.wallet || {})
   const address = Object.keys(wallet)[0]
   const qs = querystring.parse(location.search)
-  const callback = safeURL(qs.callback && Buffer.from(qs.callback, 'base64').toString())
+  const callback = utils.safeURL(qs.callback && Buffer.from(qs.callback, 'base64').toString())
   const { caller, message, comment } = qs
 
   const pk = wallet[address]?.pk
@@ -46,6 +40,7 @@ const SignMessage = () => {
       const returnUrl = new URL(callback)
       returnUrl.searchParams.append('signature', sig.signature)
       returnUrl.searchParams.append('messageHash', sig.messageHash)
+      returnUrl.searchParams.append('address', address)
       toast.success(`Signing complete. Returning to app at ${returnUrl.hostname}`)
       setTimeout(() => { location.href = returnUrl.href }, 1000)
     } catch (ex) {
