@@ -4,6 +4,9 @@ export const BaseText = styled.div`
   color: ${props => props.$color || 'inherit'};
   font-size: 16px;
 `
+export const SmallText = styled(BaseText)`
+  font-size: 12px;
+`
 export const Label = styled(BaseText)`
   width: ${props => props.$width || '64px'}
 `

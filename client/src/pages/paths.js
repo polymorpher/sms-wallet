@@ -6,4 +6,5 @@ export default {
   wallet: base + '/wallet',
   recover: base + '/recover',
   sign: base + '/sign',
+  call: base + '/call',
 }
