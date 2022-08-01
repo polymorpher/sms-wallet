@@ -35,6 +35,11 @@ export async function deploy(thisObject: Mocha.Context, contracts: any[][]) {
   }
 }
 
+export async function getTxCost(txHash: string | Promise<string>) {
+  const receipt = await ethers.provider.getTransactionReceipt(txHash);
+  return BigNumber.from(receipt.effectiveGasPrice.mul(receipt.gasUsed));
+}
+
 export async function checkBalance(
   account: SignerWithAddress,
   balance: string
