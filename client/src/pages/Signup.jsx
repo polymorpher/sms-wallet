@@ -13,6 +13,7 @@ import { useDispatch } from 'react-redux'
 import { walletActions } from '../state/modules/wallet'
 import paths from './paths'
 import SaveQR from './SaveQR'
+import MainContainer from '../components/Container'
 
 const randomSeed = () => {
   const otpSeedBuffer = new Uint8Array(32)
@@ -102,11 +103,7 @@ const Signup = () => {
   }, [code, verifying])
 
   return (
-    <Main>
-      <Heading>
-        <div>SMS Wallet</div>
-      </Heading>
-
+    <MainContainer>
       {!hash &&
         <>
           <Title> Create a new wallet </Title>
@@ -142,7 +139,7 @@ const Signup = () => {
         <>
           <SaveQR onSaveQR={onSaveQR} onDone={done} qrCodeData={qrCodeData} address={address} />
         </>}
-    </Main>
+    </MainContainer>
   )
 }
 

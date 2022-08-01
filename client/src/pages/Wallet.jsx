@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import paths from './paths'
-import { Address, BaseText, Desc, Gallery, Heading, Label, Title } from '../components/Text'
-import { Col, FlexColumn, FlexRow, Main, Modal, Row } from '../components/Layout'
+import { Address, BaseText, Desc, Gallery, Label} from '../components/Text'
+import { FlexColumn, FlexRow, Modal, Row } from '../components/Layout'
 import { processError, utils } from '../utils'
 
 import { balanceActions } from '../state/modules/balance'
@@ -11,13 +11,10 @@ import { Button, Input, LinkWrarpper } from '../components/Controls'
 import { toast } from 'react-toastify'
 import BN from 'bn.js'
 import apis from '../api'
-import { MenuIconContainer, IconImg, MenuItemLink, MenuItems } from '../components/Menu'
-import MenuIcon from '../../assets/menu.svg'
-import { walletActions } from '../state/modules/wallet'
-import config from '../config'
 import PhoneInput from 'react-phone-number-input'
 import styled from 'styled-components'
 import { TailSpin } from 'react-loading-icons'
+import MainContainer from '../components/Container'
 
 const FloatingSwitch = styled(LinkWrarpper)`
   position: absolute;
@@ -37,8 +34,6 @@ const Wallet = () => {
   const [to, setTo] = useState('')
   const [amount, setAmount] = useState('')
   const [sendModalVisible, setSendModalVisible] = useState(false)
-  const [logoutModalVisible, setLogoutModalVisible] = useState(false)
-  const [menuVisible, setMenuVisible] = useState(false)
   const [phone, setPhone] = useState('')
   const [isAddressInput, setIsAddressInput] = useState(false)
   const [isSending, setIsSending] = useState(false)
@@ -127,36 +122,21 @@ const Wallet = () => {
       setIsSending(false)
     }
   }
-  const logout = () => {
-    dispatch(walletActions.deleteWallet(address))
-    setLogoutModalVisible(false)
-    setMenuVisible(false)
-  }
 
   return (
-    <Main style={{ gap: 24 }}>
-      <Heading style={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>SMS Wallet</div>
-        <MenuIconContainer $expanded={menuVisible}>
-          <IconImg onClick={() => setMenuVisible(!menuVisible)} src={MenuIcon} />
-          {menuVisible &&
-            <MenuItems>
-              <MenuItemLink onClick={() => { window.location.reload() }}>{wallet[address].phone}</MenuItemLink>
-              <MenuItemLink onClick={() => setLogoutModalVisible(true)}>Logout</MenuItemLink>
-            </MenuItems>}
-        </MenuIconContainer>
-      </Heading>
+    <MainContainer withMenu>
       <Desc style={{ padding: 0 }}>
         <Address>{wallet[address]?.phone}</Address>
         <Address onClick={() => {
           setShowFullAddress(!showFullAddress)
           navigator.clipboard.writeText(address)
-          toast.info(<FlexRow>
-            <BaseText style={{ marginRight: 8 }}>Copied address!</BaseText>
-            <LinkWrarpper target='_blank' href={utils.getExplorerHistoryUri(address)}>
-              <BaseText>View wallet history</BaseText>
-            </LinkWrarpper>
-          </FlexRow>)
+          toast.info(
+            <FlexRow>
+              <BaseText style={{ marginRight: 8 }}>Copied address!</BaseText>
+              <LinkWrarpper target='_blank' href={utils.getExplorerHistoryUri(address)}>
+                <BaseText>View wallet history</BaseText>
+              </LinkWrarpper>
+            </FlexRow>)
         }}
         >
           {showFullAddress ? address : utils.ellipsisAddress(address)}
@@ -195,13 +175,6 @@ const Wallet = () => {
           <Button onClick={sendWrapper} disabled={isSending}>{isSending ? <TailSpin width={16} height={16} /> : 'Confirm'}</Button>
         </Row>
       </Modal>
-      <Modal visible={logoutModalVisible} onCancel={() => setLogoutModalVisible(false)}>
-        <Col>
-          <BaseText>This will delete all data. To restore your wallet, you need to use the Recovery QR Code and to verify your phone number again</BaseText>
-          <BaseText>Are you sure?</BaseText>
-          <Row style={{ justifyContent: 'flex-end' }}><Button onClick={logout}>CONFIRM</Button></Row>
-        </Col>
-      </Modal>
       <Gallery style={{ flex: '100%' }}>
         <BaseText style={{ fontSize: 20, textTransform: 'uppercase' }}>NFT Gallery</BaseText>
         <FlexColumn style={{ justifyContent: 'center', flex: '100%' }}>
@@ -210,7 +183,7 @@ const Wallet = () => {
           </FlexRow>
         </FlexColumn>
       </Gallery>
-    </Main>
+    </MainContainer>
   )
 }
 

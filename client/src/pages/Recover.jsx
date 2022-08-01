@@ -13,6 +13,7 @@ import { walletActions } from '../state/modules/wallet'
 import { useDispatch } from 'react-redux'
 import paths from './paths'
 import { useHistory } from 'react-router'
+import MainContainer from '../components/Container'
 const processRecoverData = (d) => {
   try {
     const q = qs.parseUrl(d)
@@ -115,10 +116,7 @@ const Recover = () => {
   }, [code, verifying])
 
   return (
-    <Main>
-      <Heading>
-        <div>SMS Wallet</div>
-      </Heading>
+    <MainContainer>
       <Title> Recover your wallet </Title>
       {!p &&
         <Desc>
@@ -148,7 +146,7 @@ const Recover = () => {
           </LinkText>
         </Desc>}
 
-    </Main>
+    </MainContainer>
   )
 }
 
