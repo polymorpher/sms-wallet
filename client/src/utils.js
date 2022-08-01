@@ -28,6 +28,9 @@ export const utils = {
   getExplorerUri: (txHash) => {
     return config.explorer.replace('{{txId}}', txHash)
   },
+  getExplorerHistoryUri: (address) => {
+    return config.explorerHistory.replace('{{address}}', address)
+  },
   validBalance: (balance, allowFloat) => {
     if (typeof balance === 'number') { return true }
     if (typeof balance !== 'string') { return false }
@@ -83,7 +86,13 @@ export const utils = {
     const ekey = utils.hexView(ekeyBytes)
     const address = apis.web3.getAddress(pk)
     return { address, ekey, eseed }
-  }
+  },
+  ellipsisAddress: (address) => {
+    if (!address || address.length < 10) {
+      return address
+    }
+    return address.slice(0, 6) + '...' + address.slice(address.length - 3, address.length)
+  },
 }
 
 export function getWindowDimensions () {
