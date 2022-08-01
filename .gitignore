@@ -128,3 +128,4 @@ secrets.js
 build/contracts/*
 
 .DS_Store
+/server/ssh.sh
