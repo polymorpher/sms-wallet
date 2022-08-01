@@ -22,6 +22,20 @@ export const Button = styled.button`
   }
 `
 
+export const CancelButton = styled(Button)`
+  background: transparent;
+  color: red;
+  &:hover{
+    color: indianred;
+    background: #ccc;
+    cursor: pointer;
+  }
+  &:disabled{
+    color: grey;
+    cursor: not-allowed;
+  }
+`
+
 export const Input = styled.input`
   width: ${props => typeof props.$width === 'number' ? `${props.$width || 400}px` : (props.$width || 'auto')};
   margin-top: ${props => props.$marginTop || props.margin || '32px'};

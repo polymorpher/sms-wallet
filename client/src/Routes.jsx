@@ -7,6 +7,7 @@ import paths from './pages/paths'
 import { persistStore } from 'redux-persist'
 import { useDispatch } from 'react-redux'
 import { FlexColumn, FlexRow } from './components/Layout'
+import SignMessage from './pages/SignMessage'
 const Routes = () => {
   const dispatch = useDispatch()
   const [rehydrated, setRehydrated] = useState(false)
@@ -34,6 +35,7 @@ const Routes = () => {
         <Route path={paths.wallet} render={() => <Wallet />} />
         <Route path={paths.signup} render={() => <Signup />} />
         <Route path={paths.recover} render={() => <Recover />} />
+        <Route path={paths.sign} render={() => <SignMessage />} />
         <Redirect to={paths.root} />
       </Switch>
     </BrowserRouter>

@@ -46,6 +46,10 @@ export const Desc = styled.div`
   gap: 16px;
 `
 
+export const DescLeft = styled(Desc)`
+  text-align: left;
+`
+
 export const Gallery = styled.div`
   display: flex;
   flex-direction: column;
@@ -62,4 +66,9 @@ export const LinkText = styled(BaseText)`
   cursor: pointer;
   font-size: 12px;
   margin-top: 32px;
+`
+
+export const Hint = styled.div`
+  font-size: 10px;
+  color: ${props => props.$color ?? '#888888'};
 `
