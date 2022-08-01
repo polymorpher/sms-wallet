@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react'
 import config from './config'
 import paths from './pages/paths'
 import apis from './api'
+import abi from 'web3-eth-abi'
+import BN from 'bn.js'
+
 export const utils = {
   ...sharedUtils,
   /**
@@ -50,7 +53,7 @@ export const utils = {
 
   computeBalance: (balance, price, decimals, maxPrecision) => {
     if (!utils.validBalance(balance)) {
-      return { balance: 0, formatted: '0', fiat: 0, fiatFormatted: '0', valid: false }
+      return { balance: new BN(0), formatted: '0', fiat: 0, fiatFormatted: '0', valid: false }
     }
     const ones = sharedUtils.toOne(balance || 0, null, decimals)
     const formatted = sharedUtils.formatNumber(ones, maxPrecision)
@@ -61,7 +64,7 @@ export const utils = {
 
   toBalance: (formatted, price, decimals, maxPrecision) => {
     if (!utils.validBalance(formatted, true)) {
-      return { balance: 0, formatted: '0', fiat: 0, fiatFormatted: '0', valid: false }
+      return { balance: new BN(0), formatted: '0', fiat: 0, fiatFormatted: '0', valid: false }
     }
     const balance = sharedUtils.toFraction(formatted, null, decimals)
     let fiat, fiatFormatted
@@ -99,7 +102,22 @@ export const utils = {
     } catch (ex) {
       return null
     }
-  }
+  },
+  encodeCalldata: ({ method, selector, types, values = [] }) => {
+    if (!method && !selector) {
+      return '0x'
+    }
+    selector = selector || abi.encodeFunctionSignature(method)
+    if (!types) {
+      const m = method.match(/.+\((.*)\)/)
+      if (!m) {
+        return null
+      }
+      types = m[1] ? m[1].split(',') : []
+    }
+    const encodedParameters = abi.encodeParameters(types, values)
+    return selector + encodedParameters.slice(2)
+  },
 }
 
 export function getWindowDimensions () {
