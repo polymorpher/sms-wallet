@@ -183,7 +183,8 @@ router.post('/lookup', async (req, res) => {
   if (!isValid) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
   }
-  const expectedAddress = w3utils.ecrecover(phoneNumber, signature)
+  const message = `${phoneNumber} ${Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration}`
+  const expectedAddress = w3utils.ecrecover(message, signature)
   if (expectedAddress !== address) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
@@ -201,23 +202,24 @@ router.post('/lookup', async (req, res) => {
 // this allows a user to retrieve or update its current config. For retrieval, just pass in an empty object for `newConfig`
 // we may want to impose stronger security requirement on this, once we have some sensitive configurations. Right now the only configuration is `hide`, which determines whether another user can look up this user's address by its phone number.
 router.post('/settings', async (req, res) => {
-  const { address, signature, newConfig } = req.body
-  const msg = stringify(newConfig)
+  const { address, signature, newSetting } = req.body
+  const msg = stringify(newSetting)
   const expectedAddress = w3utils.ecrecover(msg, signature)
   if (!address || !expectedAddress || address !== expectedAddress) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
-  const filteredNewConfig = pick(['hide'], newConfig)
+  const filteredNewSetting = pick(['hide'], newSetting)
   const u = await User.findByAddress({ address })
   if (!u) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'user does not exist' })
   }
-  const isUpdate = Object.keys(filteredNewConfig).length >= 0
+  const isUpdate = Object.keys(filteredNewSetting).length >= 0
   if (isUpdate) {
-    const newSetting = await Setting.update(u.id, { ...filteredNewConfig })
-    return res.json(newSetting)
+    const updatedSetting = await Setting.update(u.id, { ...filteredNewSetting })
+    return res.json(updatedSetting)
   }
-  return Setting.get(u.id)
+  const s = await Setting.get(u.id)
+  return res.json({ setting: s })
 })
 
 // router
