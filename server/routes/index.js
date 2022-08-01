@@ -209,7 +209,7 @@ router.post('/settings', async (req, res) => {
   if (!address || !expectedAddress || address !== expectedAddress) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
-  const filteredNewSetting = pick(['hide'], newSetting)
+  const filteredNewSetting = pick(newSetting, ['hide'])
   const u = await User.findByAddress({ address })
   if (!u) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'user does not exist' })
