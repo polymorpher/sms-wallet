@@ -64,6 +64,7 @@ const ApproveTransaction = () => {
         values = calldata.parameters.map(p => p.value)
       }
       const encoded = utils.encodeCalldata({ method: calldata.method, selector: calldata.selector, types, values })
+      console.log(encoded)
       const receipt = await apis.web3.web3.eth.sendTransaction({
         to: dest,
         value: amount.toString(),
@@ -73,16 +74,14 @@ const ApproveTransaction = () => {
       const returnUrl = new URL(callback)
       returnUrl.searchParams.append('success', 'true')
       toast.success(
-        <Col>
-          <Row>
-            <BaseText style={{ marginRight: 8 }}>Execution complete</BaseText>
-            <LinkWrarpper target='_blank' href={utils.getExplorerUri(hash)}>
-              <BaseText>View transaction</BaseText>
-            </LinkWrarpper>
-          </Row>
-          <BaseText>Returning to app at ${returnUrl.hostname}</BaseText>
-        </Col>
+        <Row>
+          <BaseText style={{ marginRight: 8 }}>Execution complete</BaseText>
+          <LinkWrarpper target='_blank' href={utils.getExplorerUri(hash)}>
+            <BaseText>View transaction</BaseText>
+          </LinkWrarpper>
+        </Row>
       )
+      toast.success(`Returning to app at ${returnUrl.hostname}`)
       setTimeout(() => { location.href = returnUrl.href }, 1500)
     } catch (ex) {
       console.error(ex)
