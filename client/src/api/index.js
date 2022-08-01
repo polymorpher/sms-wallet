@@ -52,7 +52,7 @@ const apis = {
     signWithNonce: (msg, key) => {
       const nonce = Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration
       const message = `${msg} ${nonce}`
-      return web3.eth.accounts.sign(message, key)
+      return web3.eth.accounts.sign(message, key).signature
     }
   },
   blockchain: {
