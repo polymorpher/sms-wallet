@@ -48,6 +48,11 @@ const apis = {
         console.error(ex)
         return false
       }
+    },
+    signWithNonce: (msg, key) => {
+      const nonce = Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration
+      const message = `${msg} ${nonce}`
+      return web3.eth.accounts.sign(message, key)
     }
   },
   blockchain: {
@@ -76,6 +81,16 @@ const apis = {
       const { data } = await apiBase.post('/restore-verify', { phone, eseed, code })
       const { ekey, address } = data
       return { ekey, address }
+    },
+    lookup: async ({ destPhone, address, signature }) => {
+      const { data } = await apiBase.post('/lookup', { destPhone, address, signature })
+      const { address: destAddress } = data
+      return destAddress
+    },
+    settings: async ({ address, signature, newSetting = {} }) => {
+      const { data } = await apiBase.post('/settings', { newSetting, address, signature })
+      const { address: destAddress } = data
+      return destAddress
     }
   }
 }

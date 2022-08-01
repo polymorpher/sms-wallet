@@ -42,6 +42,7 @@ const config = {
 
   },
   scanDelay: 250,
+  defaultSignatureValidDuration: 1000 * 60 * 15,
 }
 
 export default config
