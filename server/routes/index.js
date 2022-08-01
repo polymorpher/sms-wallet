@@ -184,6 +184,7 @@ router.post('/lookup', async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
   }
   const message = `${phoneNumber} ${Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration}`
+  // console.log(message, signature)
   const expectedAddress = w3utils.ecrecover(message, signature)
   if (expectedAddress !== address) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
@@ -193,7 +194,7 @@ router.post('/lookup', async (req, res) => {
     return res.json({ address: '' })
   }
   const s = await Setting.get(u.id)
-  if (!s || s.hide) {
+  if (s?.hide) {
     return res.json({ address: '' })
   }
   return res.json({ address: u.address })
