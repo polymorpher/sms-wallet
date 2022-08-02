@@ -11,7 +11,7 @@ const utils = require('../utils')
 const { User } = require('../src/data/user')
 const { isEqual, pick } = require('lodash')
 const w3utils = require('../w3utils')
-const stringify = require('json-stringify-deterministic')
+const stringify = require('json-stable-stringify')
 const { Setting } = require('../src/data/setting')
 
 router.get('/health', async (req, res) => {
@@ -223,6 +223,15 @@ router.post('/settings', async (req, res) => {
   return res.json({ setting: s })
 })
 
-// router
+router.post('/sign-request', async (req, res) => {
+  const { transaction, address, phone: unvalidatedPhone } = req.body
+  const { isValid, phoneNumber } = unvalidatedPhone ? phone(unvalidatedPhone) : {}
+  if (!address && !isValid) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need either address or phone' })
+  }
+  if (address && isValid) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'cannot provide both address and phone' })
+  }
+})
 
 module.exports = router
