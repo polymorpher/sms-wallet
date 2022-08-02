@@ -8,7 +8,7 @@ import { Address, BaseText, Desc, DescLeft, Hint, SmallText, Title } from '../co
 import { Button, CancelButton, LinkWrarpper } from '../components/Controls'
 import apis from '../api'
 import { toast } from 'react-toastify'
-import { Col, Row } from '../components/Layout'
+import { Row } from '../components/Layout'
 import { utils } from '../utils'
 import { pick } from 'lodash'
 
