@@ -18,7 +18,13 @@ contract AssetManager is Ownable {
         uint256 balance,
         string reason
     );
-    event AuthorizationSuccesful(address indexed user, uint256 newLimit, uint256 userBalance);
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    // event AuthorizationSuccesful(address indexed user, uint256 newLimit, uint256 userBalance);
     error AuthorizationFailed(
         address depositor,
         uint256 userBalance,
@@ -50,21 +56,25 @@ contract AssetManager is Ownable {
         string reason
     );
 
-    address private _operator;
+    address operator;
+    uint256 globalUserAuthLimit;
     mapping(address => uint256) public userBalances;
-    mapping(address => uint256) public userAuthorizations;
+    // mapping(address => uint256) public userAuthorizations;
+    mapping(address => mapping(address => uint256)) private _allowances;
 
-    constructor(address operator_) {
+    constructor(address operator_, uint256 globalUserAuthLimit_) {
         setOperator(operator_);
+        globalUserAuthLimit = globalUserAuthLimit_;
+
         }
 
     modifier onlyOperator {
-        require(msg.sender == _operator, "Can only be called by Operator");
+        require(msg.sender == operator, "Can only be called by Operator");
         _;
     }
 
     modifier onlyOwnerOrOperator {
-        bool ownerOperator = ((msg.sender == owner()) || (msg.sender == operator()));
+        bool ownerOperator = ((msg.sender == owner()) || (msg.sender == operator));
         require(ownerOperator, "Can only be called by Owner or Operator");
         _;
     }
@@ -72,12 +82,9 @@ contract AssetManager is Ownable {
     /**
      * @dev Returns the address of the current operator.
      */
-    function operator() public view virtual returns (address) {
-        return _operator;
-    }
 
     function setOperator(address operator_) onlyOwnerOrOperator public {
-        _operator = operator_;
+        operator = operator_;
     }
 
     function deposit() public payable {
@@ -109,10 +116,6 @@ contract AssetManager is Ownable {
         userBalances[address(msg.sender)] = newBalance;
         payable(msg.sender).transfer(amount);
 
-        // update the authorized amount.
-        uint256 currentLimit = this.userAuthorizations(address(msg.sender));
-        if (currentLimit > newBalance ) { authorize(newBalance); }
-
         // update the userBalance
         emit WithdrawalSuccesful(
             msg.sender,
@@ -121,39 +124,37 @@ contract AssetManager is Ownable {
         );
     }
 
-    function authorize(uint256 limit) public {
-        // check msg.senders balance
-        uint256 balance = this.userBalances(address(msg.sender));
-        // uint256 currentLimit = getUserAuthorization(msg.sender);
-        // uint256 newLimit = currentLimit + limit;
-        if (balance < limit) {
-            revert AuthorizationFailed(
-                msg.sender,
-                balance,
-                limit,
-                "New limt amount greater than users balance"
-            );
-        }
-
-        userAuthorizations[address(msg.sender)] = limit;
-
-        // update the userBalance
-        emit AuthorizationSuccesful(
-            msg.sender,
-            limit,
-            balance
-        );
+    function allowance(address owner, address spender) public view returns (uint256) {
+        return _allowances[owner][spender];
     }
+
+    function approve(address spender, uint256 amount) public returns (bool) {
+        address owner = _msgSender();
+        _approve(owner, spender, amount);
+        return true;
+    }
+    function _approve(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal virtual {
+        require(owner != address(0), "AssetManager: approve from the zero address");
+        require(spender != address(0), "AssetManager: approve to the zero address");
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
+    }
+
     function send(uint256 amount, address from, address to) public onlyOperator() {
         uint256 balance =  userBalances[from];
-        uint256 limit = userAuthorizations[from];
+        uint256 currentAllowance = allowance(from, to);
         if (amount == 0) {
             revert SendFailed(
                 from,
                 to,
                 amount,
                 balance,
-                limit,
+                currentAllowance,
                 "Send amount cannot equal 0"
             );
         }
@@ -164,28 +165,28 @@ contract AssetManager is Ownable {
                 to,
                 amount,
                 balance,
-                limit,
+                currentAllowance,
                 "Insufficient Locked Funds to Send "
             );
         }
         // check from balance
-        if (amount > limit) {
+        if (amount > currentAllowance) {
             revert SendFailed(
                 from,
                 to,
                 amount,
                 balance,
-                limit,
-                "Insufficient Authorized Funds to Send "
+                currentAllowance,
+                "Insufficient approved funds to send "
             );
         }
         // withdraw funds from the contract (update userBalance before transfer to protect from reentracy attack)
         uint256 newBalance = balance - amount;
         userBalances[address(from)] = newBalance;
 
-        // update the authorized amount.
-        uint256 newLimit = limit - amount;
-        userAuthorizations[address(from)] = newLimit;
+        // update the approved amount.
+        uint256 newLimit = currentAllowance - amount;
+        approve(to,newLimit);
 
         payable(to).transfer(amount);
 

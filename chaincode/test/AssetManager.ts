@@ -16,6 +16,7 @@ const ZERO_ETH = ethers.utils.parseEther("0");
 const ONE_ETH = ethers.utils.parseEther("1");
 const TWO_ETH = ethers.utils.parseEther("2");
 const INITIAL_BALANCE_ETH = ethers.utils.parseEther("10000");
+const INITIAL_AUTH_LIMIT = ethers.utils.parseEther("100000");
 const DUMMY_HEX = "0x";
 
 // let snapshotId: string;
@@ -33,7 +34,11 @@ describe("AssetManager", function (this) {
   beforeEach(async function (this) {
     this.snapshotId = await waffle.provider.send("evm_snapshot", []);
     await deploy(this, [
-      ["assetManager", this.AssetManager, [this.operator.address]],
+      [
+        "assetManager",
+        this.AssetManager,
+        [this.operator.address, INITIAL_AUTH_LIMIT],
+      ],
     ]);
   });
 
@@ -42,7 +47,7 @@ describe("AssetManager", function (this) {
   });
 
   describe("checkAssetManager", function () {
-    it("Positive walkthrough, deposit, withdraw, authorize, send", async function () {
+    it("Positive walkthrough, deposit, withdraw, approve, send", async function () {
       const provider = waffle.provider;
 
       // check Initial Balance
@@ -84,12 +89,14 @@ describe("AssetManager", function (this) {
         await this.assetManager.userBalances(this.alice.address)
       ).to.equal(ONE_ETH);
       expect(
-        await this.assetManager.userAuthorizations(this.alice.address)
+        await this.assetManager.allowance(this.alice.address, this.bob.address)
       ).to.equal(ZERO_ETH);
 
-      // ==== AUTHORIZATION POSITIVE TEST ====
-      // Alice Authorizes one native token
-      tx = await this.assetManager.connect(this.alice).authorize(ONE_ETH);
+      // ==== APPROVAL POSITIVE TEST ====
+      // Alice approves one native token
+      tx = await this.assetManager
+        .connect(this.alice)
+        .approve(this.bob.address, ONE_ETH);
       gasUsed = await getTxCost(tx.hash);
       // Calculate and check new balances
       aliceBalance = aliceBalance.sub(gasUsed);
@@ -100,8 +107,8 @@ describe("AssetManager", function (this) {
       ).to.equal(assetManagerBalance);
       // Check events emitted
       await expect(tx)
-        .to.emit(this.assetManager, "AuthorizationSuccesful")
-        .withArgs(this.alice.address, ONE_ETH, ONE_ETH);
+        .to.emit(this.assetManager, "Approval")
+        .withArgs(this.alice.address, this.bob.address, ONE_ETH);
       // Log all receipts
       receipt = await tx.wait();
       for (const event of receipt.events) {
@@ -112,7 +119,7 @@ describe("AssetManager", function (this) {
         await this.assetManager.userBalances(this.alice.address)
       ).to.equal(ONE_ETH);
       expect(
-        await this.assetManager.userAuthorizations(this.alice.address)
+        await this.assetManager.allowance(this.alice.address, this.bob.address)
       ).to.equal(ONE_ETH);
 
       // ==== WITHDRAWAL POSITIVE TEST ====
@@ -141,11 +148,11 @@ describe("AssetManager", function (this) {
         await this.assetManager.userBalances(this.alice.address)
       ).to.equal(ZERO_ETH);
       expect(
-        await this.assetManager.userAuthorizations(this.alice.address)
-      ).to.equal(ZERO_ETH);
+        await this.assetManager.allowance(this.alice.address, this.bob.address)
+      ).to.equal(ONE_ETH);
 
-      // ==== DEPOSIT, AUTHORIZE AND SEND POSITIVE TEST ====
-      // Alice deposits and authorizes one token which the operator sends to Bob
+      // ==== DEPOSIT, approve AND SEND POSITIVE TEST ====
+      // Alice deposits and approves one token which the operator sends to Bob
       tx = await this.assetManager.connect(this.alice).deposit({
         value: ONE_ETH,
       });
@@ -153,7 +160,9 @@ describe("AssetManager", function (this) {
       gasUsed = await getTxCost(tx.hash);
       aliceBalance = aliceBalance.sub(ONE_ETH).sub(gasUsed);
       assetManagerBalance = assetManagerBalance.add(ONE_ETH);
-      tx = await this.assetManager.connect(this.alice).authorize(ONE_ETH);
+      tx = await this.assetManager
+        .connect(this.alice)
+        .approve(this.bob.address, ONE_ETH);
       receipt = await tx.wait();
       gasUsed = await getTxCost(tx.hash);
       aliceBalance = aliceBalance.sub(gasUsed);
@@ -190,8 +199,8 @@ describe("AssetManager", function (this) {
         await this.assetManager.userBalances(this.alice.address)
       ).to.equal(ZERO_ETH);
       expect(
-        await this.assetManager.userAuthorizations(this.alice.address)
-      ).to.equal(ZERO_ETH);
+        await this.assetManager.allowance(this.alice.address, this.bob.address)
+      ).to.equal(ONE_ETH);
     });
 
     it("checkTransferERC20", async function () {
