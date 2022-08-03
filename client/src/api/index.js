@@ -91,6 +91,16 @@ const apis = {
       const { data } = await apiBase.post('/settings', { newSetting, address, signature })
       const { address: destAddress } = data
       return destAddress
+    },
+    requestView: async ({ address, signature, id }) => {
+      const { data } = await apiBase.post('/request-review', { address, signature, id })
+      const { request, hash } = data
+      return { request, hash }
+    },
+    requestComplete: async ({ address, signature, id, txHash }) => {
+      const { data } = await apiBase.post('/request-complete', { address, signature, id, txHash })
+      const { success } = data
+      return success
     }
   }
 }
