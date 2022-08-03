@@ -3,12 +3,14 @@ import { ethers, waffle } from "hardhat";
 import {
   prepare,
   deploy,
+  deployUpgradeable,
   checkBalance,
   checkContractBalance,
   getBigNumber,
   getTxCost,
 } from "./utilities";
 import { range, cloneDeep } from "lodash";
+const config = require("../config.js");
 const { BigNumber } = require("ethers");
 const Constants = require("./utilities/constants");
 
@@ -33,11 +35,11 @@ describe("AssetManager", function (this) {
 
   beforeEach(async function (this) {
     this.snapshotId = await waffle.provider.send("evm_snapshot", []);
-    await deploy(this, [
+    await deployUpgradeable(this, [
       [
         "assetManager",
         this.AssetManager,
-        [this.operator.address, INITIAL_AUTH_LIMIT],
+        [config.initialOperatorThreshold, config.operators, INITIAL_AUTH_LIMIT],
       ],
     ]);
   });
@@ -167,7 +169,7 @@ describe("AssetManager", function (this) {
       gasUsed = await getTxCost(tx.hash);
       aliceBalance = aliceBalance.sub(gasUsed);
       tx = await this.assetManager
-        .connect(this.operator)
+        .connect(this.operatorA)
         .send(ONE_ETH, this.alice.address, this.bob.address);
       receipt = await tx.wait();
       gasUsed = await getTxCost(tx.hash);
@@ -228,23 +230,6 @@ describe("AssetManager", function (this) {
           this.assetManager.address
         )}`
       );
-      //   tx = await this.erc20
-      //     .connect(this.operator)
-      //     .transferFrom(
-      //       this.alice.address,
-      //       this.bob.address,
-      //       BigNumber.from("3")
-      //     );
-      //   await tx.wait();
-      //   console.log(
-      //     `AliceBalance: ${await this.erc20.balanceOf(this.alice.address)}`
-      //   );
-      //   console.log(
-      //     `AliceOperatorAllowance: ${await this.erc20.allowance(
-      //       this.alice.address,
-      //       this.operator.address
-      //     )}`
-      //   );
       tx = await this.erc20
         .connect(this.alice)
         .transfer(this.bob.address, BigNumber.from("3"));
@@ -260,7 +245,7 @@ describe("AssetManager", function (this) {
       );
       // Operator Sends 3 to Bob
       tx = await this.assetManager
-        .connect(this.operator)
+        .connect(this.operatorA)
         .transfer(
           BigNumber.from("3"),
           Constants.TokenType.ERC20,
@@ -321,7 +306,7 @@ describe("AssetManager", function (this) {
       await tx.wait();
       // Operator sends the tokens for Alice to Bob
       tx = await this.assetManager
-        .connect(this.operator)
+        .connect(this.operatorA)
         .transfer(
           BigNumber.from("1"),
           Constants.TokenType.ERC721,
@@ -387,7 +372,7 @@ describe("AssetManager", function (this) {
       await tx.wait();
       // Operator sends the tokens for Alice to Bob
       tx = await this.assetManager
-        .connect(this.operator)
+        .connect(this.operatorA)
         .transfer(
           BigNumber.from("3"),
           Constants.TokenType.ERC1155,

@@ -1,6 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import Mocha from "mocha";
 import { MockProvider } from "ethereum-waffle";
 import { Contract } from "ethers";
 import { ethers } from "hardhat";
@@ -21,10 +20,14 @@ export async function prepare(thisObject: Mocha.Context, contracts: string[]) {
   }
   thisObject.signers = await ethers.getSigners();
   thisObject.deployer = thisObject.signers[0];
-  thisObject.operator = thisObject.signers[1];
-  thisObject.alice = thisObject.signers[2];
-  thisObject.bob = thisObject.signers[3];
-  thisObject.carol = thisObject.signers[4];
+  thisObject.operatorA = thisObject.signers[1];
+  thisObject.operatorB = thisObject.signers[2];
+  thisObject.operatorC = thisObject.signers[3];
+  thisObject.alice = thisObject.signers[4];
+  thisObject.bob = thisObject.signers[5];
+  thisObject.carol = thisObject.signers[6];
+  thisObject.dora = thisObject.signers[7];
+  thisObject.ernie = thisObject.signers[8];
 }
 
 export async function deploy(thisObject: Mocha.Context, contracts: any[][]) {
@@ -32,6 +35,20 @@ export async function deploy(thisObject: Mocha.Context, contracts: any[][]) {
     const contract = contracts[i];
     thisObject[contract[0]] = await contract[1].deploy(...(contract[2] || []));
     await thisObject[contract[0]].deployed();
+  }
+}
+
+export async function deployUpgradeable(
+  thisObject: Mocha.Context,
+  contracts: any[][]
+) {
+  for (const i in contracts) {
+    const contract = contracts[i];
+    thisObject[contract[0]] = await contract[1].deploy();
+    await thisObject[contract[0]].deployed();
+    const tx = await thisObject[contract[0]].initialize(...(contract[2] || []));
+    await tx.wait();
+    // await ethers.provider.waitForTransaction(tx.hash)
   }
 }
 

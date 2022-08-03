@@ -3,13 +3,26 @@
 pragma solidity ^0.8.9;
 
 // import "hardhat/console.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./lib/SafeCast.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+// import "openzeppelin-solidity/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+// import "openzeppelin-solidity/contracts/proxy/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "./Enums.sol";
 
-contract AssetManager is Ownable {
+contract AssetManager is 
+    Initializable,
+    PausableUpgradeable,
+    AccessControlUpgradeable
+{
+    using SafeCast for *;
+    using SafeMathUpgradeable for uint256;
+
     event DepositSuccesful(address indexed user, uint256 amount, uint256 balance);
     event WithdrawalSuccesful(address indexed user, uint256 amount, uint256 balance);
     error WithdrawalFailed(
@@ -56,38 +69,72 @@ contract AssetManager is Ownable {
         string reason
     );
 
-    address operator;
-    uint256 globalUserAuthLimit;
+    event OperatorThresholdChanged(uint256 newThreshold);
+    event OperatorAdded(address operator);
+    event OperatorRemoved(address operator);
+
+    uint256 public globalUserAuthLimit;
     mapping(address => uint256) public userBalances;
-    // mapping(address => uint256) public userAuthorizations;
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    constructor(address operator_, uint256 globalUserAuthLimit_) {
-        setOperator(operator_);
-        globalUserAuthLimit = globalUserAuthLimit_;
+    uint8 public operatorThreshold;
+    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
+    modifier onlyAdmin() {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "sender doesn't have admin role");
+        _;
+    }
+
+    modifier onlyOperators() {
+        require(hasRole(OPERATOR_ROLE, msg.sender), "sender doesn't have operator role");
+        _;
+    }
+
+    function adminPauseAssetManager() external onlyAdmin {
+        _pause();
+    }
+
+    function adminUnpauseAssetManager() external onlyAdmin {
+        _unpause();
+    }
+
+    function renounceAdmin(address newAdmin) external onlyAdmin {
+        require(msg.sender != newAdmin, 'cannot renounce self');
+        grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
+        renounceRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function adminChangeOperatorThreshold(uint256 newThreshold) external onlyAdmin {
+        operatorThreshold = newThreshold.toUint8();
+        emit OperatorThresholdChanged(newThreshold);
+    }
+
+    function adminAddOperator(address operatorAddress) external onlyAdmin {
+        require(!hasRole(OPERATOR_ROLE, operatorAddress), "addr already has operator role!");
+        grantRole(OPERATOR_ROLE, operatorAddress);
+        emit OperatorAdded(operatorAddress);
+    }
+
+    function adminRemoveOperator(address operatorAddress) external onlyAdmin {
+        require(hasRole(OPERATOR_ROLE, operatorAddress), "addr doesn't have operator role!");
+        revokeRole(OPERATOR_ROLE, operatorAddress);
+        emit OperatorRemoved(operatorAddress);
+    }
+
+    function initialize (
+        uint8 initialOperatorThreshold,
+        address[] memory initialOperators,
+        uint256 globalUserAuthLimit_
+    ) external initializer{
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        operatorThreshold = initialOperatorThreshold;
+        for (uint256 i; i < initialOperators.length; i++) {
+            grantRole(OPERATOR_ROLE, initialOperators[i]);
+        }
+        globalUserAuthLimit = globalUserAuthLimit_;
         }
 
-    modifier onlyOperator {
-        require(msg.sender == operator, "Can only be called by Operator");
-        _;
-    }
-
-    modifier onlyOwnerOrOperator {
-        bool ownerOperator = ((msg.sender == owner()) || (msg.sender == operator));
-        require(ownerOperator, "Can only be called by Owner or Operator");
-        _;
-    }
-
-    /**
-     * @dev Returns the address of the current operator.
-     */
-
-    function setOperator(address operator_) onlyOwnerOrOperator public {
-        operator = operator_;
-    }
-
-    function deposit() public payable {
+    function deposit() public payable whenNotPaused {
         userBalances[address(msg.sender)] += msg.value;
         // update the userBalance
         emit DepositSuccesful(
@@ -97,7 +144,7 @@ contract AssetManager is Ownable {
         );
     }
 
-        function withdraw(uint256 amount) public payable {
+        function withdraw(uint256 amount) public payable whenNotPaused {
         uint256 balance =  userBalances[address(msg.sender)];
         // if zero is passed withdraw all funds
         if (amount == 0){ amount = balance; }
@@ -124,28 +171,21 @@ contract AssetManager is Ownable {
         );
     }
 
-    function allowance(address owner, address spender) public view returns (uint256) {
+    function allowance(address owner, address spender) public whenNotPaused view returns (uint256) {
         return _allowances[owner][spender];
     }
 
-    function approve(address spender, uint256 amount) public returns (bool) {
-        address owner = _msgSender();
-        _approve(owner, spender, amount);
-        return true;
-    }
-    function _approve(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function approve(address spender, uint256 amount) public whenNotPaused returns (bool) {
+        address owner = msg.sender;
         require(owner != address(0), "AssetManager: approve from the zero address");
         require(spender != address(0), "AssetManager: approve to the zero address");
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
+        return true;
     }
 
-    function send(uint256 amount, address from, address to) public onlyOperator() {
+    function send(uint256 amount, address from, address to) public onlyOperators whenNotPaused() {
         uint256 balance =  userBalances[from];
         uint256 currentAllowance = allowance(from, to);
         if (amount == 0) {
@@ -198,7 +238,7 @@ contract AssetManager is Ownable {
             newLimit
         );
     }
-    function transfer( uint256 amount, Enums.TokenType tokenType, uint256 tokenId, address tokenAddress, address from, address to) public onlyOperator {
+    function transfer( uint256 amount, Enums.TokenType tokenType, uint256 tokenId, address tokenAddress, address from, address to) public onlyOperators whenNotPaused {
     if ( tokenType == Enums.TokenType.ERC20 ) {
         bool success = ERC20(tokenAddress).transferFrom(from, to, amount);
         if (success) {
