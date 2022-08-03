@@ -13,6 +13,7 @@ const { isEqual, pick } = require('lodash')
 const w3utils = require('../w3utils')
 const stringify = require('json-stable-stringify')
 const { Setting } = require('../src/data/setting')
+const { Request } = require('../src/data/request')
 
 router.get('/health', async (req, res) => {
   Logger.log('[/health]', req.fingerprint)
@@ -223,14 +224,115 @@ router.post('/settings', async (req, res) => {
   return res.json({ setting: s })
 })
 
-router.post('/sign-request', async (req, res) => {
-  const { transaction, address, phone: unvalidatedPhone } = req.body
+router.post('/request', async (req, res) => {
+  const { request, address: inputAddress, phone: unvalidatedPhone } = req.body
   const { isValid, phoneNumber } = unvalidatedPhone ? phone(unvalidatedPhone) : {}
-  if (!address && !isValid) {
+  if (!inputAddress && !isValid) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need either address or phone' })
   }
-  if (address && isValid) {
+  if (inputAddress && isValid) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'cannot provide both address and phone' })
+  }
+  let user = null
+  if (isValid) {
+    user = await User.findByPhone({ phone: phoneNumber })
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({ error: 'user does not exist' })
+    }
+  } else {
+    if (!w3utils.isValidAddress(inputAddress)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad address' })
+    }
+    user = await User.findByAddress({ address: inputAddress })
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({ error: 'user does not exist' })
+    }
+  }
+  const fRequest = pick(request, ['caller', 'comment', 'amount', 'dest', 'calldata'])
+  if (typeof fRequest.calldata !== 'string') {
+    fRequest.calldata = Buffer.from(stringify(fRequest.calldata)).toString('base64')
+  }
+  if (Object.values(fRequest).filter(e => typeof e !== 'string').length > 0) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad request format' })
+  }
+  const { id, hash } = await Request.add({ request: fRequest, address: user.address })
+  const caller = fRequest.caller || 'An app'
+  const reason = fRequest.comment ? ` (${fRequest.comment})` : ''
+  try {
+    const message = await Twilio.messages.create({
+      body: `SMS Wallet: ${caller} requests you to approve a transaction${reason}. Review and approve at: ${config.clientRoot}/request/${id}`,
+      to: user.phone,
+      from: config.twilio.from
+    })
+    console.log('[Request][Text]', message)
+    return res.json({ id, hash })
+  } catch (ex) {
+    console.error(ex)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
+  }
+})
+
+router.post('/request-view', async (req, res) => {
+  const { id, signature, address } = req.body
+  if (!id || !signature || !address) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need id, signature, address' })
+  }
+  if (!w3utils.isValidAddress(address)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
+  }
+  const recoveredAddress = w3utils.ecrecover(id, signature)
+  if (recoveredAddress !== address) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
+  }
+  const r = await Request.get(id)
+  if (!r) {
+    return res.status(StatusCodes.NOT_FOUND).json({ error: 'transaction request not found' })
+  }
+  if (r.txHash) {
+    return res.status(StatusCodes.NOT_FOUND).json({ error: 'transaction already completed' })
+  }
+  if (r.address !== address) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'transaction belongs to different address' })
+  }
+  try {
+    const { hash, requestStr } = r
+    const request = JSON.parse(requestStr)
+    return res.json({ request, hash })
+  } catch (ex) {
+    console.error(ex)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
+  }
+})
+
+router.post('/request-complete', async (req, res) => {
+  const { id, txHash, signature, address } = req.body
+  if (!id || !signature || !address) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need id, signature, address' })
+  }
+  if (!w3utils.isValidAddress(address)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
+  }
+  const message = `${id} ${txHash}`
+  const recoveredAddress = w3utils.ecrecover(message, signature)
+  if (recoveredAddress !== address) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
+  }
+  const r = await Request.get(id)
+  if (!r) {
+    return res.status(StatusCodes.NOT_FOUND).json({ error: 'transaction request not found' })
+  }
+  if (r.txHash) {
+    return res.status(StatusCodes.NOT_FOUND).json({ error: 'transaction already completed' })
+  }
+  if (r.address !== address) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'transaction belongs to different address' })
+  }
+  try {
+    await Request.complete({ id, txHash })
+    return res.json({ success: true })
+  } catch (ex) {
+    console.error(ex)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
   }
 })
 

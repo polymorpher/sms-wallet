@@ -72,5 +72,6 @@ const config = {
     interval: parseInt(process.env.OTP_INTERVAL || 60000)
   },
   defaultSignatureValidDuration: 1000 * 60 * 15,
+  clientRoot: process.env.CLIENT_ROOT || 'https://smswallet.xyz',
 }
 module.exports = config
