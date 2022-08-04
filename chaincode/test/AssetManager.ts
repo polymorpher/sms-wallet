@@ -48,6 +48,191 @@ describe("AssetManager", function (this) {
     await waffle.provider.send("evm_revert", [this.snapshotId]);
   });
 
+  describe("checkDeposit", function () {
+    it("Positive deposit test", async function () {
+      // ===== DEPOSIT POSITIVE TEST =====
+      // Alice Deposit one native token
+      const provider = waffle.provider;
+
+      // check Initial Balance
+      await checkBalance(this.alice, "10000");
+      let aliceBalance = await this.alice.getBalance();
+      const bobBalance = await this.bob.getBalance();
+      let assetManagerBalance = await provider.getBalance(
+        this.assetManager.address
+      );
+      const tx = await this.assetManager.connect(this.alice).deposit({
+        value: ONE_ETH,
+      });
+      const gasUsed = await getTxCost(tx.hash);
+      // Calculate and check new balances
+      aliceBalance = aliceBalance.sub(ONE_ETH).sub(gasUsed);
+      assetManagerBalance = assetManagerBalance.add(ONE_ETH);
+      await expect(await this.alice.getBalance()).to.equal(aliceBalance);
+      await expect(await this.bob.getBalance()).to.equal(bobBalance);
+      await expect(
+        await provider.getBalance(this.assetManager.address)
+      ).to.equal(assetManagerBalance);
+      // Check events emitted
+      await expect(tx)
+        .to.emit(this.assetManager, "DepositSuccesful")
+        .withArgs(this.alice.address, ONE_ETH, ONE_ETH);
+      await tx.wait();
+      // Check Alices Balance and Auth on AssetManager
+      await expect(
+        await this.assetManager.userBalances(this.alice.address)
+      ).to.equal(ONE_ETH);
+      expect(
+        await this.assetManager.allowance(this.alice.address, this.bob.address)
+      ).to.equal(ZERO_ETH);
+    });
+  });
+
+  describe("checkApproval", function () {
+    it("Positive approval test", async function () {
+      // ==== APPROVAL POSITIVE TEST ====
+      // Alice approves one native token
+      const provider = waffle.provider;
+
+      // check Initial Balance
+      await checkBalance(this.alice, "10000");
+      let aliceBalance = await this.alice.getBalance();
+      const bobBalance = await this.bob.getBalance();
+      const assetManagerBalance = await provider.getBalance(
+        this.assetManager.address
+      );
+
+      const tx = await this.assetManager
+        .connect(this.alice)
+        .approve(this.bob.address, ONE_ETH);
+      const gasUsed = await getTxCost(tx.hash);
+      // Calculate and check new balances
+      aliceBalance = aliceBalance.sub(gasUsed);
+      await expect(await this.alice.getBalance()).to.equal(aliceBalance);
+      await expect(await this.bob.getBalance()).to.equal(bobBalance);
+      await expect(
+        await provider.getBalance(this.assetManager.address)
+      ).to.equal(assetManagerBalance);
+      // Check events emitted
+      await expect(tx)
+        .to.emit(this.assetManager, "Approval")
+        .withArgs(this.alice.address, this.bob.address, ONE_ETH);
+      await tx.wait();
+      // Check Alices Balance and Auth on AssetManager
+      await expect(
+        await this.assetManager.userBalances(this.alice.address)
+      ).to.equal(ZERO_ETH);
+      expect(
+        await this.assetManager.allowance(this.alice.address, this.bob.address)
+      ).to.equal(ONE_ETH);
+    });
+  });
+
+  describe("checkWithdrawal", function () {
+    it("Positive withdrawal test", async function () {
+      // ==== WITHDRAWAL POSITIVE TEST ====
+      // Alice Withdraws all her native tokens
+      const provider = waffle.provider;
+
+      // check Initial Balance
+      await checkBalance(this.alice, "10000");
+      let aliceBalance = await this.alice.getBalance();
+      let assetManagerBalance = await provider.getBalance(
+        this.assetManager.address
+      );
+      let tx = await this.assetManager.connect(this.alice).deposit({
+        value: ONE_ETH,
+      });
+      await tx.wait();
+      let gasUsed = await getTxCost(tx.hash);
+      // Calculate and check new balances
+      aliceBalance = aliceBalance.sub(ONE_ETH).sub(gasUsed);
+      assetManagerBalance = assetManagerBalance.add(ONE_ETH);
+      tx = await this.assetManager.connect(this.alice).withdraw(0);
+      gasUsed = await getTxCost(tx.hash);
+      // Calculate and check new balances
+      aliceBalance = aliceBalance.add(ONE_ETH).sub(gasUsed);
+      assetManagerBalance = assetManagerBalance.sub(ONE_ETH);
+      await expect(await this.alice.getBalance()).to.equal(aliceBalance);
+      await expect(
+        await provider.getBalance(this.assetManager.address)
+      ).to.equal(assetManagerBalance);
+      // Check events emitted
+      await expect(tx)
+        .to.emit(this.assetManager, "WithdrawalSuccesful")
+        .withArgs(this.alice.address, ONE_ETH, ZERO_ETH);
+      // Log all receipts
+      await tx.wait();
+      // Check Alices Balance and Auth on AssetManager
+      await expect(
+        await this.assetManager.userBalances(this.alice.address)
+      ).to.equal(ZERO_ETH);
+    });
+  });
+
+  describe("checkTransfer", function () {
+    it("Positive transfer test", async function () {
+      const provider = waffle.provider;
+
+      // check Initial Balance
+      await checkBalance(this.alice, "10000");
+      let aliceBalance = await this.alice.getBalance();
+      let bobBalance = await this.bob.getBalance();
+      let assetManagerBalance = await provider.getBalance(
+        this.assetManager.address
+      );
+      // Alice Deposit one native token
+      let tx = await this.assetManager.connect(this.alice).deposit({
+        value: ONE_ETH,
+      });
+      let gasUsed = await getTxCost(tx.hash);
+      // Calculate and check new balances
+      aliceBalance = aliceBalance.sub(ONE_ETH).sub(gasUsed);
+      assetManagerBalance = assetManagerBalance.add(ONE_ETH);
+      // Alice approves one native token
+      tx = await this.assetManager
+        .connect(this.alice)
+        .approve(this.bob.address, ONE_ETH);
+      gasUsed = await getTxCost(tx.hash);
+      // Calculate and check new balances
+      aliceBalance = aliceBalance.sub(gasUsed);
+
+      // The operator sends to Bob
+      tx = await this.assetManager
+        .connect(this.operatorA)
+        .send(ONE_ETH, this.alice.address, this.bob.address);
+      await tx.wait();
+      gasUsed = await getTxCost(tx.hash);
+      // Calculate and check new balances
+      bobBalance = bobBalance.add(ONE_ETH);
+      assetManagerBalance = assetManagerBalance.sub(ONE_ETH);
+      await expect(await this.alice.getBalance()).to.equal(aliceBalance);
+      await expect(await this.bob.getBalance()).to.equal(bobBalance);
+      await expect(
+        await provider.getBalance(this.assetManager.address)
+      ).to.equal(assetManagerBalance);
+      // Check events emitted
+      await expect(tx)
+        .to.emit(this.assetManager, "SendSuccesful")
+        .withArgs(
+          this.alice.address,
+          this.bob.address,
+          ONE_ETH,
+          ZERO_ETH,
+          ZERO_ETH
+        );
+      // Log all receipts
+      await tx.wait();
+      // Check Alices Balance and Auth on AssetManager
+      await expect(
+        await this.assetManager.userBalances(this.alice.address)
+      ).to.equal(ZERO_ETH);
+      expect(
+        await this.assetManager.allowance(this.alice.address, this.bob.address)
+      ).to.equal(ONE_ETH);
+    });
+  });
+
   describe("checkAssetManager", function () {
     it("Positive walkthrough, deposit, withdraw, approve, send", async function () {
       const provider = waffle.provider;
