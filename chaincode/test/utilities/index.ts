@@ -30,7 +30,7 @@ export async function prepare(thisObject: Mocha.Context, contracts: string[]) {
   thisObject.ernie = thisObject.signers[8];
 }
 
-export async function deploy(thisObject: Mocha.Context, contracts: any[][]) {
+export async function deploy(thisObject, contracts) {
   for (const i in contracts) {
     const contract = contracts[i];
     thisObject[contract[0]] = await contract[1].deploy(...(contract[2] || []));
@@ -38,10 +38,7 @@ export async function deploy(thisObject: Mocha.Context, contracts: any[][]) {
   }
 }
 
-export async function deployUpgradeable(
-  thisObject: Mocha.Context,
-  contracts: any[][]
-) {
+export async function deployUpgradeable(thisObject, contracts) {
   for (const i in contracts) {
     const contract = contracts[i];
     thisObject[contract[0]] = await contract[1].deploy();

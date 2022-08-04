@@ -2,19 +2,19 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    "txHash": "0xbdbcdc9b1bab2d2728b3183d66b37aeb449b35b1a3de6c072c45cb55afc4911e"
+    "txHash": "0xd8526a4f2adc40e26e3334e785b12793748324ef3859007bd05eb88fe4589ead"
   },
   "proxies": [
     {
       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x81f6d16c9a5b9f5943fc31421294b1ae0ef67b28135f9eef4f6b5a86de7e1372",
+      "txHash": "0xa2e614b9fd930476ef59c457c2de08a74b5a2be6dd16db115acbe048c764f734",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "92fd6ebc2118538f8e13ffcfff2a61f041b6654a853392e9d8fca650c42f294a": {
+    "4f991d9ade30deb7f10be652f24b217f1e4994c2c0f36640cc784bc483ba6dcd": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0xb7edb2afc3323b54286490b6bd876846a9044d26838f722c1d66a442e4db78f8",
+      "txHash": "0x04a842d716beca22c60555051876b46a0d194d035ced0eaea88e6569225a6991",
       "layout": {
         "storage": [
           {
@@ -88,7 +88,7 @@
             "slot": "201",
             "type": "t_uint256",
             "contract": "AssetManager",
-            "src": "contracts/AssetManager.sol:76"
+            "src": "contracts/AssetManager.sol:78"
           },
           {
             "label": "userBalances",
@@ -96,7 +96,7 @@
             "slot": "202",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "AssetManager",
-            "src": "contracts/AssetManager.sol:77"
+            "src": "contracts/AssetManager.sol:79"
           },
           {
             "label": "_allowances",
@@ -104,7 +104,7 @@
             "slot": "203",
             "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
             "contract": "AssetManager",
-            "src": "contracts/AssetManager.sol:78"
+            "src": "contracts/AssetManager.sol:80"
           },
           {
             "label": "operatorThreshold",
@@ -112,7 +112,7 @@
             "slot": "204",
             "type": "t_uint8",
             "contract": "AssetManager",
-            "src": "contracts/AssetManager.sol:80"
+            "src": "contracts/AssetManager.sol:82"
           }
         ],
         "types": {

@@ -73,6 +73,8 @@ contract AssetManager is
     event OperatorAdded(address operator);
     event OperatorRemoved(address operator);
 
+    event GlobalUserAuthLimitChanged(uint256 newGlobalUserAuthLimit);
+
     uint256 public globalUserAuthLimit;
     mapping(address => uint256) public userBalances;
     mapping(address => mapping(address => uint256)) private _allowances;
@@ -121,6 +123,11 @@ contract AssetManager is
         emit OperatorRemoved(operatorAddress);
     }
 
+   function adminChangeGlobalUserAuthLimit(uint256 newGlobalUserAuthLimit) external onlyAdmin {
+        globalUserAuthLimit = newGlobalUserAuthLimit;
+        emit GlobalUserAuthLimitChanged(newGlobalUserAuthLimit);
+    }
+
     function initialize (
         uint8 initialOperatorThreshold,
         address[] memory initialOperators,
@@ -144,7 +151,7 @@ contract AssetManager is
         );
     }
 
-        function withdraw(uint256 amount) public payable whenNotPaused {
+        function withdraw(uint256 amount) public whenNotPaused {
         uint256 balance =  userBalances[address(msg.sender)];
         // if zero is passed withdraw all funds
         if (amount == 0){ amount = balance; }
@@ -179,6 +186,7 @@ contract AssetManager is
         address owner = msg.sender;
         require(owner != address(0), "AssetManager: approve from the zero address");
         require(spender != address(0), "AssetManager: approve to the zero address");
+        require(amount <= globalUserAuthLimit, "AssetManager: approve greater than global limit");
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
