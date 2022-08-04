@@ -5,6 +5,7 @@ import { ethers, upgrades } from "hardhat";
 
 const config = require("../config.js");
 
+const INITIAL_USER_LIMIT = ethers.utils.parseEther("1000000");
 const INITIAL_AUTH_LIMIT = ethers.utils.parseEther("100000");
 
 const deployFunction: DeployFunction = async function (
@@ -15,7 +16,12 @@ const deployFunction: DeployFunction = async function (
   const AssetManager = await ethers.getContractFactory("AssetManager");
   const assetManager = await upgrades.deployProxy(
     AssetManager,
-    [config.initialOperatorThreshold, config.operators, INITIAL_AUTH_LIMIT],
+    [
+      config.initialOperatorThreshold,
+      config.operators,
+      INITIAL_USER_LIMIT,
+      INITIAL_AUTH_LIMIT,
+    ],
     { initializer: "initialize", unsafeAllow: ["external-library-linking"] }
   );
 
@@ -33,6 +39,12 @@ const deployFunction: DeployFunction = async function (
   //   for (let i = 0; i < operatorCount; ++i) {
   //     operators.push(await assetManager.getRoleMember("OPERATOR_ROLE", i));
   //   }
+
+  const globalUserLimit = await assetManager.globalUserLimit();
+  console.log(
+    "AssetManager Global User Auth Limit:",
+    ethers.utils.formatUnits(globalUserLimit.toString())
+  );
 
   const globalUserAuthLimit = await assetManager.globalUserAuthLimit();
   console.log(

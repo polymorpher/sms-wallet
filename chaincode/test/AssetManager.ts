@@ -18,7 +18,8 @@ const ZERO_ETH = ethers.utils.parseEther("0");
 const ONE_ETH = ethers.utils.parseEther("1");
 const TWO_ETH = ethers.utils.parseEther("2");
 const INITIAL_BALANCE_ETH = ethers.utils.parseEther("10000");
-const INITIAL_AUTH_LIMIT = ethers.utils.parseEther("100000");
+const INITIAL_USER_LIMIT = ethers.utils.parseEther("1000");
+const INITIAL_AUTH_LIMIT = ethers.utils.parseEther("100");
 const DUMMY_HEX = "0x";
 
 // let snapshotId: string;
@@ -39,7 +40,12 @@ describe("AssetManager", function (this) {
       [
         "assetManager",
         this.AssetManager,
-        [config.initialOperatorThreshold, config.operators, INITIAL_AUTH_LIMIT],
+        [
+          config.initialOperatorThreshold,
+          config.operators,
+          INITIAL_USER_LIMIT,
+          INITIAL_AUTH_LIMIT,
+        ],
       ],
     ]);
   });
@@ -85,6 +91,35 @@ describe("AssetManager", function (this) {
       expect(
         await this.assetManager.allowance(this.alice.address, this.bob.address)
       ).to.equal(ZERO_ETH);
+    });
+    it("Negative deposit test amount greater global user limit", async function () {
+      // ===== DEPOSIT NEGATIVE TEST =====
+      // Alice Deposit amount greater than limit of native token
+      // check Initial Balance
+      await checkBalance(this.alice, "10000");
+      const aliceBalance = await this.alice.getBalance();
+      const depositAmount = INITIAL_USER_LIMIT.add(ONE_ETH);
+      await expect(
+        this.assetManager.connect(this.alice).deposit({
+          value: depositAmount,
+        })
+      ).to.be.reverted;
+      // Check that alice did not lose her funds when the transaction was reverted (note she did pay gas fees)
+      const aliceNewBalance = await this.alice.getBalance();
+      expect(aliceNewBalance).to.be.gt(aliceBalance.sub(depositAmount));
+    });
+    it("Negative deposit test amount two deposits greater global user limit", async function () {
+      // ===== DEPOSIT NEGATIVE TEST =====
+      // Alice Deposit limit of  native token (she has deposited 1 token above)
+      let tx = await this.assetManager.connect(this.alice).deposit({
+        value: ONE_ETH,
+      });
+      await tx.wait();
+      await expect(
+        (tx = this.assetManager.connect(this.alice).deposit({
+          value: INITIAL_USER_LIMIT,
+        }))
+      ).to.be.reverted;
     });
   });
 

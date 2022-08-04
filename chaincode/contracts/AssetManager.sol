@@ -74,8 +74,10 @@ contract AssetManager is
     event OperatorRemoved(address operator);
 
     event GlobalUserAuthLimitChanged(uint256 newGlobalUserAuthLimit);
+    event GlobalUserLimitChanged(uint256 newGlobalUserLimit);
 
     uint256 public globalUserAuthLimit;
+    uint256 public globalUserLimit;
     mapping(address => uint256) public userBalances;
     mapping(address => mapping(address => uint256)) private _allowances;
 
@@ -123,6 +125,11 @@ contract AssetManager is
         emit OperatorRemoved(operatorAddress);
     }
 
+   function adminChangeGlobalUserLimit(uint256 newGlobalUserLimit) external onlyAdmin {
+        globalUserLimit = newGlobalUserLimit;
+        emit GlobalUserAuthLimitChanged(newGlobalUserLimit);
+    }
+
    function adminChangeGlobalUserAuthLimit(uint256 newGlobalUserAuthLimit) external onlyAdmin {
         globalUserAuthLimit = newGlobalUserAuthLimit;
         emit GlobalUserAuthLimitChanged(newGlobalUserAuthLimit);
@@ -131,6 +138,7 @@ contract AssetManager is
     function initialize (
         uint8 initialOperatorThreshold,
         address[] memory initialOperators,
+        uint256 globalUserLimit_,
         uint256 globalUserAuthLimit_
     ) external initializer{
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -138,21 +146,23 @@ contract AssetManager is
         for (uint256 i; i < initialOperators.length; i++) {
             grantRole(OPERATOR_ROLE, initialOperators[i]);
         }
+        globalUserLimit = globalUserLimit_;
         globalUserAuthLimit = globalUserAuthLimit_;
         }
 
     function deposit() public payable whenNotPaused {
-        userBalances[address(msg.sender)] += msg.value;
+        require((userBalances[address(msg.sender)] + msg.value) <= globalUserLimit, "AssetManager: deposit greater than global limit");
+        userBalances[msg.sender] += msg.value;
         // update the userBalance
         emit DepositSuccesful(
             msg.sender,
             msg.value,
-            userBalances[address(msg.sender)]
+            userBalances[msg.sender]
         );
     }
 
         function withdraw(uint256 amount) public whenNotPaused {
-        uint256 balance =  userBalances[address(msg.sender)];
+        uint256 balance =  userBalances[msg.sender];
         // if zero is passed withdraw all funds
         if (amount == 0){ amount = balance; }
         // check msg.senders balance
@@ -167,7 +177,7 @@ contract AssetManager is
 
         // withdraw funds from the contract (update userBalance before transfer to protect from reentracy attack)
         uint256 newBalance = balance - amount;
-        userBalances[address(msg.sender)] = newBalance;
+        userBalances[msg.sender] = newBalance;
         payable(msg.sender).transfer(amount);
 
         // update the userBalance
@@ -230,7 +240,7 @@ contract AssetManager is
         }
         // withdraw funds from the contract (update userBalance before transfer to protect from reentracy attack)
         uint256 newBalance = balance - amount;
-        userBalances[address(from)] = newBalance;
+        userBalances[from] = newBalance;
 
         // update the approved amount.
         uint256 newLimit = currentAllowance - amount;
