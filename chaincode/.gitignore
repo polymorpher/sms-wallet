@@ -10,5 +10,5 @@ artifacts
 build
 
 # Additional files
-docs
+docs/solidity
 data

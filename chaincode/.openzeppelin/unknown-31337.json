@@ -12,9 +12,9 @@
     }
   ],
   "impls": {
-    "b8c2bf74da287b0b782597f087d134762eabfe4ca558cb98c1f97b6913c3e2ea": {
+    "7c579fa4ea8e4d2cffb6098ab74b736b68096bbbe0725e893b2606382d196734": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0xba5abc7117bb8d9f96a92c3e4db923150015d534c912acc4652b3896a68bea2d",
+      "txHash": "0x2c983b55718760fc0e821781326a8d9d00aea00838048f29a08f68461b521bb8",
       "layout": {
         "storage": [
           {
@@ -88,7 +88,7 @@
             "slot": "201",
             "type": "t_uint256",
             "contract": "AssetManager",
-            "src": "contracts/AssetManager.sol:79"
+            "src": "contracts/AssetManager.sol:175"
           },
           {
             "label": "globalUserLimit",
@@ -96,7 +96,7 @@
             "slot": "202",
             "type": "t_uint256",
             "contract": "AssetManager",
-            "src": "contracts/AssetManager.sol:80"
+            "src": "contracts/AssetManager.sol:181"
           },
           {
             "label": "userBalances",
@@ -104,7 +104,7 @@
             "slot": "203",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "AssetManager",
-            "src": "contracts/AssetManager.sol:81"
+            "src": "contracts/AssetManager.sol:186"
           },
           {
             "label": "_allowances",
@@ -112,7 +112,7 @@
             "slot": "204",
             "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
             "contract": "AssetManager",
-            "src": "contracts/AssetManager.sol:82"
+            "src": "contracts/AssetManager.sol:192"
           },
           {
             "label": "operatorThreshold",
@@ -120,7 +120,7 @@
             "slot": "205",
             "type": "t_uint8",
             "contract": "AssetManager",
-            "src": "contracts/AssetManager.sol:84"
+            "src": "contracts/AssetManager.sol:201"
           }
         ],
         "types": {
