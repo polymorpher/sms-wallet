@@ -6,10 +6,8 @@ pragma solidity ^0.8.9;
 // import "hardhat/console.sol";
 import "./lib/SafeCast.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-// import "openzeppelin-solidity/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-// import "openzeppelin-solidity/contracts/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -28,7 +26,7 @@ import "./Enums.sol";
 contract AssetManager is 
     Initializable,
     PausableUpgradeable,
-    AccessControlUpgradeable
+    AccessControlEnumerableUpgradeable
 {
     using SafeCast for *;
     using SafeMathUpgradeable for uint256;
@@ -263,6 +261,7 @@ contract AssetManager is
     */
     function adminAddOperator(address operatorAddress) external onlyAdmin {
         require(!hasRole(OPERATOR_ROLE, operatorAddress), "addr already has operator role!");
+        require((getRoleMemberCount(OPERATOR_ROLE) < operatorThreshold), "addr already has operator role!");
         grantRole(OPERATOR_ROLE, operatorAddress);
         emit OperatorAdded(operatorAddress);
     }
