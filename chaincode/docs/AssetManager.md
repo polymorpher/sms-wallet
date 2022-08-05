@@ -143,7 +143,7 @@ function adminUnpauseAssetManager() external nonpayable
 
 
 
-*`adminUnpauseAssetManager` unpauses the `AssetManager` contract *
+*`adminUnpauseAssetManager` unpauses the `AssetManager` contract*
 
 
 ### allowance
@@ -154,7 +154,7 @@ function allowance(address owner, address spender) external view returns (uint25
 
 
 
-*`allowance` returns the number of takens the `owner` has allowed the `operator` to send to the user. *
+*`allowance` returns the number of takens the `owner` has allowed the `operator` to send to the user.*
 
 #### Parameters
 
@@ -233,7 +233,7 @@ function globalUserAuthLimit() external view returns (uint256)
 
 
 
-*The global limit for the amount of Native Tokens a user can authorize per recipient  This value is checked when creating allowances. *
+*The global limit for the amount of Native Tokens a user can authorize per recipient  This value is checked when creating allowances.*
 
 
 #### Returns
@@ -837,7 +837,7 @@ error WithdrawalFailed(address user, uint256 amount, uint256 balance, string rea
 
 
 
-*Emitted when an attempt by a `user` to withdraw native tokens `amount` fails  `balance` is the users balance held and `reason` gives the reason for failure. e.g. `Insufficient Locked Funds to Withdraw` *
+*Emitted when an attempt by a `user` to withdraw native tokens `amount` fails  `balance` is the users balance held and `reason` gives the reason for failure. e.g. `Insufficient Locked Funds to Withdraw`.*
 
 #### Parameters
 

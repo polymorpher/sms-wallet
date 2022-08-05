@@ -54,7 +54,7 @@ contract AssetManager is
     /**
     * @dev Emitted when an attempt by a `user` to withdraw native tokens `amount` fails 
     * `balance` is the users balance held and `reason` gives the reason for failure.
-    * e.g. `Insufficient Locked Funds to Withdraw` 
+    * e.g. `Insufficient Locked Funds to Withdraw`.
     * @param user The user attempting to withdraw the native token
     * @param amount The amount of native tokens requested to withdraw
     * @param balance The users balance of native tokens held by the AssetManager contract
@@ -170,7 +170,7 @@ contract AssetManager is
 
     /**
     * @dev The global limit for the amount of Native Tokens a user can authorize per recipient 
-    * This value is checked when creating allowances. 
+    * This value is checked when creating allowances.
     */
     uint256 public globalUserAuthLimit;
 
@@ -231,7 +231,7 @@ contract AssetManager is
     }
 
     /** 
-    * @dev `adminUnpauseAssetManager` unpauses the `AssetManager` contract 
+    * @dev `adminUnpauseAssetManager` unpauses the `AssetManager` contract
     */
     function adminUnpauseAssetManager() external onlyAdmin {
         _unpause();
@@ -372,7 +372,7 @@ contract AssetManager is
     }
 
     /**
-    * @dev `allowance` returns the number of takens the `owner` has allowed the `operator` to send to the user. 
+    * @dev `allowance` returns the number of takens the `owner` has allowed the `operator` to send to the user.
     * @param owner The owner of the native tokens
     * @param spender The recipient of the native tokens
     * @return Number of tokens allowed
