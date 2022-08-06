@@ -248,7 +248,7 @@ router.post('/request', async (req, res) => {
       return res.status(StatusCodes.NOT_FOUND).json({ error: 'user does not exist' })
     }
   }
-  const fRequest = pick(request, ['caller', 'comment', 'amount', 'dest', 'calldata'])
+  const fRequest = pick(request, ['caller', 'comment', 'callback', 'amount', 'dest', 'calldata'])
   if (typeof fRequest.calldata !== 'string') {
     fRequest.calldata = Buffer.from(stringify(fRequest.calldata)).toString('base64')
   }

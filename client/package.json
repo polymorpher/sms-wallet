@@ -100,6 +100,7 @@
     "html2canvas": "^1.3.2",
     "humanize-duration": "^3.27.0",
     "iso-country-currency": "^0.5.3",
+    "json-stable-stringify": "^1.0.1",
     "jsqr": "^1.4.0",
     "localforage": "^1.9.0",
     "lodash": "^4.17.10",

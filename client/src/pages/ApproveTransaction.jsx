@@ -22,30 +22,16 @@ const decodeCalldata = (calldataB64Encoded) => {
   }
 }
 
-const ApproveTransaction = () => {
-  const history = useHistory()
+export const ApproveTransaction = ({ calldata, caller, callback, comment, inputAmount, dest, onComplete }) => {
   const wallet = useSelector(state => state.wallet || {})
   const address = Object.keys(wallet)[0]
-  const qs = querystring.parse(location.search)
-  const callback = utils.safeURL(qs.callback && Buffer.from(qs.callback, 'base64').toString())
-  const { caller, comment, amount: inputAmount, dest, calldata: calldataB64Encoded } = qs
+
   const [showDetails, setShowDetails] = useState(false)
   const { balance: amount, formatted: amountFormatted } = utils.toBalance(inputAmount || 0)
 
   const pk = wallet[address]?.pk
   if (!pk) {
     return <Redirect to={paths.signup} />
-  }
-  const calldata = decodeCalldata(calldataB64Encoded)
-  if (!callback || !calldata || !dest) {
-    return (
-      <MainContainer withMenu>
-        <Desc>
-          <BaseText>Error: the app which sent you here has malformed callback URL, call data, or destination address. Please contact the app developer.</BaseText>
-          <Button onClick={() => history.goBack()}> Go back</Button>
-        </Desc>
-      </MainContainer>
-    )
   }
 
   const execute = async () => {
@@ -70,6 +56,7 @@ const ApproveTransaction = () => {
         value: amount.toString(),
         data: encoded
       })
+      onComplete && await onComplete(receipt)
       const hash = receipt.transactionHash
       const returnUrl = new URL(callback)
       returnUrl.searchParams.append('success', 'true')
@@ -144,4 +131,24 @@ const ApproveTransaction = () => {
   )
 }
 
-export default ApproveTransaction
+const ApproveTransactionPage = () => {
+  const history = useHistory()
+  const qs = querystring.parse(location.search)
+  const callback = utils.safeURL(qs.callback && Buffer.from(qs.callback, 'base64').toString())
+  const { caller, comment, amount: inputAmount, dest, calldata: calldataB64Encoded } = qs
+  const calldata = decodeCalldata(calldataB64Encoded)
+  if (!callback || !calldata || !dest) {
+    return (
+      <MainContainer withMenu>
+        <Desc>
+          <BaseText>Error: the app which sent you here has malformed callback URL, call data, or destination address. Please contact the app developer.</BaseText>
+          <Button onClick={() => history.goBack()}> Go back</Button>
+        </Desc>
+      </MainContainer>
+    )
+  }
+
+  return <ApproveTransaction comment={comment} callback={callback} caller={caller} inputAmount={inputAmount} dest={dest} calldata={calldata} />
+}
+
+export default ApproveTransactionPage
