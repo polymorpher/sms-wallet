@@ -6,7 +6,7 @@ export const Button = styled.button`
   font-weight: 200;
   border: none;
   
-  width: 128px;
+  width: ${props => props.$width || '128px'};
   color: white;
   background: black;
   padding: 8px 16px;
