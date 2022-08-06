@@ -93,7 +93,7 @@ const apis = {
       return destAddress
     },
     requestView: async ({ address, signature, id }) => {
-      const { data } = await apiBase.post('/request-review', { address, signature, id })
+      const { data } = await apiBase.post('/request-view', { address, signature, id })
       const { request, hash } = data
       return { request, hash }
     },
