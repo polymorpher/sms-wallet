@@ -12,7 +12,7 @@ import { Row } from '../components/Layout'
 import { utils } from '../utils'
 import { pick } from 'lodash'
 
-const decodeCalldata = (calldataB64Encoded) => {
+export const decodeCalldata = (calldataB64Encoded) => {
   const calldataDecoded = Buffer.from(calldataB64Encoded || '', 'base64')
   try {
     return JSON.parse(calldataDecoded)
@@ -94,7 +94,7 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
   return (
     <MainContainer withMenu>
       <DescLeft>
-        <Title>{caller || 'An App'} ({callback.hostname}) requests you to execute a contract call</Title>
+        <Title>{caller || 'An App'}{callback?.hostname ? ` (${callback?.hostname})` : ''} requests you to execute a contract call</Title>
         {amount.gtn(0) && <BaseText> and to send {amountFormatted} ONE</BaseText>}
         {comment && <BaseText>Reason: {comment}</BaseText>}
         <Hint>Tips: Apps often make contract calls to transfer assets, such as NFTs and tokens, or to perform custom actions. Make sure you trust this app.</Hint>
