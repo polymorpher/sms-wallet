@@ -9,6 +9,7 @@ import { toast } from 'react-toastify'
 import { processError, utils } from '../utils'
 import { ApproveTransaction, decodeCalldata } from './ApproveTransaction'
 import { Button } from '../components/Controls'
+import { TailSpin } from 'react-loading-icons'
 
 const Request = () => {
   const history = useHistory()
@@ -52,6 +53,7 @@ const Request = () => {
   if (!pk) {
     return <Redirect to={paths.signup} />
   }
+
   if (error) {
     return (
       <MainContainer withMenu>
@@ -85,6 +87,16 @@ const Request = () => {
         </DescLeft>
         <Desc>
           <Button $width='196px' onClick={() => history.push(paths.wallet)}>Return to Wallet</Button>
+        </Desc>
+      </MainContainer>
+    )
+  }
+  if (!request) {
+    return (
+      <MainContainer withMenu>
+        <Desc>
+          <TailSpin stroke='black' width={48} height={48} />
+          <BaseText>Loading Request...</BaseText>
         </Desc>
       </MainContainer>
     )
