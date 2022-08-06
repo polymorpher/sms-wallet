@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux'
 import { FlexColumn, FlexRow } from './components/Layout'
 import SignMessage from './pages/SignMessage'
 import ApproveTransactionPage from './pages/ApproveTransaction'
+import Request from './pages/Request'
 const Routes = () => {
   const dispatch = useDispatch()
   const [rehydrated, setRehydrated] = useState(false)
@@ -38,6 +39,7 @@ const Routes = () => {
         <Route path={paths.recover} render={() => <Recover />} />
         <Route path={paths.sign} render={() => <SignMessage />} />
         <Route path={paths.call} render={() => <ApproveTransactionPage />} />
+        <Route path={paths.request} render={() => <Request />} />
         <Redirect to={paths.root} />
       </Switch>
     </BrowserRouter>
