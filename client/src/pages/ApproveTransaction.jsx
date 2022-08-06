@@ -51,11 +51,13 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
       }
       const encoded = utils.encodeCalldata({ method: calldata.method, selector: calldata.selector, types, values })
       console.log(encoded)
-      const receipt = await apis.web3.web3.eth.sendTransaction({
+      const txParams = {
         to: dest,
         value: amount.toString(),
         data: encoded
-      })
+      }
+      const gas = await apis.web3.web3.eth.estimateGas(txParams)
+      const receipt = await apis.web3.web3.eth.sendTransaction({ ...txParams, gas })
       onComplete && await onComplete(receipt)
       const hash = receipt.transactionHash
       const returnUrl = new URL(callback)
