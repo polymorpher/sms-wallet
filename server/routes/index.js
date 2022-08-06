@@ -281,7 +281,7 @@ router.post('/request-view', async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
   }
   const recoveredAddress = w3utils.ecrecover(id, signature)
-  if (recoveredAddress !== address) {
+  if (!w3utils.isSameAddress(recoveredAddress, address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
   const r = await Request.get(id)
@@ -291,7 +291,8 @@ router.post('/request-view', async (req, res) => {
   if (r.txHash) {
     return res.status(StatusCodes.NOT_FOUND).json({ error: 'transaction already completed' })
   }
-  if (r.address !== address) {
+  if (!w3utils.isSameAddress(r.address, address)) {
+    console.log(r.address, address)
     return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'transaction belongs to different address' })
   }
   try {
@@ -314,7 +315,7 @@ router.post('/request-complete', async (req, res) => {
   }
   const message = `${id} ${txHash}`
   const recoveredAddress = w3utils.ecrecover(message, signature)
-  if (recoveredAddress !== address) {
+  if (!w3utils.isSameAddress(recoveredAddress, address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
   const r = await Request.get(id)
@@ -324,7 +325,7 @@ router.post('/request-complete', async (req, res) => {
   if (r.txHash) {
     return res.status(StatusCodes.NOT_FOUND).json({ error: 'transaction already completed' })
   }
-  if (r.address !== address) {
+  if (!w3utils.isSameAddress(r.address, address)) {
     return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'transaction belongs to different address' })
   }
   try {
