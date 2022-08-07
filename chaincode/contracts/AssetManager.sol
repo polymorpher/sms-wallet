@@ -296,7 +296,7 @@ contract AssetManager is
     /**
     * @dev `adminChangeGlobalUserAuthLimit` updates the global limit for the amount of Native Tokens a user can authorize per recipient
     * This value is checked when creating allowances. 
-    * This function can on ly be called by an administrator
+    * This function can only be called by an administrator
     * @param newGlobalUserAuthLimit updated Global User Auth Limit
     */
    function adminChangeGlobalUserAuthLimit(uint256 newGlobalUserAuthLimit) external onlyAdmin {
@@ -349,10 +349,10 @@ contract AssetManager is
     * `msg.sender` is used to determine the user. If a zero amount is passed then all the native tokens held for that user are withdrawn.
     * @param amount The amount of native tokens to withdraw (zero means withdraw all tokens held for the user)
     */
-        function withdraw(uint256 amount) public whenNotPaused {
+    function withdraw(uint256 amount) public whenNotPaused {
         uint256 balance =  userBalances[msg.sender];
         // if zero is passed withdraw all funds
-        if (amount == 0){ amount = balance; }
+        if (amount == 0) {amount = balance;}
         // check msg.senders balance
         if (amount > balance) {
             revert WithdrawalFailed(
@@ -363,7 +363,7 @@ contract AssetManager is
             );
         }
 
-        // withdraw funds from the contract (update userBalance before transfer to protect from reentracy attack)
+        // withdraw funds from the contract (update userBalance before transfer to protect from reentrancy attack)
         uint256 newBalance = balance - amount;
         userBalances[msg.sender] = newBalance;
         payable(msg.sender).transfer(amount);
@@ -382,7 +382,7 @@ contract AssetManager is
     * @param spender The recipient of the native tokens
     * @return Number of tokens allowed
     */
-    function allowance(address owner, address spender) public whenNotPaused view returns (uint256) {
+    function allowance(address owner, address spender) public view returns (uint256) {
         return _allowances[owner][spender];
     }
 
