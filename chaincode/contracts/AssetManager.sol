@@ -279,7 +279,7 @@ contract AssetManager is
             require(hasRole(OPERATOR_ROLE, operatorAddress), "removing non-operator");
             revokeRole(OPERATOR_ROLE, operatorAddress);
         }
-        emit OperatorRemoved(operatorAddress);
+        emit OperatorsRemoved(operatorAddress);
     }
 
    /**
@@ -294,7 +294,7 @@ contract AssetManager is
     }
 
     /**
-    * @dev `adminChangeGlobalUserAuthLimit` updats the global limit for the amount of Native Tokens a user can authorize per recipient 
+    * @dev `adminChangeGlobalUserAuthLimit` updates the global limit for the amount of Native Tokens a user can authorize per recipient
     * This value is checked when creating allowances. 
     * This function can on ly be called by an administrator
     * @param newGlobalUserAuthLimit updated Global User Auth Limit
@@ -305,7 +305,7 @@ contract AssetManager is
     }
 
     /** 
-    * @dev `initialize` initializes the AssetManager contract it should be called directly after the deploy. 
+    * @dev `initialize` initializes the AssetManager contract. It should be called directly after the deploy.
     * It is used instead of a `constructor` as the `AssetManager` is upgradeable. 
     * The `msg.sender` is granted the `DEFAULT_ADMIN_ROLE`.
     * @param initialOperatorThreshold The initial maximum number of operators allowed
@@ -315,7 +315,7 @@ contract AssetManager is
     */
     function initialize (
         uint8 initialOperatorThreshold,
-        address[] memory initialOperators,
+        address[] calldata initialOperators,
         uint256 globalUserLimit_,
         uint256 globalUserAuthLimit_
     ) external initializer{
@@ -326,7 +326,7 @@ contract AssetManager is
         }
         globalUserLimit = globalUserLimit_;
         globalUserAuthLimit = globalUserAuthLimit_;
-        }
+    }
 
     /**
     * @dev `deposit` allows a user to deposit funds to the `AssetManager` contract.
