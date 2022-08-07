@@ -23,11 +23,7 @@ import "./Enums.sol";
   @dev The AssetManager is designed to simplify management and transfer of tokens
   by light clients such as the sms-wallet.
  */
-contract AssetManager is 
-    Initializable,
-    PausableUpgradeable,
-    AccessControlEnumerableUpgradeable
-{
+contract AssetManager is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable {
     using SafeCast for *;
     using SafeMathUpgradeable for uint256;
 
@@ -82,7 +78,7 @@ contract AssetManager is
     * @param newAllowance The updated allowance of native tokens which can be transferred by the AssetManager Operator to the spender
     */
     event SendSuccessful(address indexed from, address indexed to, uint256 amount, uint256 newBalance, uint256 newAllowance);
- 
+
     /**
     * @dev Emitted when attempting to send native tokens by the operator on behalf of the `from` account to the `to` account fails
     * e.g. if they have insufficient native tokens locked or insufficient funds approved for the to account
@@ -109,12 +105,12 @@ contract AssetManager is
     * @param tokenAddress the address of the token contract 
     * @param from The sender of the token
     * @param to The recipient of the token
-    */ 
+    */
     event TransferSuccessful(uint256 amount,
         Enums.TokenType tokenType,
-        uint256 tokenId, 
-        address tokenAddress, 
-        address indexed from, 
+        uint256 tokenId,
+        address tokenAddress,
+        address indexed from,
         address indexed to);
 
     /**
@@ -125,13 +121,13 @@ contract AssetManager is
     * @param from The sender of the token
     * @param to The recipient of the token
     * @param reason The reason for the failure
-    */ 
+    */
     error TransferFailed(
         uint256 amount,
         Enums.TokenType tokenType,
-        uint256 tokenId, 
-        address tokenAddress, 
-        address from, 
+        uint256 tokenId,
+        address tokenAddress,
+        address from,
         address to,
         string reason
     );
@@ -182,7 +178,7 @@ contract AssetManager is
     * @dev This mapping tracks the balances of native tokens stored in the AssetManager contract for each user
     */
     mapping(address => uint256) public userBalances;
-    
+
     /**
     * @dev `_allowances` is a two layer mapping tracking the allowance each user has given each recipient.
     * It is a many to one relationship i.e. One User can create allowances for multiple recipients.
@@ -282,13 +278,13 @@ contract AssetManager is
         emit OperatorsRemoved(operatorAddress);
     }
 
-   /**
-    * @dev `adminChangeGlobalUserLimit` updates the global limit for the amount of Native Tokens a user can hold in the AssetManager Contract.
+    /**
+     * @dev `adminChangeGlobalUserLimit` updates the global limit for the amount of Native Tokens a user can hold in the AssetManager Contract.
     * This value is checked when depositing funds.
     * This function can only be called by the administrator.
     * @param newGlobalUserLimit The updated global limit. 
     */
-   function adminChangeGlobalUserLimit(uint256 newGlobalUserLimit) external onlyAdmin {
+    function adminChangeGlobalUserLimit(uint256 newGlobalUserLimit) external onlyAdmin {
         globalUserLimit = newGlobalUserLimit;
         emit GlobalUserAuthLimitChanged(newGlobalUserLimit);
     }
@@ -299,7 +295,7 @@ contract AssetManager is
     * This function can only be called by an administrator
     * @param newGlobalUserAuthLimit updated Global User Auth Limit
     */
-   function adminChangeGlobalUserAuthLimit(uint256 newGlobalUserAuthLimit) external onlyAdmin {
+    function adminChangeGlobalUserAuthLimit(uint256 newGlobalUserAuthLimit) external onlyAdmin {
         globalUserAuthLimit = newGlobalUserAuthLimit;
         emit GlobalUserAuthLimitChanged(newGlobalUserAuthLimit);
     }
@@ -313,12 +309,12 @@ contract AssetManager is
     * @param globalUserLimit_ The initial limit of how many native tokens a user can deposit
     * @param globalUserAuthLimit_ The initial limit of how many native tokens a user can approve for a recipient
     */
-    function initialize (
+    function initialize(
         uint8 initialOperatorThreshold,
         address[] calldata initialOperators,
         uint256 globalUserLimit_,
         uint256 globalUserAuthLimit_
-    ) external initializer{
+    ) external initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         operatorThreshold = initialOperatorThreshold;
         for (uint256 i; i < initialOperators.length; i++) {
@@ -350,7 +346,7 @@ contract AssetManager is
     * @param amount The amount of native tokens to withdraw (zero means withdraw all tokens held for the user)
     */
     function withdraw(uint256 amount) public whenNotPaused {
-        uint256 balance =  userBalances[msg.sender];
+        uint256 balance = userBalances[msg.sender];
         // if zero is passed withdraw all funds
         if (amount == 0) {amount = balance;}
         // check msg.senders balance
@@ -412,7 +408,7 @@ contract AssetManager is
     * @param to The recipient of the native tokens.
     */
     function send(uint256 amount, address from, address to) public onlyOperators whenNotPaused() {
-        uint256 balance =  userBalances[from];
+        uint256 balance = userBalances[from];
         uint256 currentAllowance = allowance(from, to);
         if (amount == 0) {
             revert SendFailed(
