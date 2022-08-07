@@ -20,7 +20,7 @@ import "./Enums.sol";
   @notice This contract allows users to transfer native tokens and authorize recipients
   (such as games) to receive these tokens. Once approved it can transfer the native tokens on behalf of the user.
   It also can transfer ERC20, ERC721 and ERC1155 tokens on behalf of the user, after the user approves the AssetManager contract to do so.
-  @dev The AssetManager is designed to simplify managment and transfer of tokens
+  @dev The AssetManager is designed to simplify management and transfer of tokens
   by light clients such as the sms-wallet.
  */
 contract AssetManager is 
@@ -38,16 +38,16 @@ contract AssetManager is
     * @param amount The amount of native tokens deposited
     * @param balance The users balance of native tokens held by the AssetManager contract after the deposit
     */
-    event DepositSuccesful(address indexed user, uint256 amount, uint256 balance);
+    event DepositSuccessful(address indexed user, uint256 amount, uint256 balance);
 
     /**
     * @dev Emitted when a `user` withdraws native tokens (`amount`) from the AssetManager
     * `balance` is the users new balance held.
-    * @param user The user withdrawaing the native token
+    * @param user The user withdrawing the native token
     * @param amount The amount of native tokens withdrawn
     * @param balance The users balance of native tokens held by the AssetManager contract after the withdrawal
     */
-    event WithdrawalSuccesful(address indexed user, uint256 amount, uint256 balance);
+    event WithdrawalSuccessful(address indexed user, uint256 amount, uint256 balance);
 
     /**
     * @dev Emitted when an attempt by a `user` to withdraw native tokens `amount` fails 
@@ -74,14 +74,14 @@ contract AssetManager is
     event Approval(address indexed owner, address indexed spender, uint256 allowance);
 
     /**
-    * @dev Emitted when native tokens have been succesfully sent by the operator on behalf of the `from` account
+    * @dev Emitted when native tokens have been successfully sent by the operator on behalf of the `from` account
     * @param from The sender of the native token
     * @param to The recipient of the native token
     * @param amount The amount of native token sent
     * @param newBalance The updated balance of native tokens held by the AssetManager contract on behalf of the user
     * @param newAllowance The updated allowance of native tokens which can be transferred by the AssetManager Operator to the spender
     */
-    event SendSuccesful(address indexed from, address indexed to, uint256 amount, uint256 newBalance, uint256 newAllowance);
+    event SendSuccessful(address indexed from, address indexed to, uint256 amount, uint256 newBalance, uint256 newAllowance);
  
     /**
     * @dev Emitted when attempting to send native tokens by the operator on behalf of the `from` account to the `to` account fails
@@ -110,7 +110,7 @@ contract AssetManager is
     * @param from The sender of the token
     * @param to The recipient of the token
     */ 
-    event TransferSuccesful(uint256 amount,
+    event TransferSuccessful(uint256 amount,
         Enums.TokenType tokenType,
         uint256 tokenId, 
         address tokenAddress, 
@@ -237,7 +237,7 @@ contract AssetManager is
 
     /** 
     * @dev `renounceAdmin` can only be called by the current administrator
-    * It creates a new administrator and renounce the adminstrator role from the `msg.sender`
+    * It creates a new administrator and renounce the administrator role from the `msg.sender`
     * @param newAdmin the new administrator
     */
     function renounceAdmin(address newAdmin) external onlyAdmin {
@@ -305,7 +305,7 @@ contract AssetManager is
     * @param initialOperatorThreshold The initial maximum number of operators allowed
     * @param initialOperators The address of the initial operators (each will be granted the `OPERATOR_ROLE`)
     * @param globalUserLimit_ The initial limit of how many native tokens a user can deposit
-    * @param globalUserAuthLimit_ The initial linmit of how many native tokens a user can approve for a recipient 
+    * @param globalUserAuthLimit_ The initial limit of how many native tokens a user can approve for a recipient
     */
     function initialize (
         uint8 initialOperatorThreshold,
@@ -331,7 +331,7 @@ contract AssetManager is
         require((userBalances[address(msg.sender)] + msg.value) <= globalUserLimit, "AssetManager: deposit greater than global limit");
         userBalances[msg.sender] += msg.value;
         // update the userBalance
-        emit DepositSuccesful(
+        emit DepositSuccessful(
             msg.sender,
             msg.value,
             userBalances[msg.sender]
@@ -363,7 +363,7 @@ contract AssetManager is
         payable(msg.sender).transfer(amount);
 
         // update the userBalance
-        emit WithdrawalSuccesful(
+        emit WithdrawalSuccessful(
             msg.sender,
             amount,
             userBalances[address(msg.sender)]
@@ -371,7 +371,7 @@ contract AssetManager is
     }
 
     /**
-    * @dev `allowance` returns the number of takens the `owner` has allowed the `operator` to send to the user.
+    * @dev `allowance` returns the number of tokens the `owner` has allowed the `operator` to send to the user.
     * @param owner The owner of the native tokens
     * @param spender The recipient of the native tokens
     * @return Number of tokens allowed
@@ -440,7 +440,7 @@ contract AssetManager is
                 "Insufficient approved funds to send "
             );
         }
-        // withdraw funds from the contract (update userBalance before transfer to protect from reentracy attack)
+        // withdraw funds from the contract (update userBalance before transfer to protect from reentrancy attack)
         uint256 newBalance = balance - amount;
         userBalances[from] = newBalance;
 
@@ -450,7 +450,7 @@ contract AssetManager is
 
         payable(to).transfer(amount);
 
-        emit SendSuccesful(
+        emit SendSuccessful(
             from,
             to,
             amount,
@@ -472,7 +472,7 @@ contract AssetManager is
     if ( tokenType == Enums.TokenType.ERC20 ) {
         bool success = ERC20(tokenAddress).transferFrom(from, to, amount);
         if (success) {
-            emit TransferSuccesful(amount, tokenType, tokenId, tokenAddress, from, to);
+            emit TransferSuccessful(amount, tokenType, tokenId, tokenAddress, from, to);
         } else {
             revert TransferFailed(
             amount,
@@ -486,10 +486,10 @@ contract AssetManager is
         }
     } else if ( tokenType == Enums.TokenType.ERC721 ) {
        ERC721(tokenAddress).safeTransferFrom(from, to, tokenId);
-        emit TransferSuccesful(amount, tokenType, tokenId, tokenAddress, from, to);
+        emit TransferSuccessful(amount, tokenType, tokenId, tokenAddress, from, to);
     } else if ( tokenType == Enums.TokenType.ERC1155 ) {
         ERC1155(tokenAddress).safeTransferFrom(from, to, tokenId, amount, "");
-        emit TransferSuccesful(amount, tokenType, tokenId, tokenAddress, from, to);
+        emit TransferSuccessful(amount, tokenType, tokenId, tokenAddress, from, to);
     } else { 
         revert TransferFailed(
             amount,
