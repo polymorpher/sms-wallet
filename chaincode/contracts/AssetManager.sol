@@ -143,16 +143,16 @@ contract AssetManager is
     event OperatorThresholdChanged(uint256 newThreshold);
 
     /**
-    * @dev Emitted when the `DEFAULT_ADMIN` adds an operator
-    * @param operator The operator added
+    * @dev Emitted when the `DEFAULT_ADMIN` adds some operators
+    * @param operators The operators added
     */
-    event OperatorAdded(address operator);
+    event OperatorsAdded(address[] operators);
 
     /**
-    * @dev Emitted when the `DEFAULT_ADMIN` removes an operator
-    * @param operator The operator removed
+    * @dev Emitted when the `DEFAULT_ADMIN` removes some operators
+    * @param operators The operators removed
     */
-    event OperatorRemoved(address operator);
+    event OperatorsRemoved(address[] operators);
 
     /**
     * @dev Emitted when the `DEFAULT_ADMIN` changes the global limit for the amount of Native Tokens a user can authorize per recipient
@@ -256,23 +256,29 @@ contract AssetManager is
     }
 
     /**
-    * @dev `adminAddOperator` adds a new operator (can only be called by admin)
+    * @dev `adminAddOperators` adds a new operator (can only be called by admin)
     * @param operatorAddress The address of the new operator 
     */
-    function adminAddOperator(address operatorAddress) external onlyAdmin {
-        require(!hasRole(OPERATOR_ROLE, operatorAddress), "addr already has operator role!");
-        require((getRoleMemberCount(OPERATOR_ROLE) < operatorThreshold), "addr already has operator role!");
-        grantRole(OPERATOR_ROLE, operatorAddress);
-        emit OperatorAdded(operatorAddress);
+    function adminAddOperators(address[] calldata operatorAddresses) external onlyAdmin {
+        for (uint256 i = 0; i < operatorAddresses.length; i++) {
+            address operatorAddress = operatorAddresses[i];
+            require(!hasRole(OPERATOR_ROLE, operatorAddress), "reassigning operator role");
+            require((getRoleMemberCount(OPERATOR_ROLE) < operatorThreshold), "too many operators");
+            grantRole(OPERATOR_ROLE, operatorAddress);
+        }
+        emit OperatorsAdded(operatorAddresses);
     }
 
     /**
-    * @dev `adminRemoveOperator` removes an operator (can only be called by admin)
+    * @dev `adminRemoveOperators` removes an operator (can only be called by admin)
     * @param operatorAddress The address of the operator to be removed 
     */
-    function adminRemoveOperator(address operatorAddress) external onlyAdmin {
-        require(hasRole(OPERATOR_ROLE, operatorAddress), "addr doesn't have operator role!");
-        revokeRole(OPERATOR_ROLE, operatorAddress);
+    function adminRemoveOperators(address[] calldata operatorAddresses) external onlyAdmin {
+        for (uint256 i = 0; i < operatorAddresses.length; i++) {
+            address operatorAddress = operatorAddresses[i];
+            require(hasRole(OPERATOR_ROLE, operatorAddress), "removing non-operator");
+            revokeRole(OPERATOR_ROLE, operatorAddress);
+        }
         emit OperatorRemoved(operatorAddress);
     }
 
