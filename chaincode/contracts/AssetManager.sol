@@ -359,7 +359,7 @@ contract AssetManager is
                 msg.sender,
                 amount,
                 balance,
-                "Insufficient Locked Funds to Withdraw"
+                "Insufficient locked funds to withdraw"
             );
         }
 
@@ -432,7 +432,7 @@ contract AssetManager is
                 amount,
                 balance,
                 currentAllowance,
-                "Insufficient Locked Funds to Send "
+                "Insufficient locked funds to send"
             );
         }
         // check from balance
@@ -443,7 +443,7 @@ contract AssetManager is
                 amount,
                 balance,
                 currentAllowance,
-                "Insufficient approved funds to send "
+                "Insufficient approved funds to send"
             );
         }
         // withdraw funds from the contract (update userBalance before transfer to protect from reentrancy attack)
@@ -452,8 +452,7 @@ contract AssetManager is
 
         // update the approved amount.
         uint256 newLimit = currentAllowance - amount;
-        approve(to,newLimit);
-
+        _allowances[from][to] = newLimit;
         payable(to).transfer(amount);
 
         emit SendSuccessful(
