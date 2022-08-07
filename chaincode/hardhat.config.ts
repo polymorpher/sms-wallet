@@ -1,44 +1,44 @@
-import { HardhatUserConfig, task } from "hardhat/config";
-import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
-import "@typechain/hardhat";
-import "hardhat-gas-reporter";
-import "hardhat-deploy";
-import "solidity-coverage";
-import "@primitivefi/hardhat-dodoc";
-import "hardhat-abi-exporter";
-import "@atixlabs/hardhat-time-n-mine";
-import "hardhat-spdx-license-identifier";
-import "@openzeppelin/hardhat-upgrades";
+import { HardhatUserConfig, task } from 'hardhat/config'
+import '@nomiclabs/hardhat-etherscan'
+import '@nomiclabs/hardhat-waffle'
+import '@typechain/hardhat'
+import 'hardhat-gas-reporter'
+import 'hardhat-deploy'
+import 'solidity-coverage'
+import '@primitivefi/hardhat-dodoc'
+import 'hardhat-abi-exporter'
+import '@atixlabs/hardhat-time-n-mine'
+import 'hardhat-spdx-license-identifier'
+import '@openzeppelin/hardhat-upgrades'
 
-const config = require("./config.js");
+const config = require('./config.js')
 
-const HARMONY_PRIVATE_KEY = process.env.PRIVATE_KEY;
+const HARMONY_PRIVATE_KEY = process.env.PRIVATE_KEY
 // const PROJECT_ID = process.env.INFURA_PROJECT_ID;
 // const ROPSTEN_URL = `https://ropsten.infura.io/v3/${PROJECT_ID}`
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
+task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
+  const accounts = await hre.ethers.getSigners()
 
   for (const account of accounts) {
-    console.log(account.address);
+    console.log(account.address)
   }
-});
+})
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
 const hardhatUserconfig: HardhatUserConfig = {
   solidity: {
-    version: "0.8.9",
+    version: '0.8.9',
     settings: {
       optimizer: {
         enabled: true,
-        runs: 50000,
-      },
-    },
+        runs: 50000
+      }
+    }
   },
   namedAccounts: {
     deployer: 0,
@@ -49,26 +49,26 @@ const hardhatUserconfig: HardhatUserConfig = {
     bob: 5,
     carol: 6,
     dora: 7,
-    ernie: 8,
+    ernie: 8
   },
-  defaultNetwork: "hardhat",
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
       mining: {
-        auto: true,
-      },
+        auto: true
+      }
     },
     hardhatNode: {
       url: config.hardhatURL,
       accounts: [`0x${config.privateKey}`],
       gasPrice: 20000000000,
-      gas: 6000000,
+      gas: 6000000
     },
     localnet: {
       url: config.localnetURL,
       accounts: [`0x${config.privateKey}`],
       gasPrice: 20000000000,
-      gas: 6000000,
+      gas: 6000000
     },
     devnet: {
       url: config.devnetURL,
@@ -76,10 +76,10 @@ const hardhatUserconfig: HardhatUserConfig = {
       chainId: 1666900000,
       live: true,
       saveDeployments: true,
-      tags: ["staging"],
+      tags: ['staging'],
       gas: 2100000,
       gasPrice: 5000000000,
-      gasMultiplier: 2,
+      gasMultiplier: 2
     },
     testnet: {
       url: config.testnetURL,
@@ -87,20 +87,20 @@ const hardhatUserconfig: HardhatUserConfig = {
       chainId: 1666700000,
       live: true,
       saveDeployments: true,
-      tags: ["staging"],
+      tags: ['staging'],
       gas: 2100000,
       gasPrice: 5000000000,
-      gasMultiplier: 2,
+      gasMultiplier: 2
     },
     mainnet: {
       url: config.mainnetURL,
-      accounts: [`0x${config.privateKey}`],
+      accounts: [`0x${config.privateKey}`]
     },
     localgeth: {
       url: config.localgethURL,
       accounts: [`0x${config.privateKey}`],
       gasPrice: 20000000000,
-      gas: 6000000,
+      gas: 6000000
     },
     ropsten: {
       url: config.ropstenURL,
@@ -108,10 +108,10 @@ const hardhatUserconfig: HardhatUserConfig = {
       chainId: 3,
       live: true,
       saveDeployments: true,
-      tags: ["staging"],
+      tags: ['staging'],
       gasPrice: 20000000000,
       gas: 6000000,
-      gasMultiplier: 2,
+      gasMultiplier: 2
     },
     sepolia: {
       url: config.sepoliaURL,
@@ -119,52 +119,52 @@ const hardhatUserconfig: HardhatUserConfig = {
       chainId: 11155111,
       live: true,
       saveDeployments: true,
-      tags: ["staging"],
+      tags: ['staging'],
       gasPrice: 20000000000,
       gas: 6000000,
-      gasMultiplier: 2,
+      gasMultiplier: 2
     },
     ethereum: {
       url: config.ethereumURL,
       accounts: [`0x${config.privateKey}`],
       gasPrice: 120 * 1000000000,
-      chainId: 1,
-    },
+      chainId: 1
+    }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
-    currency: "USD",
+    currency: 'USD'
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: process.env.ETHERSCAN_API_KEY
   },
   dodoc: {
     runOnCompile: true,
     debugMode: false,
-    outputDir: "docs/solidity",
-    freshOutput: true,
+    outputDir: 'docs/solidity',
+    freshOutput: true
   },
   abiExporter: {
-    path: "./data/abi",
+    path: './data/abi',
     runOnCompile: true,
     clear: true,
     flat: true,
     spacing: 2,
-    pretty: true,
+    pretty: true
   },
   spdxLicenseIdentifier: {
     overwrite: true,
-    runOnCompile: true,
+    runOnCompile: true
   },
   paths: {
-    sources: "./contracts",
-    tests: "./test",
-    cache: "./cache",
-    artifacts: "./build",
+    sources: './contracts',
+    tests: './test',
+    cache: './cache',
+    artifacts: './build'
   },
   mocha: {
-    timeout: 20000,
-  },
-};
+    timeout: 20000
+  }
+}
 
-export default hardhatUserconfig;
+export default hardhatUserconfig

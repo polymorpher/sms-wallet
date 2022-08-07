@@ -1,4 +1,4 @@
-require("dotenv").config();
+require('dotenv').config()
 
 module.exports = {
   localnetPrivateKey: process.env.LOCALNET_PRIVATE_KEY,
@@ -19,9 +19,9 @@ module.exports = {
   ethURL: process.env.ETH_URL,
   gasLimit: process.env.GAS_LIMIT,
   gasPrice: process.env.GAS_PRICE,
-  verbose: process.env.VERBOSE === "true" || process.env.VERBOSE === "1",
+  verbose: process.env.VERBOSE === 'true' || process.env.VERBOSE === '1',
   reportGas: false,
   initialOperatorThreshold: process.env.INITIAL_OPERATOR_THRESHOLD,
   // use JSON.parse to parse the array of relayers
-  operators: JSON.parse(process.env.OPERATORS),
-};
+  operators: JSON.parse(process.env.OPERATORS)
+}
