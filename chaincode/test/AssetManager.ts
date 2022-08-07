@@ -79,10 +79,10 @@ describe('AssetManager', function (this) {
       ).to.equal(assetManagerBalance)
       // Check events emitted
       await expect(tx)
-        .to.emit(this.assetManager, 'DepositSuccesful')
+        .to.emit(this.assetManager, 'DepositSuccessful')
         .withArgs(this.alice.address, ONE_ETH, ONE_ETH)
       await tx.wait()
-      // Check Alices Balance and Auth on AssetManager
+      // Check Alice's Balance and Auth on AssetManager
       await expect(
         await this.assetManager.userBalances(this.alice.address)
       ).to.equal(ONE_ETH)
@@ -151,7 +151,7 @@ describe('AssetManager', function (this) {
         .to.emit(this.assetManager, 'Approval')
         .withArgs(this.alice.address, this.bob.address, ONE_ETH)
       await tx.wait()
-      // Check Alices Balance and Auth on AssetManager
+      // Check Alice's Balance and Auth on AssetManager
       await expect(
         await this.assetManager.userBalances(this.alice.address)
       ).to.equal(ZERO_ETH)
@@ -192,7 +192,7 @@ describe('AssetManager', function (this) {
       ).to.equal(assetManagerBalance)
       // Check events emitted
       await expect(tx)
-        .to.emit(this.assetManager, 'WithdrawalSuccesful')
+        .to.emit(this.assetManager, 'WithdrawalSuccessful')
         .withArgs(this.alice.address, ONE_ETH, ZERO_ETH)
       // Log all receipts
       await tx.wait()
@@ -246,7 +246,7 @@ describe('AssetManager', function (this) {
       ).to.equal(assetManagerBalance)
       // Check events emitted
       await expect(tx)
-        .to.emit(this.assetManager, 'SendSuccesful')
+        .to.emit(this.assetManager, 'SendSuccessful')
         .withArgs(
           this.alice.address,
           this.bob.address,
@@ -297,7 +297,7 @@ describe('AssetManager', function (this) {
       ).to.equal(assetManagerBalance)
       // Check events emitted
       await expect(tx)
-        .to.emit(this.assetManager, 'DepositSuccesful')
+        .to.emit(this.assetManager, 'DepositSuccessful')
         .withArgs(this.alice.address, ONE_ETH, ONE_ETH)
       // Log all receipts
       let receipt = await tx.wait()
@@ -356,7 +356,7 @@ describe('AssetManager', function (this) {
       ).to.equal(assetManagerBalance)
       // Check events emitted
       await expect(tx)
-        .to.emit(this.assetManager, 'WithdrawalSuccesful')
+        .to.emit(this.assetManager, 'WithdrawalSuccessful')
         .withArgs(this.alice.address, ONE_ETH, ZERO_ETH)
       // Log all receipts
       receipt = await tx.wait()
@@ -401,7 +401,7 @@ describe('AssetManager', function (this) {
       ).to.equal(assetManagerBalance)
       // Check events emitted
       await expect(tx)
-        .to.emit(this.assetManager, 'SendSuccesful')
+        .to.emit(this.assetManager, 'SendSuccessful')
         .withArgs(
           this.alice.address,
           this.bob.address,
