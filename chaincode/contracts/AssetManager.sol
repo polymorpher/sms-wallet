@@ -473,38 +473,39 @@ contract AssetManager is
     * @param from The sender of the token
     * @param to The recipient of the token
     */
-    function transfer( uint256 amount, Enums.TokenType tokenType, uint256 tokenId, address tokenAddress, address from, address to) public onlyOperators whenNotPaused {
-    if ( tokenType == Enums.TokenType.ERC20 ) {
-        bool success = ERC20(tokenAddress).transferFrom(from, to, amount);
-        if (success) {
+    function transfer(uint256 amount, Enums.TokenType tokenType, uint256 tokenId, address tokenAddress,
+        address from, address to) public onlyOperators whenNotPaused {
+        if (tokenType == Enums.TokenType.ERC20) {
+            bool success = ERC20(tokenAddress).transferFrom(from, to, amount);
+            if (success) {
+                emit TransferSuccessful(amount, tokenType, tokenId, tokenAddress, from, to);
+            } else {
+                revert TransferFailed(
+                    amount,
+                    tokenType,
+                    tokenId,
+                    tokenAddress,
+                    from,
+                    to,
+                    "ERC20 transfer failure"
+                );
+            }
+        } else if (tokenType == Enums.TokenType.ERC721) {
+            ERC721(tokenAddress).safeTransferFrom(from, to, tokenId);
+            emit TransferSuccessful(amount, tokenType, tokenId, tokenAddress, from, to);
+        } else if (tokenType == Enums.TokenType.ERC1155) {
+            ERC1155(tokenAddress).safeTransferFrom(from, to, tokenId, amount, "");
             emit TransferSuccessful(amount, tokenType, tokenId, tokenAddress, from, to);
         } else {
             revert TransferFailed(
-            amount,
-            tokenType,
-            tokenId,
-            tokenAddress,
-            from,
-            to,
-            "Invalid tokenType "
+                amount,
+                tokenType,
+                tokenId,
+                tokenAddress,
+                from,
+                to,
+                "Invalid tokenType"
             );
         }
-    } else if ( tokenType == Enums.TokenType.ERC721 ) {
-       ERC721(tokenAddress).safeTransferFrom(from, to, tokenId);
-        emit TransferSuccessful(amount, tokenType, tokenId, tokenAddress, from, to);
-    } else if ( tokenType == Enums.TokenType.ERC1155 ) {
-        ERC1155(tokenAddress).safeTransferFrom(from, to, tokenId, amount, "");
-        emit TransferSuccessful(amount, tokenType, tokenId, tokenAddress, from, to);
-    } else { 
-        revert TransferFailed(
-            amount,
-            tokenType,
-            tokenId,
-            tokenAddress,
-            from,
-            to,
-            "Invalid tokenType "
-            );
-    }
     }
 }
