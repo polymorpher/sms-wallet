@@ -10,6 +10,7 @@ import 'hardhat-abi-exporter'
 import '@atixlabs/hardhat-time-n-mine'
 import 'hardhat-spdx-license-identifier'
 import '@openzeppelin/hardhat-upgrades'
+import 'hardhat-contract-sizer'
 
 const config = require('./config.js')
 
@@ -36,7 +37,7 @@ const hardhatUserconfig: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 50000
+        runs: 200
       }
     }
   },
@@ -163,6 +164,13 @@ const hardhatUserconfig: HardhatUserConfig = {
   },
   mocha: {
     timeout: 20000
+  },
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: true,
+    only: [':AssetManager$']
   }
 }
 
