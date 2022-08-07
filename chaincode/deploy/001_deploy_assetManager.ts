@@ -6,6 +6,7 @@ import config from '../config.js'
 
 const INITIAL_USER_LIMIT = ethers.utils.parseEther('1000000')
 const INITIAL_AUTH_LIMIT = ethers.utils.parseEther('100000')
+const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 
 const deployFunction: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
@@ -31,13 +32,11 @@ const deployFunction: DeployFunction = async function (
     await assetManager.operatorThreshold()
   )
 
-  // TODO Display operators on deploy
-  //   const operatorCount = await assetManager.getRoleMemberCount("OPERATOR_ROLE");
-
-  //   const operators = [];
-  //   for (let i = 0; i < operatorCount; ++i) {
-  //     operators.push(await assetManager.getRoleMember("OPERATOR_ROLE", i));
-  //   }
+  const operatorCount = await assetManager.getRoleMemberCount(OPERATOR_ROLE)
+  console.log(`operatorCount : ${operatorCount}`)
+  for (let i = 0; i < operatorCount; ++i) {
+    console.log(`Operator [${i}]: ${await assetManager.getRoleMember(OPERATOR_ROLE, i)}`)
+  }
 
   const globalUserLimit = await assetManager.globalUserLimit()
   console.log(
