@@ -23,5 +23,5 @@ module.exports = {
   reportGas: false,
   initialOperatorThreshold: process.env.INITIAL_OPERATOR_THRESHOLD,
   // use JSON.parse to parse the array of relayers
-  operators: JSON.parse(process.env.OPERATORS)
+  operators: JSON.parse(process.env.OPERATORS || '[]')
 }
