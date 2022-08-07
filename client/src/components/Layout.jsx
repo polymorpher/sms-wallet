@@ -59,14 +59,14 @@ const ModalBody = styled(FlexColumn)`
   color: black;
 `
 
-export const Modal = ({ children, zIndex, visible, onCancel }) => {
+export const Modal = ({ style, children, zIndex, visible, onCancel }) => {
   if (!visible) {
     return <></>
   }
   return (
     <ModalContainer>
       <ModalShadow onClick={onCancel} $zIndex={zIndex} />
-      <ModalBody>
+      <ModalBody style={style}>
         {children}
       </ModalBody>
     </ModalContainer>

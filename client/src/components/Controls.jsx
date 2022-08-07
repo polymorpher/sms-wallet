@@ -6,7 +6,7 @@ export const Button = styled.button`
   font-weight: 200;
   border: none;
   
-  width: 128px;
+  width: ${props => props.$width || '128px'};
   color: white;
   background: black;
   padding: 8px 16px;
@@ -22,16 +22,30 @@ export const Button = styled.button`
   }
 `
 
+export const CancelButton = styled(Button)`
+  background: transparent;
+  color: red;
+  &:hover{
+    color: indianred;
+    background: #ccc;
+    cursor: pointer;
+  }
+  &:disabled{
+    color: grey;
+    cursor: not-allowed;
+  }
+`
+
 export const Input = styled.input`
-  width: ${props => typeof props.width === 'number' ? `${props.width || 400}px` : (props.width || 'auto')};
+  width: ${props => typeof props.$width === 'number' ? `${props.$width || 400}px` : (props.$width || 'auto')};
   margin-top: ${props => props.$marginTop || props.margin || '32px'};
   margin-bottom: ${props => props.$marginBottom || props.margin || '32px'};
   border: none;
-  border-bottom: 1px dashed black;
+  border-bottom: 1px solid black;
   font-size: 16px;
   padding: 4px;
   &:hover{
-    border-bottom: 1px dashed black;
+    border-bottom: 1px solid black;
   }
 `
 

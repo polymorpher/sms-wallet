@@ -13,6 +13,7 @@ const config = {
   rpc: process.env.RPC || 'https://api.s0.t.hmny.io',
   rootUrl: process.env.ROOT_URL || 'https://smswallet.xyz',
   explorer: process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
+  explorerHistory: process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/address/{{address}}',
   server: process.env.SERVER_URL || 'https://localhost:8443',
   secret: process.env.SERVER_SECRET || 'none',
   network: process.env.SERVER_NETWORK || 'harmony',
@@ -42,6 +43,7 @@ const config = {
 
   },
   scanDelay: 250,
+  defaultSignatureValidDuration: 1000 * 60 * 15,
 }
 
 export default config

@@ -25,7 +25,7 @@ const User = ({
     return u
   },
   findByAddress: async ({ address }) => {
-    const [u] = await UserPrototype.find(['address', address])
+    const [u] = await UserPrototype.find(['address', address.toLocaleString()])
     return u
   },
 })
