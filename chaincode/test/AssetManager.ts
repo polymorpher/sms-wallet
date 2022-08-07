@@ -267,7 +267,7 @@ describe('AssetManager', function (this) {
   })
 
   describe('checkAssetManager', function () {
-    it('Positive walkthrough, deposit, withdraw, approve, send', async function () {
+    it('Positive walk-through, deposit, withdraw, approve, send', async function () {
       const provider = waffle.provider
 
       // check Initial Balance
@@ -304,7 +304,7 @@ describe('AssetManager', function (this) {
       for (const event of receipt.events) {
         console.log(`Event ${event.event} with args ${event.args}`)
       }
-      // Check Alices Balance and Auth on AssetManager
+      // Check Alice's Balance and Auth on AssetManager
       await expect(
         await this.assetManager.userBalances(this.alice.address)
       ).to.equal(ONE_ETH)
@@ -334,7 +334,7 @@ describe('AssetManager', function (this) {
       for (const event of receipt.events) {
         console.log(`Event ${event.event} with args ${event.args}`)
       }
-      // Check Alices Balance and Auth on AssetManager
+      // Check Alice's Balance and Auth on AssetManager
       await expect(
         await this.assetManager.userBalances(this.alice.address)
       ).to.equal(ONE_ETH)
@@ -363,7 +363,7 @@ describe('AssetManager', function (this) {
       for (const event of receipt.events) {
         console.log(`Event ${event.event} with args ${event.args}`)
       }
-      // Check Alices Balance and Auth on AssetManager
+      // Check Alice's Balance and Auth on AssetManager
       await expect(
         await this.assetManager.userBalances(this.alice.address)
       ).to.equal(ZERO_ETH)
@@ -461,7 +461,7 @@ describe('AssetManager', function (this) {
           this.assetManager.address
         )}`
       )
-      // Operator Sends 3 to Bob
+      // Operator Sends 3 of token 0 to Bob
       tx = await this.assetManager
         .connect(this.operatorA)
         .transfer(
@@ -473,7 +473,7 @@ describe('AssetManager', function (this) {
           this.bob.address
         )
       await tx.wait()
-      // check alices and bobs balance
+      // check alice's and bob's balances
       console.log(
         `AliceBalance: ${await this.erc20.balanceOf(this.alice.address)}`
       )
