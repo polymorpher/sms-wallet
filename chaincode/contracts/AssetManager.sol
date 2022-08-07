@@ -252,8 +252,8 @@ contract AssetManager is Initializable, PausableUpgradeable, AccessControlEnumer
     }
 
     /**
-    * @dev `adminAddOperators` adds a new operator (can only be called by admin)
-    * @param operatorAddress The address of the new operator 
+    * @dev `adminAddOperators` adds some new operators (can only be called by admin)
+    * @param operatorAddresses The addresses of the new operators
     */
     function adminAddOperators(address[] calldata operatorAddresses) external onlyAdmin {
         for (uint256 i = 0; i < operatorAddresses.length; i++) {
@@ -267,7 +267,7 @@ contract AssetManager is Initializable, PausableUpgradeable, AccessControlEnumer
 
     /**
     * @dev `adminRemoveOperators` removes an operator (can only be called by admin)
-    * @param operatorAddress The address of the operator to be removed 
+    * @param operatorAddresses The addresses of the operators to be removed
     */
     function adminRemoveOperators(address[] calldata operatorAddresses) external onlyAdmin {
         for (uint256 i = 0; i < operatorAddresses.length; i++) {
@@ -275,7 +275,7 @@ contract AssetManager is Initializable, PausableUpgradeable, AccessControlEnumer
             require(hasRole(OPERATOR_ROLE, operatorAddress), "removing non-operator");
             revokeRole(OPERATOR_ROLE, operatorAddress);
         }
-        emit OperatorsRemoved(operatorAddress);
+        emit OperatorsRemoved(operatorAddresses);
     }
 
     /**
