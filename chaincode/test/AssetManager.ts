@@ -254,7 +254,6 @@ describe('AssetManager', function (this) {
           ZERO_ETH,
           ZERO_ETH
         )
-      // Log all receipts
       await tx.wait()
       // Check Alices Balance and Auth on AssetManager
       await expect(
@@ -262,7 +261,7 @@ describe('AssetManager', function (this) {
       ).to.equal(ZERO_ETH)
       expect(
         await this.assetManager.allowance(this.alice.address, this.bob.address)
-      ).to.equal(ONE_ETH)
+      ).to.equal(ZERO_ETH)
     })
   })
 
@@ -420,7 +419,7 @@ describe('AssetManager', function (this) {
       ).to.equal(ZERO_ETH)
       expect(
         await this.assetManager.allowance(this.alice.address, this.bob.address)
-      ).to.equal(ONE_ETH)
+      ).to.equal(ZERO_ETH)
     })
 
     it('checkTransferERC20', async function () {
