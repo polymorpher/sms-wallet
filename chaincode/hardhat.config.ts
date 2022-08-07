@@ -60,7 +60,6 @@ const hardhatUserconfig: HardhatUserConfig = {
     },
     hardhatNode: {
       url: config.hardhatURL,
-      accounts: [`0x${config.privateKey}`],
       gasPrice: 20000000000,
       gas: 6000000
     },

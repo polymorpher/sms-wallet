@@ -17,8 +17,8 @@ const deployFunction: DeployFunction = async function (
   const assetManager = await upgrades.deployProxy(
     AssetManager,
     [
-      config.initialOperatorThreshold,
-      config.operators,
+      config.test.initialOperatorThreshold,
+      config.test.operators,
       INITIAL_USER_LIMIT,
       INITIAL_AUTH_LIMIT
     ],
