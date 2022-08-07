@@ -192,7 +192,7 @@ contract AssetManager is
     /**
     * @dev `operatorThreshold` tracks the maximum number of allowed operators
     * Operators are responsible for transferring tokens on the users behalf.
-    * Typically there is one `operator` per `relayer` 
+    * There may be more than one `operator` per `relayer`
     * A `relayer` is an api server which interacts with the client (e.g. sms-wallet).
     * Multiple relayers can be run for performance and load balancing reasons.
     */
