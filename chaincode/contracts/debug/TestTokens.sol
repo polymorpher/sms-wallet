@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC777/ERC777.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract TestERC20 is ERC20 {
@@ -87,6 +88,14 @@ contract TestERC721 is ERC721 {
 
     function tokenURI(uint256 tokenId) public view override returns (string memory){
         return uris[tokenId];
+    }
+}
+
+contract TestERC777 is ERC777 {
+    string constant NAME = "Test777";
+    string constant SYMBOL = "T777";
+    constructor(uint256 _amount) ERC777(NAME, SYMBOL, new address[](0)) {
+        _mint(msg.sender, _amount, "", "");
     }
 }
 

@@ -30,6 +30,7 @@ describe("AssetManager", function (this) {
       "AssetManager",
       "TestERC20",
       "TestERC721",
+      "TestERC777",
       "TestERC1155",
     ]);
   });
@@ -543,6 +544,74 @@ describe("AssetManager", function (this) {
         `BobBalance: ${await this.erc721.balanceOf(this.bob.address)}`
       );
     });
+
+    it("checkTransferERC777", async function () {
+      console.log("About to Deploy ERC777");
+      //   this.erc1820 = await singletons.ERC1820Registry(this.deployer.address);
+      console.log("Have ERC1820");
+      await deploy(this, [
+        ["erc777", this.TestERC777, [getBigNumber("10000000")]],
+      ]);
+      //   const this.TestERC777 = contract.fromArtifact('Simple777Token');
+      //   this.erc777 = await this.TestERC777.new({ from: this.deployer });
+      console.log("Have Deployed ERC777");
+      // transfer 100 M20 to alice
+      let tx = await this.erc777.transfer(
+        this.alice.address,
+        BigNumber.from("100")
+      );
+      await tx.wait();
+      console.log(
+        `AliceBalance: ${await this.erc777.balanceOf(this.alice.address)}`
+      );
+      // alice approves 70 to Asset Manager
+      tx = await this.erc777
+        .connect(this.alice)
+        .approve(this.assetManager.address, BigNumber.from("70"));
+      await tx.wait();
+      console.log(
+        `AliceAssetManagerAllowance: ${await this.erc777.allowance(
+          this.alice.address,
+          this.assetManager.address
+        )}`
+      );
+      tx = await this.erc777
+        .connect(this.alice)
+        .transfer(this.bob.address, BigNumber.from("3"));
+      await tx.wait();
+      console.log(
+        `AliceBalance: ${await this.erc777.balanceOf(this.alice.address)}`
+      );
+      console.log(
+        `AliceAssetManagerAllowance: ${await this.erc777.allowance(
+          this.alice.address,
+          this.assetManager.address
+        )}`
+      );
+      // Operator Sends 3 to Bob
+      tx = await this.assetManager
+        .connect(this.operatorA)
+        .transfer(
+          BigNumber.from("3"),
+          Constants.TokenType.ERC777,
+          0,
+          this.erc777.address,
+          this.alice.address,
+          this.bob.address
+        );
+      await tx.wait();
+      // check alices and bobs balance
+      console.log(
+        `AliceBalance: ${await this.erc777.balanceOf(this.alice.address)}`
+      );
+      console.log(
+        `AliceAssetManagerAllowance: ${await this.erc777.allowance(
+          this.alice.address,
+          this.assetManager.address
+        )}`
+      );
+    });
+
     it("checkTransferERC1155", async function () {
       // Deploy 1155
       await deploy(this, [

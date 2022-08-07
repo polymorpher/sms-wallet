@@ -13,7 +13,7 @@ export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 //     constants: { MaxUint256 },
 //   },
 // } = require("ethers");
-export async function prepare(thisObject: Mocha.Context, contracts: string[]) {
+export async function prepare(thisObject, contracts) {
   for (const i in contracts) {
     const contract = contracts[i];
     thisObject[contract] = await ethers.getContractFactory(contract);

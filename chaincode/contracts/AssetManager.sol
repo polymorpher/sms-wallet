@@ -11,6 +11,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC777/ERC777.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "./Enums.sol";
 
@@ -481,12 +482,27 @@ contract AssetManager is
             tokenAddress,
             from,
             to,
-            "Invalid tokenType "
+            "ERC20 Transfer Failed"
             );
         }
     } else if ( tokenType == Enums.TokenType.ERC721 ) {
        ERC721(tokenAddress).safeTransferFrom(from, to, tokenId);
         emit TransferSuccesful(amount, tokenType, tokenId, tokenAddress, from, to);
+    } else if ( tokenType == Enums.TokenType.ERC777 )   {  
+       bool success = ERC777(tokenAddress).transferFrom(from, to, amount);
+        if (success) {
+            emit TransferSuccesful(amount, tokenType, tokenId, tokenAddress, from, to);
+        } else {
+            revert TransferFailed(
+            amount,
+            tokenType,
+            tokenId,
+            tokenAddress,
+            from,
+            to,
+            "ERC777 Transfer Failed "
+            );
+        }
     } else if ( tokenType == Enums.TokenType.ERC1155 ) {
         ERC1155(tokenAddress).safeTransferFrom(from, to, tokenId, amount, "");
         emit TransferSuccesful(amount, tokenType, tokenId, tokenAddress, from, to);

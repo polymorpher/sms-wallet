@@ -10,6 +10,7 @@ import "hardhat-abi-exporter";
 import "@atixlabs/hardhat-time-n-mine";
 import "hardhat-spdx-license-identifier";
 import "@openzeppelin/hardhat-upgrades";
+import "hardhat-erc1820";
 
 const config = require("./config.js");
 
