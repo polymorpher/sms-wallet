@@ -258,7 +258,7 @@ contract AssetManager is Initializable, PausableUpgradeable, AccessControlEnumer
     function adminAddOperators(address[] calldata operatorAddresses) external onlyAdmin {
         for (uint256 i = 0; i < operatorAddresses.length; i++) {
             address operatorAddress = operatorAddresses[i];
-            require(!hasRole(OPERATOR_ROLE, operatorAddress), "reassigning operator role");
+            require(!hasRole(OPERATOR_ROLE, operatorAddress), "already has operator role");
             require((getRoleMemberCount(OPERATOR_ROLE) < operatorThreshold), "too many operators");
             grantRole(OPERATOR_ROLE, operatorAddress);
         }
@@ -286,7 +286,7 @@ contract AssetManager is Initializable, PausableUpgradeable, AccessControlEnumer
     */
     function adminChangeGlobalUserLimit(uint256 newGlobalUserLimit) external onlyAdmin {
         globalUserLimit = newGlobalUserLimit;
-        emit GlobalUserAuthLimitChanged(newGlobalUserLimit);
+        emit GlobalUserLimitChanged(newGlobalUserLimit);
     }
 
     /**

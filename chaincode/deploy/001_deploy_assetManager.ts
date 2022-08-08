@@ -2,10 +2,8 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers, upgrades } from 'hardhat'
-import config from '../config.js'
+const config = require('../config.ts')
 
-const INITIAL_USER_LIMIT = ethers.utils.parseEther('1000000')
-const INITIAL_AUTH_LIMIT = ethers.utils.parseEther('100000')
 const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 
 const deployFunction: DeployFunction = async function (
@@ -18,9 +16,9 @@ const deployFunction: DeployFunction = async function (
     AssetManager,
     [
       config.test.initialOperatorThreshold,
-      config.test.operators,
-      INITIAL_USER_LIMIT,
-      INITIAL_AUTH_LIMIT
+      config.test.initialOperators,
+      config.initialUserLimit,
+      config.initialAuthLimit
     ],
     { initializer: 'initialize', unsafeAllow: ['external-library-linking'] }
   )

@@ -1,4 +1,6 @@
+
 require('dotenv').config()
+const { ethers } = require('ethers')
 
 module.exports = {
   localnetPrivateKey: process.env.LOCALNET_PRIVATE_KEY,
@@ -22,11 +24,14 @@ module.exports = {
   verbose: process.env.VERBOSE === 'true' || process.env.VERBOSE === '1',
   reportGas: false,
   initialOperatorThreshold: process.env.INITIAL_OPERATOR_THRESHOLD,
-  // use JSON.parse to parse the array of relayers
-  operators: JSON.parse(process.env.OPERATORS || '[]'),
+  initialOperators: JSON.parse(process.env.INITIAL_OPERATORS || '[]'),
+  initialUserLimit: ethers.utils.parseEther(process.env.INIITIAL_USER_LIMIT || '1000000'),
+  initialAuthLimit: ethers.utils.parseEther(process.env.INIITIAL_AUTH_LIMIT || '100000'),
+
   test: {
     initialOperatorThreshold: process.env.TEST_INITIAL_OPERATOR_THRESHOLD,
-    // use JSON.parse to parse the array of relayers
-    operators: JSON.parse(process.env.TEST_OPERATORS || '[]')
+    initialOperators: JSON.parse(process.env.TEST_INITIAL_OPERATORS || '[]'),
+    initialUserLimit: ethers.utils.parseEther(process.env.TEST_INIITIAL_USER_LIMIT || '1000'),
+    initialAuthLimit: ethers.utils.parseEther(process.env.TEST_INIITIAL_AUTH_LIMIT || '100')
   }
 }
