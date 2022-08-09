@@ -40,7 +40,7 @@ export const Heading = styled.div`
 export const Desc = styled.div`
   box-sizing: border-box;
   padding: 16px;
-  color: black;
+  color: ${props => props.$color || 'black'};
   width: 100%;
   display: flex;
   flex-direction: column;
