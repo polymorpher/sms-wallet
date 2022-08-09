@@ -2,23 +2,10 @@ import { expect } from 'chai'
 import { ethers, waffle } from 'hardhat'
 import {
   prepare,
-  deploy,
-  deployUpgradeable,
-  checkBalance,
-  getBigNumber,
-  getTxCost
+  deployUpgradeable
 } from './utilities'
-import { range } from 'lodash'
 const config = require('../config.ts')
-const { BigNumber } = require('ethers')
-const Constants = require('./utilities/constants')
-
-const ZERO_ETH = ethers.utils.parseEther('0')
-const ONE_ETH = ethers.utils.parseEther('1')
-const INITIAL_BALANCE_ETH = ethers.utils.parseEther('10000')
-const DUMMY_HEX = '0x'
 const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
-// const DEFAULT_ADMIN_ROLE = ethers.utils.id('DEFAULT_ADMIN_ROLE')
 const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 // let snapshotId: string;

@@ -2,10 +2,8 @@ import { expect } from 'chai'
 import { ethers, waffle } from 'hardhat'
 import {
   prepare,
-  deploy,
   deployUpgradeable,
   checkBalance,
-  getBigNumber,
   getTxCost
 } from './utilities'
 const config = require('../config.ts')
