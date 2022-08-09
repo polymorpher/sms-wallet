@@ -2,6 +2,7 @@ const createKeccakHash = require('keccak')
 const Conversion = require('ethjs-unit')
 const STANDARD_DECIMAL = 18
 const BN = require('bn.js')
+const Constants = require('./constants')
 
 const utils = {
   /**
@@ -94,7 +95,18 @@ const utils = {
     const floored = Number(`${Math.floor(`${number}e+${digits}`)}e-${digits}`)
     return floored.toString()
   },
-
+  isValidTokenType: (tokenType) => {
+    if (tokenType === 'NONE' || typeof tokenType !== 'string') {
+      return false
+    }
+    return Constants.TokenType[tokenType] !== undefined
+  },
+  isValidNumericTokenType: (tokenType) => {
+    if (tokenType === 3 || typeof tokenType !== 'number') {
+      return false
+    }
+    return Constants.TokenType[tokenType] !== undefined
+  },
 }
 
 module.exports = utils
