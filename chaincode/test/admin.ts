@@ -111,7 +111,7 @@ describe('AssetManager Admin', function (this) {
     })
   })
 
-  describe('Administrator: changeing Administrator using renounceAdmin', function () {
+  describe('Administrator: changing Administrator using renounceAdmin', function () {
     it('AM-renounceAdmin-0: admin change administrator', async function () {
       const tx = await this.assetManager.renounceAdmin(this.operatorA.address)
       await expect(tx)
@@ -172,7 +172,7 @@ describe('AssetManager Admin', function (this) {
     it('AM-operatorThreshold-0: check the operatorThreshold', async function () {
       expect((await this.assetManager.operatorThreshold()).toString()).to.equal((config.test.initialOperatorThreshold))
     })
-    it('AM-getRoleMemberCount-1: check the administator and operator count', async function () {
+    it('AM-getRoleMemberCount-1: check operator count', async function () {
       expect(await this.assetManager.getRoleMemberCount(OPERATOR_ROLE)).to.equal(3)
     })
     it('AM-getRoleMember-1: check the administrator is deployer and operators are correct', async function () {
@@ -250,7 +250,7 @@ describe('AssetManager Admin', function (this) {
         .withArgs(this.deployer.address)
       expect(await this.assetManager.paused()).to.equal(false)
     })
-    it('AM-adminUnpauseAssetManager-1: unPause assetManager fails if not paused', async function () {
+    it('AM-adminUnpauseAssetManager-1: unpause assetManager fails if not paused', async function () {
       await expect(this.assetManager.adminUnpauseAssetManager())
         .to.be.revertedWith('Pausable: not paused')
     })
