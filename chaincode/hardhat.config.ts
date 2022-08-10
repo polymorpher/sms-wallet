@@ -13,6 +13,8 @@ import 'hardhat-spdx-license-identifier'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-contract-sizer'
 
+const normalizeHex = (s) => s.startsWith('0x') ? s : `0x${s}`
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
@@ -55,19 +57,19 @@ const hardhatUserconfig: HardhatUserConfig = {
       }
     },
     hardhatNode: {
-      url: config.hardhatURL,
+      url: process.env.HARDHAT_URL,
       gasPrice: 20000000000,
       gas: 6000000
     },
     localnet: {
-      url: config.localnetURL,
-      accounts: [`0x${config.privateKey}`],
+      url: process.env.LOCALNET_URL,
+      accounts: [normalizeHex(process.env.PRIVATE_KEY)],
       gasPrice: 20000000000,
       gas: 6000000
     },
     devnet: {
-      url: config.devnetURL,
-      accounts: [`0x${config.privateKey}`],
+      url: process.env.DEVNET_URL,
+      accounts: [normalizeHex(process.env.PRIVATE_KEY)],
       chainId: 1666900000,
       live: true,
       saveDeployments: true,
@@ -77,8 +79,8 @@ const hardhatUserconfig: HardhatUserConfig = {
       gasMultiplier: 2
     },
     testnet: {
-      url: config.testnetURL,
-      accounts: [`0x${config.privateKey}`],
+      url: process.env.TESTNET_URL,
+      accounts: [normalizeHex(process.env.PRIVATE_KEY)],
       chainId: 1666700000,
       live: true,
       saveDeployments: true,
@@ -88,18 +90,18 @@ const hardhatUserconfig: HardhatUserConfig = {
       gasMultiplier: 2
     },
     mainnet: {
-      url: config.mainnetURL,
-      accounts: [`0x${config.privateKey}`]
+      url: process.env.MAINNET_URL,
+      accounts: [normalizeHex(process.env.PRIVATE_KEY)]
     },
     localgeth: {
-      url: config.localgethURL,
-      accounts: [`0x${config.privateKey}`],
+      url: process.env.LOCALGETH_URL,
+      accounts: [normalizeHex(process.env.PRIVATE_KEY)],
       gasPrice: 20000000000,
       gas: 6000000
     },
     ropsten: {
-      url: config.ropstenURL,
-      accounts: [`0x${config.privateKey}`],
+      url: process.env.ROPSTEN_URL,
+      accounts: [normalizeHex(process.env.PRIVATE_KEY)],
       chainId: 3,
       live: true,
       saveDeployments: true,
@@ -109,8 +111,8 @@ const hardhatUserconfig: HardhatUserConfig = {
       gasMultiplier: 2
     },
     sepolia: {
-      url: config.sepoliaURL,
-      accounts: [`0x${config.privateKey}`],
+      url: process.env.SEPOLIA_URL,
+      accounts: [normalizeHex(process.env.PRIVATE_KEY)],
       chainId: 11155111,
       live: true,
       saveDeployments: true,
@@ -120,8 +122,8 @@ const hardhatUserconfig: HardhatUserConfig = {
       gasMultiplier: 2
     },
     ethereum: {
-      url: config.ethereumURL,
-      accounts: [`0x${config.privateKey}`],
+      url: process.env.ETHEREUM_URL,
+      accounts: [normalizeHex(process.env.PRIVATE_KEY)],
       gasPrice: 120 * 1000000000,
       chainId: 1
     }
