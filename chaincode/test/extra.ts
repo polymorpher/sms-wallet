@@ -171,7 +171,7 @@ describe('AssetManager', function (this) {
           ZERO_ETH,
           ZERO_ETH
         )
-      // Check Alices Balance and Auth on AssetManager
+      // Check Alice's Balance and Auth on AssetManager
       await expect(
         await this.assetManager.userBalances(this.alice.address)
       ).to.equal(ZERO_ETH)
@@ -180,16 +180,16 @@ describe('AssetManager', function (this) {
       ).to.equal(ZERO_ETH)
     })
 
-    it('checkEventLogs', async function () {
-      const tx = await this.assetManager.connect(this.alice).deposit({
-        value: ONE_ETH
-      })
-      const receipt = await tx.wait()
-
-      for (const event of receipt.events) {
-        // console.log(`Event ${event.event} with args ${event.args}`)
-      }
-    })
-    it('checkReverts', async function () {})
+    // it('checkEventLogs', async function () {
+    //   const tx = await this.assetManager.connect(this.alice).deposit({
+    //     value: ONE_ETH
+    //   })
+    //   const receipt = await tx.wait()
+    //
+    //   for (const event of receipt.events) {
+    //     console.log(`Event ${event.event} with args ${event.args}`)
+    //   }
+    // })
+    // it('checkReverts', async function () {})
   })
 })
