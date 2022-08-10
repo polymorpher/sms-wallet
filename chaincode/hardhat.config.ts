@@ -12,7 +12,7 @@ import 'hardhat-spdx-license-identifier'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-contract-sizer'
 
-const config = require('./config.ts')
+const config = require('./src/config.ts')
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

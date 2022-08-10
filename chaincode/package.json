@@ -1,15 +1,15 @@
 {
-    "name": "blockchain-template",
-    "version": "1.0.0",
-    "description": "Template using hardhat for blockchain projects",
-    "license": "UNLICENSED",
+    "name": "sms-wallet-mini-wallet",
+    "version": "0.0.1",
+    "license": "Apache-2.0",
     "files": [
         "artifacts",
         "contracts",
         "deploy",
         "deployments",
         "exports",
-        "types"
+        "types",
+        "src/config.ts"
     ],
     "scripts": {
         "clean": "npx hardhat clean",
@@ -47,7 +47,7 @@
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-promise": "^5.2.0",
         "ethereum-waffle": "^3.4.4",
-        "ethers": "^5.6.7",
+        "ethers": "^5.6.9",
         "hardhat": "^2.9.6",
         "hardhat-abi-exporter": "^2.9.0",
         "hardhat-console": "^1.0.0",

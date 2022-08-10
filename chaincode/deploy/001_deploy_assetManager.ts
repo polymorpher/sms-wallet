@@ -2,7 +2,7 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers, upgrades } from 'hardhat'
-const config = require('../config.ts')
+const config = require('../src/config.ts')
 
 const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 

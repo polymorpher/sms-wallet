@@ -7,7 +7,7 @@ import {
   getBigNumber
 } from './utilities'
 import { range } from 'lodash'
-const config = require('../config.ts')
+const config = require('../src/config.ts')
 const { BigNumber } = require('ethers')
 const Constants = require('./utilities/constants')
 
