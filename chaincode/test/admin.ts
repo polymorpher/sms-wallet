@@ -4,7 +4,7 @@ import {
   prepare,
   deployUpgradeable
 } from './utilities'
-const config = require('../src/config.ts')
+import config from '../src/config'
 const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000'
 

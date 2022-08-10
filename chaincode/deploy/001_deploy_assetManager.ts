@@ -1,15 +1,16 @@
-/* eslint-disable node/no-unpublished-import */
+import config from '../src/config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers, upgrades } from 'hardhat'
-const config = require('../src/config.ts')
+
+// import config from '../src/config'
 
 const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 
 const deployFunction: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
-  console.log('operators:', JSON.stringify(config.operators))
+  console.log('operators:', JSON.stringify(config.initialOperators))
 
   const AssetManager = await ethers.getContractFactory('AssetManager')
   const assetManager = await upgrades.deployProxy(

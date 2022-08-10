@@ -1,11 +1,9 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { expect } from 'chai'
 import { MockProvider } from 'ethereum-waffle'
-import { Contract } from 'ethers'
+import { Contract, BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
 import Mocha from 'mocha'
-
-const { BigNumber } = require('ethers')
 
 export const BASE_TEN = 10
 

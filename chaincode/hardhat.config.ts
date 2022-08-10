@@ -1,3 +1,4 @@
+import config from './src/config'
 import { HardhatUserConfig, task } from 'hardhat/config'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
@@ -11,8 +12,6 @@ import '@atixlabs/hardhat-time-n-mine'
 import 'hardhat-spdx-license-identifier'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-contract-sizer'
-
-const config = require('./src/config.ts')
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

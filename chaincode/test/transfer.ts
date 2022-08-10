@@ -7,9 +7,10 @@ import {
   getBigNumber
 } from './utilities'
 import { range } from 'lodash'
-const config = require('../src/config.ts')
-const { BigNumber } = require('ethers')
-const Constants = require('./utilities/constants')
+import config from '../src/config'
+import { BigNumber } from 'ethers'
+
+import Constants from './utilities/constants'
 
 const DUMMY_HEX = '0x'
 
