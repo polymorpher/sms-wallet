@@ -56,6 +56,7 @@
         "hardhat-gas-reporter": "^1.0.8",
         "hardhat-spdx-license-identifier": "^2.0.3",
         "lodash": "^4.17.21",
+        "mocha": "^10.0.0",
         "solhint": "^3.3.7",
         "solidity-coverage": "^0.7.21",
         "ts-node": "^10.7.0",

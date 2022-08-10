@@ -10,8 +10,8 @@ const DEFAULT_ADMIN_ROLE = '0x00000000000000000000000000000000000000000000000000
 
 // let snapshotId: string;
 
-describe('AssetManager Admin', function (this) {
-  before(async function (this) {
+describe('AssetManager Admin', function () {
+  before(async function () {
     await prepare(this, [
       'AssetManager',
       'TestERC20',
@@ -20,7 +20,7 @@ describe('AssetManager Admin', function (this) {
     ])
   })
 
-  beforeEach(async function (this) {
+  beforeEach(async function () {
     this.snapshotId = await waffle.provider.send('evm_snapshot', [])
     await deployUpgradeable(this, [
       [
@@ -36,7 +36,7 @@ describe('AssetManager Admin', function (this) {
     ])
   })
 
-  afterEach(async function (this) {
+  afterEach(async function () {
     await waffle.provider.send('evm_revert', [this.snapshotId])
   })
 

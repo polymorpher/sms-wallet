@@ -15,8 +15,8 @@ const DUMMY_HEX = '0x'
 
 // let snapshotId: string;
 
-describe('AssetManager', function (this) {
-  before(async function (this) {
+describe('AssetManager', function () {
+  before(async function () {
     await prepare(this, [
       'AssetManager',
       'TestERC20',
@@ -25,7 +25,7 @@ describe('AssetManager', function (this) {
     ])
   })
 
-  beforeEach(async function (this) {
+  beforeEach(async function () {
     this.snapshotId = await waffle.provider.send('evm_snapshot', [])
     await deployUpgradeable(this, [
       [
@@ -41,7 +41,7 @@ describe('AssetManager', function (this) {
     ])
   })
 
-  afterEach(async function (this) {
+  afterEach(async function () {
     await waffle.provider.send('evm_revert', [this.snapshotId])
   })
 

@@ -11,8 +11,8 @@ const config = require('../config.ts')
 const ZERO_ETH = ethers.utils.parseEther('0')
 const ONE_ETH = ethers.utils.parseEther('1')
 
-describe('AssetManager', function (this) {
-  before(async function (this) {
+describe('AssetManager', function () {
+  before(async function () {
     await prepare(this, [
       'AssetManager',
       'TestERC20',
@@ -21,7 +21,7 @@ describe('AssetManager', function (this) {
     ])
   })
 
-  beforeEach(async function (this) {
+  beforeEach(async function () {
     this.snapshotId = await waffle.provider.send('evm_snapshot', [])
     await deployUpgradeable(this, [
       [
@@ -37,7 +37,7 @@ describe('AssetManager', function (this) {
     ])
   })
 
-  afterEach(async function (this) {
+  afterEach(async function () {
     await waffle.provider.send('evm_revert', [this.snapshotId])
   })
 

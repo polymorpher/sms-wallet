@@ -3,16 +3,12 @@ import { expect } from 'chai'
 import { MockProvider } from 'ethereum-waffle'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
+import Mocha from 'mocha'
+
 const { BigNumber } = require('ethers')
 
 export const BASE_TEN = 10
-export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 
-// const {
-//   ethers: {
-//     constants: { MaxUint256 },
-//   },
-// } = require("ethers");
 export async function prepare (thisObject: Mocha.Context, contracts: string[]) {
   for (const i in contracts) {
     const contract = contracts[i]
@@ -30,17 +26,15 @@ export async function prepare (thisObject: Mocha.Context, contracts: string[]) {
   thisObject.ernie = thisObject.signers[8]
 }
 
-export async function deploy (thisObject, contracts) {
-  for (const i in contracts) {
-    const contract = contracts[i]
-    thisObject[contract[0]] = await contract[1].deploy(...(contract[2] || []))
-    await thisObject[contract[0]].deployed()
+export async function deploy (context, contracts) {
+  for (const contract of contracts) {
+    context[contract[0]] = await contract[1].deploy(...(contract[2] || []))
+    await context[contract[0]].deployed()
   }
 }
 
 export async function deployUpgradeable (thisObject, contracts) {
-  for (const i in contracts) {
-    const contract = contracts[i]
+  for (const contract of contracts) {
     thisObject[contract[0]] = await contract[1].deploy()
     await thisObject[contract[0]].deployed()
     const tx = await thisObject[contract[0]].initialize(...(contract[2] || []))
