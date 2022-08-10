@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { ethers, waffle } from 'hardhat'
+import { waffle } from 'hardhat'
 import {
   prepare,
   deploy,
@@ -60,7 +60,7 @@ describe('AssetManager', function (this) {
       await tx.wait()
       expect(await this.erc20.balanceOf(this.alice.address)).to.equal(97)
       expect(await this.erc20.allowance(this.alice.address, this.assetManager.address)).to.equal(70)
-      // Operator Trasnfers 3 of token 0 to Bob
+      // Operator transfers 3 of token 0 to Bob
       tx = await this.assetManager.connect(this.operatorA)
         .transfer(
           BigNumber.from('3'),
@@ -112,7 +112,7 @@ describe('AssetManager', function (this) {
         range(10).map((e: any) => 10), // mint 10 for each
         range(10).map((e: any) => `ipfs://test1155/${e}`)
       ]]])
-      // Transfer some Tokens for Alice
+      // Transfer some tokens for Alice
       let tx = await this.erc1155.safeTransferFrom(this.deployer.address, this.alice.address, 0, 7, DUMMY_HEX)
       await tx.wait()
       tx = await this.erc1155.safeTransferFrom(this.deployer.address, this.alice.address, 1, 7, DUMMY_HEX)
@@ -120,7 +120,7 @@ describe('AssetManager', function (this) {
       tx = await this.erc1155.safeTransferFrom(this.deployer.address, this.alice.address, 2, 7, DUMMY_HEX)
       await tx.wait()
       expect(await this.erc1155.balanceOf(this.alice.address, 0)).to.equal(7)
-      // Alice Approves the AssetManager for the Token
+      // Alice approves the AssetManager for the Token
       tx = await this.erc1155.connect(this.alice).setApprovalForAll(this.assetManager.address, true)
       await tx.wait()
       // Operator transfers the tokens for Alice to Bob
