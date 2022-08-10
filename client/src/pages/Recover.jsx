@@ -10,10 +10,11 @@ import { processError, utils } from '../utils'
 import apis from '../api'
 import OtpBox from '../components/OtpBox'
 import { walletActions } from '../state/modules/wallet'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import paths from './paths'
 import { useHistory } from 'react-router'
 import MainContainer from '../components/Container'
+import { globalActions } from '../state/modules/global'
 const processRecoverData = (d) => {
   try {
     const q = qs.parseUrl(d)
@@ -33,6 +34,7 @@ const Recover = () => {
   const [readyForCode, setReadyForCode] = useState(false)
   const [code, setCode] = useState('')
   const [countdown, setCountdown] = useState(0)
+  const next = useSelector(state => state.global.next || {})
 
   const onScan = (data, isJson) => {
     if (!data) {
@@ -98,7 +100,14 @@ const Recover = () => {
       }
       toast.success(`Recovered wallet ${derivedAddress}`)
       dispatch(walletActions.updateWallet({ phone, address: derivedAddress, pk: utils.hexView(pk), eseed }))
-      setTimeout(() => history.push(paths.wallet), 1000)
+      setTimeout(() => {
+        if (next?.path) {
+          dispatch(globalActions.setNextAction({}))
+          history.push({ pathname: next.path, search: next.query })
+          return
+        }
+        history.push(paths.wallet)
+      }, 1000)
     } catch (ex) {
       console.error(ex)
       toast.error(`Error: ${processError(ex)}`)

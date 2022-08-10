@@ -1,5 +1,5 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Redirect, useHistory } from 'react-router'
 import paths from './paths'
 import MainContainer from '../components/Container'
@@ -10,8 +10,10 @@ import apis from '../api'
 import { toast } from 'react-toastify'
 import { Row } from '../components/Layout'
 import { utils } from '../utils'
+import { globalActions } from '../state/modules/global'
 
 const SignMessage = () => {
+  const dispatch = useDispatch()
   const history = useHistory()
   const wallet = useSelector(state => state.wallet || {})
   const address = Object.keys(wallet)[0]
@@ -21,6 +23,7 @@ const SignMessage = () => {
 
   const pk = wallet[address]?.pk
   if (!pk) {
+    dispatch(globalActions.setNextAction({ path: paths.sign, query: location.search }))
     return <Redirect to={paths.signup} />
   }
   if (!callback || !message) {

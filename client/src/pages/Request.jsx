@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Redirect, useHistory, useRouteMatch } from 'react-router'
 import paths from './paths'
 import MainContainer from '../components/Container'
@@ -10,8 +10,10 @@ import { processError, utils } from '../utils'
 import { ApproveTransaction, decodeCalldata } from './ApproveTransaction'
 import { Button } from '../components/Controls'
 import { TailSpin } from 'react-loading-icons'
+import { globalActions } from '../state/modules/global'
 
 const Request = () => {
+  const dispatch = useDispatch()
   const history = useHistory()
   const wallet = useSelector(state => state.wallet || {})
   const address = Object.keys(wallet)[0]
@@ -37,20 +39,13 @@ const Request = () => {
         setError(error)
         toast.error('Error processing request')
       }
-      // const u = new URL(location.href)
-      // u.pathname = paths.call
-      // for (const key of u.searchParams.keys()) {
-      //   u.searchParams.delete(key)
-      // }
-      // for (const [k, v] of Object.entries({ id, amount, dest, calldata, caller, callback, comment })) {
-      //   u.searchParams.append(k, v)
-      // }
     }
     f()
   }, [])
 
   const pk = wallet[address]?.pk
   if (!pk) {
+    dispatch(globalActions.setNextAction({ path: paths.request, query: location.search }))
     return <Redirect to={paths.signup} />
   }
 
