@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Redirect, useHistory } from 'react-router'
 import paths from './paths'
 import MainContainer from '../components/Container'
@@ -11,6 +11,7 @@ import { toast } from 'react-toastify'
 import { Row } from '../components/Layout'
 import { utils } from '../utils'
 import { pick } from 'lodash'
+import { globalActions } from '../state/modules/global'
 
 export const decodeCalldata = (calldataB64Encoded) => {
   const calldataDecoded = Buffer.from(calldataB64Encoded || '', 'base64')
@@ -134,11 +135,22 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
 }
 
 const ApproveTransactionPage = () => {
+  const dispatch = useDispatch()
   const history = useHistory()
   const qs = querystring.parse(location.search)
-  const callback = utils.safeURL(qs.callback && Buffer.from(qs.callback, 'base64').toString())
+  const callback = utils.safeURL(qs.callback && Buffer.from(decodeURIComponent(qs.callback), 'base64').toString())
   const { caller, comment, amount: inputAmount, dest, calldata: calldataB64Encoded } = qs
   const calldata = decodeCalldata(calldataB64Encoded)
+
+  const wallet = useSelector(state => state.wallet || {})
+  const address = Object.keys(wallet)[0]
+  const pk = wallet[address]?.pk
+
+  if (!pk) {
+    dispatch(globalActions.setNextAction({ path: paths.call, query: location.search }))
+    return <Redirect to={paths.signup} />
+  }
+
   if (!callback || !calldata || !dest) {
     return (
       <MainContainer withMenu>
