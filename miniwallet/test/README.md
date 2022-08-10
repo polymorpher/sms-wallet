@@ -2,53 +2,44 @@
 
 ## Overview
 
-Tests in this folder are exclusively for smart contracts (under `chaincode/contracts`) and some core library functions related to small contracts (under `code/lib`). 
-
-Tests for other components, such as the the client and the core server, are provided at separate locations.
+Tests in this folder are exclusively for smart contracts (under `../contracts`) and related libraries (under `code/lib`). 
 
 ### Running the tests
 
-It is recommended that you run tests against a local Hardhat instance. 
+To run the complete set of tests, run:
 
-The tests have deep logging functionality controlled by the `VERBOSE` flag
-
-* `VERBOSE=1` or `VERBOSE=true` turns on debugging logging
-* `VERBOSE=0` or `VERBOSE=false` runs in a quieter mode
-
-You run the following tests the `chaincode` directory
-
-
-To run the complete set of tests use
 ```
 yarn test
 ```
 
-To run a specific suite of tests in a file use
+It is recommended that you run tests against a local Hardhat instance (default).
+
+To run a specific test set, run:
+
 ```
 yarn test test/AssetManager.ts 
 ```
 
-To run an individual test (without compiling the contract) use
+To run an individual test (without compiling the contract), run
+
 ```
 yarn test  --no-compile  --grep 'Positive deposit test'
 ```
 
-## Test Data Overview
+## Test Data and Config
+
 Before each test, some wallets are retrieved using `ethers.getSigners`. They are encapsulated in a test data object. See `prepare` functions in `test/utilities/index.ts` for more details. A breakdown of the test users is given below.
 
 ### Test Accounts
+
 All accounts are funded with 10,000 native tokens. 
 
-* deployer : this is used to deploy AssetManager and Test Token Contracts. It recieves the role of `DEFAULT_ADMIN` which controls the administrative functions.
-* operatorA : An operator whose responsibilities are transferring assets on behalf of users
-* operatorB : An operator whose responsibilities are transferring assets on behalf of users
-* operatorC : An operator whose responsibilities are transferring assets on behalf of users
+* deployer : an account that deploys AssetManager and test token Contracts. The address recieves the role of `DEFAULT_ADMIN` which controls the administrative functions, such as assigning operators and adjusting limits 
+* operatorA, operatorB, operatorC : operators who are responsible for regular smart contract interactions, such as transferring assets on behalf of users
 
 * alice: primary user used for testing deposit, withrdrawal, approve and transfer functionality using native tokens, ERC20, ERC721, ERC1155
 * bob: primary recipient of tokens from alice
-* carol: additional general purpose testing user
-* dora: additional general purpose testing user
-* ernie: additional general purpose testing user
+* carol, dora, ernie: additional general purpose testing user
 
 For transfer testing, the following token contracts are deployed using the deploy in the environment:
 * testerc20: ERC20 contract (TestERC20) with 10000000 minted supply, of which 100 tokens are given to alice for transfer testing
@@ -63,12 +54,12 @@ Following is a summary of each testing area:
 | File          | Function                                                                                                                                                                                                                               |
 |---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | admin.ts           | Administrative functions around setting deposit and approval limits, pausing the contracts and administering operators. |
-| deposit.ts         | Deposit native token functionality (user) testing |
-| withdraw.ts        | Withdrawal native token functionality (user) testing |
-| approve.ts         | Approval native token functionality (user) testing |
-| send.ts            | Send native token functionalty (operator) testing |
-| transfer.ts        | Transfer functionality (operator) testing  |
-| extra.ts           | Any additional test (e.g. complex positive use cases) |
+| deposit.ts         | Deposit of native tokens (from a user) |
+| withdraw.ts        | Withdrawal of native tokens (from user) |
+| approve.ts         | Approval of native tokens (from user) |
+| send.ts            | Sending native token (via operators) |
+| transfer.ts        | Transferring tokens (via operators) |
+| extra.ts           | Additional tests (e.g. complex positive use cases) |
 | utilities/index.ts | Utility and helper functions  |
 
 ### Writing Smart Contract Tests
@@ -86,6 +77,7 @@ First, create a new file and write out how you expect a successful operation to 
 
 
 ### Appendix A: Sample Test Results (2022-08-07)
+
 Following is a log produced by running `yarn test`
 
 ```
@@ -183,6 +175,7 @@ No need to generate any newer typings.
 ✨  Done in 13.02s.
 ```
 ### Appendix A: Sample Coverage Report (2022-08-07)
+
 Following is a log produced by running `yarn coverage`
 
 ```
