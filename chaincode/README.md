@@ -1,20 +1,10 @@
-# AssetManager 
+# SMS Controlled Mini-Wallet 
 
-Smart contract functionality for managing assets for the sms-wallet.
+See design and specification at [mini-wallet in SMS Wallet Wiki](https://github.com/polymorpher/sms-wallet/wiki#sms-controlled-mini-wallet)
 
-For an overview read the [wiki](https://github.com/polymorpher/sms-wallet/wiki#sms-controlled-mini-wallet).
+This folder contains the code for the smart contracts, tests, and deployment scripts.
 
-For detailed techncical documentation read [AssetManager.md](./docs/AssetManager.md).
-
-## Developers 
-
-Quickstart
-```
-git clone https://github.com/polymorpher/sms-wallet
-cd chaincode
-yarn 
-yarn test
-```
+The main smart contract is [AssetManager](./contracts/AssetManager.sol). See in-line documentations for technical references. 
 
 
 
