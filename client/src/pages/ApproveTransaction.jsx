@@ -138,7 +138,7 @@ const ApproveTransactionPage = () => {
   const dispatch = useDispatch()
   const history = useHistory()
   const qs = querystring.parse(location.search)
-  const callback = utils.safeURL(qs.callback && Buffer.from(qs.callback, 'base64').toString())
+  const callback = utils.safeURL(qs.callback && Buffer.from(decodeURIComponent(qs.callback), 'base64').toString())
   const { caller, comment, amount: inputAmount, dest, calldata: calldataB64Encoded } = qs
   const calldata = decodeCalldata(calldataB64Encoded)
 

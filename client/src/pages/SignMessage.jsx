@@ -18,7 +18,7 @@ const SignMessage = () => {
   const wallet = useSelector(state => state.wallet || {})
   const address = Object.keys(wallet)[0]
   const qs = querystring.parse(location.search)
-  const callback = utils.safeURL(qs.callback && Buffer.from(qs.callback, 'base64').toString())
+  const callback = utils.safeURL(qs.callback && Buffer.from(decodeURIComponent(qs.callback), 'base64').toString())
   const { caller, message, comment } = qs
 
   const pk = wallet[address]?.pk
