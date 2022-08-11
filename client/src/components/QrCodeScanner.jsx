@@ -31,6 +31,7 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
         setTimeout(() => f(), 2500)
         console.log('got empty labels. retrying in 2.5s')
       }
+      console.log(cams)
       setVideoDevices(cams)
       if (isMobile) {
         const backCam = cams.find(e => e.label.toLowerCase().indexOf('back') >= 0)
@@ -112,7 +113,7 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
     }
     return false
   }
-  const options = videoDevices.map(d => ({ label: d.label, value: d.deviceId })) // .concat([{ value: 'a', label: 'b' }])
+  const options = videoDevices.map(d => ({ label: d.label || d.deviceId, value: d.deviceId })) // .concat([{ value: 'a', label: 'b' }])
 
   return (
     <>
