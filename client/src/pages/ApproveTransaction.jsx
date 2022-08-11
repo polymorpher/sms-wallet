@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Redirect, useHistory } from 'react-router'
 import paths from './paths'
@@ -139,12 +139,18 @@ const ApproveTransactionPage = () => {
   const history = useHistory()
   const qs = querystring.parse(location.search)
   const callback = utils.safeURL(qs.callback && Buffer.from(decodeURIComponent(qs.callback), 'base64').toString())
-  const { caller, comment, amount: inputAmount, dest, calldata: calldataB64Encoded } = qs
+  const { caller, comment, amount: inputAmount, dest, calldata: calldataB64Encoded, phone } = qs
   const calldata = decodeCalldata(calldataB64Encoded)
 
   const wallet = useSelector(state => state.wallet || {})
   const address = Object.keys(wallet)[0]
   const pk = wallet[address]?.pk
+
+  useEffect(() => {
+    if (phone) {
+      dispatch(globalActions.setPrefilledPhone(phone))
+    }
+  }, [phone])
 
   if (!pk) {
     dispatch(globalActions.setNextAction({ path: paths.call, query: location.search }))

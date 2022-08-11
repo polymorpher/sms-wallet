@@ -19,12 +19,18 @@ const Request = () => {
   const address = Object.keys(wallet)[0]
 
   const match = useRouteMatch(paths.request)
-  const { id } = match ? match.params : {}
+  const { id, phone } = match ? match.params : {}
   const [request, setRequest] = useState()
   const [error, setError] = useState()
   const { calldata: calldataB64Encoded, caller, callback: callbackURL, comment, amount, dest } = request || {}
   const calldata = decodeCalldata(calldataB64Encoded)
   const callback = utils.safeURL(callbackURL)
+  useEffect(() => {
+    if (phone) {
+      dispatch(globalActions.setPrefilledPhone(phone))
+    }
+  }, [phone])
+
   useEffect(() => {
     async function f () {
       try {

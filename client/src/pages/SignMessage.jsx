@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Redirect, useHistory } from 'react-router'
 import paths from './paths'
@@ -19,7 +19,13 @@ const SignMessage = () => {
   const address = Object.keys(wallet)[0]
   const qs = querystring.parse(location.search)
   const callback = utils.safeURL(qs.callback && Buffer.from(decodeURIComponent(qs.callback), 'base64').toString())
-  const { caller, message, comment } = qs
+  const { caller, message, comment, phone } = qs
+
+  useEffect(() => {
+    if (phone) {
+      dispatch(globalActions.setPrefilledPhone(phone))
+    }
+  }, [phone])
 
   const pk = wallet[address]?.pk
   if (!pk) {

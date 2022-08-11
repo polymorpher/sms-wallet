@@ -15,6 +15,7 @@ import paths from './paths'
 import { useHistory } from 'react-router'
 import MainContainer from '../components/Container'
 import { globalActions } from '../state/modules/global'
+import phoneValidator from 'phone'
 const processRecoverData = (d) => {
   try {
     const q = qs.parseUrl(d)
@@ -35,6 +36,17 @@ const Recover = () => {
   const [code, setCode] = useState('')
   const [countdown, setCountdown] = useState(0)
   const next = useSelector(state => state.global.next || {})
+  const prefilledPhone = useSelector(state => state.global.prefilledPhone)
+
+  useEffect(() => {
+    if (prefilledPhone) {
+      const { phoneNumber, isValid } = phoneValidator(prefilledPhone)
+      if (!isValid) {
+        return
+      }
+      setPhone(phoneNumber)
+    }
+  }, [prefilledPhone])
 
   const onScan = (data, isJson) => {
     if (!data) {
@@ -103,6 +115,7 @@ const Recover = () => {
       setTimeout(() => {
         if (next?.path) {
           dispatch(globalActions.setNextAction({}))
+          dispatch(globalActions.setPrefilledPhone())
           history.push({ pathname: next.path, search: next.query })
           return
         }
