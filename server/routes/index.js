@@ -296,9 +296,10 @@ router.post('/request-view', async (req, res) => {
     return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'transaction belongs to different address' })
   }
   try {
+    const u = await User.findByAddress({ address })
     const { hash, requestStr } = r
     const request = JSON.parse(requestStr)
-    return res.json({ request, hash })
+    return res.json({ request, hash, phone: u.phone })
   } catch (ex) {
     console.error(ex)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })

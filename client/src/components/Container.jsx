@@ -6,6 +6,7 @@ import { Col, Main, Modal, Row } from './Layout'
 import { Button } from './Controls'
 import { walletActions } from '../state/modules/wallet'
 import { useDispatch, useSelector } from 'react-redux'
+import paths from '../pages/paths'
 
 const MainContainer = ({ children, withMenu }) => {
   const dispatch = useDispatch()
@@ -29,7 +30,7 @@ const MainContainer = ({ children, withMenu }) => {
             <IconImg onClick={() => setMenuVisible(!menuVisible)} src={MenuIcon} />
             {menuVisible &&
               <MenuItems>
-                {wallet && <MenuItemLink onClick={() => { window.location.reload() }}>{wallet[address].phone}</MenuItemLink>}
+                {wallet && <MenuItemLink onClick={() => { history.push(paths.wallet) }}>{wallet[address].phone}</MenuItemLink>}
                 <MenuItemLink onClick={() => setLogoutModalVisible(true)}>Logout</MenuItemLink>
               </MenuItems>}
           </MenuIconContainer>}

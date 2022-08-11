@@ -3,13 +3,18 @@ import globalActions from './actions'
 
 // address -> wallet
 export const initialState = {
-  next: {}
+  next: {},
+  prefilledPhone: null,
 }
 
 const reducer = handleActions({
   [globalActions.setNextAction]: (state, action) => ({
     ...state,
     next: { ...action.payload },
+  }),
+  [globalActions.setPrefilledPhone]: (state, action) => ({
+    ...state,
+    prefilledPhone: action.payload,
   }),
 }, {
   ...initialState

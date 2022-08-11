@@ -6930,6 +6930,11 @@ performance-now@^2.1.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
+phone@^3.1.24:
+  version "3.1.24"
+  resolved "https://registry.yarnpkg.com/phone/-/phone-3.1.24.tgz#6b0c87dd3a5ae2aca603bb17a06f25f01adeb0c6"
+  integrity sha512-R+QoHPtL+ZolkdevupVjw2UjN0qWPr+L9lIMFSXqH0vgO/AapEGGys+GRkvvaHKUBoBy09NgCxbnCdkW3aWhAQ==
+
 picocolors@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.0.0.tgz#cb5bdc74ff3f51892236eaf79d68bc44564ab81c"
