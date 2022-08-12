@@ -123,13 +123,16 @@ module.exports = {
   },
   plugins: [
     // new NodePolyfillPlugin(),
-    new Dotenv(),
-    new webpack.EnvironmentPlugin({
-      PUBLIC_URL: '',
-      SERVER_SECRET: 'smswallet',
-      DEBUG: false,
-      ROOT_URL: '',
+    new Dotenv({
+      allowEmptyValues: true,
+      systemvars: true,
     }),
+    // new webpack.EnvironmentPlugin({
+    //   PUBLIC_URL: '',
+    //   SERVER_SECRET: 'smswallet',
+    //   DEBUG: false,
+    //   ROOT_URL: '',
+    // }),
 
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
