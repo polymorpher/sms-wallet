@@ -1,0 +1,19 @@
+@import '../assets/fonts/decima-mono.css';
+@font-face {
+  font-family: 'Amazon Ember Mono Alpha';
+  src: url('../assets/fonts/AmazonEmberMonoAlpha_Regular.ttf') format('truetype'),
+  url('../assets/fonts/AmazonEmberMonoAlpha_Bold.ttf') format('truetype');
+}
+
+html{
+  //height: 100%;
+  //overflow: hidden;
+}
+body {
+  //height: 100%;
+  //overflow: hidden;
+  margin: 0;
+  //font-family: 'DecimaMono', system-ui;
+  font-family: 'Amazon Ember Mono Alpha', system-ui;
+}
+
