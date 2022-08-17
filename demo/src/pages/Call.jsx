@@ -24,14 +24,6 @@ const Input = styled(InputDefault)`
     cursor: not-allowed;
   }
 `
-const TextArea = styled(TextAreaDefault)`
-  margin: 0;
-  height: 240px;
-  &:disabled{
-    background-color: #aaa;
-    cursor: not-allowed;
-  }
-`
 
 const SecondaryText = styled(BaseText)`
   color: darkgrey;
@@ -62,6 +54,14 @@ const Call = () => {
   const [parameters, setParameters] = useState(testCalldata.parameters)
   const [calldata, setCalldata] = useState('eyJtZXRob2QiOiJ0ZXN0KHVpbnQzMixieXRlczQpIiwicGFyYW1ldGVycyI6W3sibmFtZSI6ImFtb3VudCIsInR5cGUiOiJ1aW50MzIiLCJ2YWx1ZSI6MX0seyJuYW1lIjoiaWQiLCJ0eXBlIjoiYnl0ZXM0IiwidmFsdWUiOiIweDEyMzQ1Njc4In1dfQ')
   const [calldataJSON, setCalldataJSON] = useState(JSON.stringify(testCalldata, null, 2))
+  useEffect(() => {
+    const obj = { method, selector, parameters }
+    const j = JSON.stringify(obj)
+    const jf = JSON.stringify(obj, null, 2)
+    setCalldataJSON(jf)
+    setCalldata(encodeURIComponent(Buffer.from(j).toString('base64')))
+    console.log(parameters)
+  }, [parameters])
   const onParameterUpdate = (kv, index) => {
     setParameters(p => {
       if (index >= p.length) {
@@ -70,29 +70,24 @@ const Call = () => {
       }
       const pp = clone(p)
       pp[index] = { ...p[index], ...kv }
-      const obj = { method, selector, parameters: pp }
-      const j = JSON.stringify(obj)
-      const jf = JSON.stringify(obj, null, 2)
-      setCalldataJSON(jf)
-      setCalldata(encodeURIComponent(Buffer.from(j).toString('base64')))
-      console.log(parameters)
       return pp
     })
   }
   useEffect(() => {
     const url = new URL(config.clientUrl + '/call')
     const callbackEncoded = encodeURIComponent(Buffer.from(callback).toString('base64'))
-    url.search = qs.stringify({ caller, callback: callbackEncoded, calldata, amount, comment }, { skipEmptyString: true, skipNull: true })
+    url.search = qs.stringify({ caller, callback: callbackEncoded, dest, amount, comment, calldata }, { skipEmptyString: true, skipNull: true })
     setUrl(url.href)
   }, [caller, calldata, amount, comment, callback])
   return (
     <MainContainer>
       <h1>Contract Call Demo</h1>
       <BaseText>In this demo, we show how the developer may configure various parameters to specify a transaction, and construct a URL that requests the user to approve the transaction. The URL points to a transaction approval page under the domain smswallet.xyz. As soon as the user confirms the transaction on that page, the transaction will be submitted to the blockchain immediately for processing. At the same time, the user will be redirected back to a callback parameter which the developer should specify.</BaseText>
-      <h2>Parameters</h2>
-      <BaseText>Fully constructed URL</BaseText>
+      <h2>Fully constructed URL</h2>
+      <BaseText>This is the URL the user should be sent to, based on the parameters below. The URL changes automatically as you update the parameters</BaseText>
       <LinkWrarpper style={{ width: '100%', wordBreak: 'break-word' }} href={url} target='_blank'><Wrapped style={{ width: '100%' }}>{url}</Wrapped></LinkWrarpper>
-      <BaseText>The following query parameters are passed into the URL</BaseText>
+      <h2>Parameters</h2>
+      <BaseText>The following query parameters are passed into the URL. All parameters should be URL encoded (including those already base64 encoded)</BaseText>
       <Table>
         <tr>
           <td>
@@ -118,7 +113,7 @@ const Call = () => {
             />
             <BaseText><br /><SecondaryText>base64 encoded:</SecondaryText><br />{encodeURIComponent(Buffer.from(callback || '').toString('base64'))}</BaseText>
           </td>
-          <td><BaseText>The callback URL the user would be redirected to, after the transaction is approved. The parameter must be base64 encoded and URL encoded. This provides a way for your app to be notified when the transaction is approved and executed, or if any error occurs. The user's address and transaction hash will be attached in query parameters</BaseText></td>
+          <td><BaseText>The callback URL the user would be redirected to, after the transaction is approved. The parameter must be base64 encoded. This provides a way for your app to be notified when the transaction is approved and executed, or if any error occurs. The user's address and transaction hash will be attached in query parameters</BaseText></td>
         </tr>
         <tr>
           <td>
@@ -200,14 +195,37 @@ const Call = () => {
               {parameters.map(({ type, value, name }, i) => {
                 return (
                   <Col key={`${i}`}>
-                    <SecondaryText style={{ marginTop: i > 0 ? 16 : 0 }}>Parameter {i}</SecondaryText>
+                    <Row style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: i > 0 ? 16 : 0 }}>
+                      <SecondaryText>Parameter {i}</SecondaryText>
+                      <LinkWrarpper
+                        href='#' onClick={(e) => {
+                          e.preventDefault()
+                          setParameters((p) => [...p.slice(0, i), ...p.slice(i + 1)])
+                        }}
+                      >- Remove
+                      </LinkWrarpper>
+                    </Row>
+
                     <Row><BaseText>Value</BaseText><Input value={value} onChange={({ target: { value } }) => onParameterUpdate({ value }, i)} /></Row>
                     <Row><BaseText>Type</BaseText><Input value={type} onChange={({ target: { value } }) => onParameterUpdate({ type: value }, i)} /></Row>
                     <Row><BaseText>Name</BaseText><Input value={name} onChange={({ target: { value } }) => onParameterUpdate({ name: value }, i)} /></Row>
                   </Col>
                 )
               })}
+              <LinkWrarpper
+                style={{ marginTop: parameters.length > 0 ? 32 : 0 }}
+                href='#' onClick={(e) => {
+                  e.preventDefault()
+                  setParameters((p) => [...p, {
+                    value: '1',
+                    type: 'uint256',
+                    name: 'param'
+                  }])
+                }}
+              >+ Add a parameter
+              </LinkWrarpper>
             </Col>
+
           </td>
           <td><BaseText>The values, types, and names of the parameters. The names are for informational purposes only. Types are optional, but it is advisable to include the type of each parameter even though the function signature already contains types, because some complex types (such as structs and types) may be hard to infer from signature. The values are in their canonical forms, that means (1) 0x-hex-encoded string for byte data and address (2) number or string for integers (3) string for strings (3) array for arrays, structs, and tuples. </BaseText></td>
         </tr>
