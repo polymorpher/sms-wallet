@@ -44,7 +44,10 @@ const Wrapped = styled(BaseText)`
 const Call = () => {
   const [url, setUrl] = useState('')
   const [caller, setCaller] = useState()
-  const [callback, setCallback] = useState(location.href)
+  const cleanURL = new URL(location.href)
+  cleanURL.search = ''
+  cleanURL.hash = ''
+  const [callback, setCallback] = useState(cleanURL.href)
   const [comment, setComment] = useState()
   const [amount, setAmount] = useState('0.1')
   const [dest, setDest] = useState('0x37CCbeAa1d176f77227AEa39BE5888BF8768Bf85')
@@ -59,8 +62,8 @@ const Call = () => {
     const j = JSON.stringify(obj)
     const jf = JSON.stringify(obj, null, 2)
     setCalldataJSON(jf)
-    setCalldata(encodeURIComponent(Buffer.from(j).toString('base64')))
-    console.log(parameters)
+    setCalldata(Buffer.from(j).toString('base64'))
+    // console.log(parameters)
   }, [parameters])
   const onParameterUpdate = (kv, index) => {
     setParameters(p => {
@@ -75,7 +78,7 @@ const Call = () => {
   }
   useEffect(() => {
     const url = new URL(config.clientUrl + '/call')
-    const callbackEncoded = encodeURIComponent(Buffer.from(callback).toString('base64'))
+    const callbackEncoded = Buffer.from(callback).toString('base64')
     url.search = qs.stringify({ caller, callback: callbackEncoded, dest, amount, comment, calldata }, { skipEmptyString: true, skipNull: true })
     setUrl(url.href)
   }, [caller, calldata, amount, comment, callback])
@@ -96,24 +99,11 @@ const Call = () => {
           </td>
           <td>
             <Input
-              placeholder='Tip Jar'
+              placeholder='Your Demo App'
               value={caller} onChange={({ target: { value } }) => setCaller(value)}
             />
           </td>
           <td><BaseText>Your app's name. This helps the user identify which app is asking the user to approve a transaction</BaseText></td>
-        </tr>
-        <tr>
-          <td>
-            <Param>callback</Param>
-          </td>
-          <td>
-            <Input
-              placeholder='https://google.com'
-              value={callback} onChange={({ target: { value } }) => setCallback(value)}
-            />
-            <BaseText><br /><SecondaryText>base64 encoded:</SecondaryText><br />{encodeURIComponent(Buffer.from(callback || '').toString('base64'))}</BaseText>
-          </td>
-          <td><BaseText>The callback URL the user would be redirected to, after the transaction is approved. The parameter must be base64 encoded. This provides a way for your app to be notified when the transaction is approved and executed, or if any error occurs. The user's address and transaction hash will be attached in query parameters</BaseText></td>
         </tr>
         <tr>
           <td>
@@ -165,6 +155,35 @@ const Call = () => {
             <Col>
               <BaseText>Base64 encoded JSON string of the object describing the method and parameters for the contract call. Use "calldata construction" tool below to automatically adjust this value</BaseText>
             </Col>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <Param>callback</Param>
+          </td>
+          <td>
+            <Input
+              placeholder='https://google.com'
+              value={callback} onChange={({ target: { value } }) => setCallback(value)}
+            />
+            <BaseText><br /><SecondaryText>base64 encoded:</SecondaryText><br />{encodeURIComponent(Buffer.from(callback || '').toString('base64'))}</BaseText>
+          </td>
+          <td>
+            <BaseText>The callback URL the user would be redirected to, after the transaction is approved. The parameter must be base64 encoded. This provides a way for your app to be notified when the transaction is approved and executed, or if any error occurs. The user's address and transaction hash will be attached in query parameters</BaseText>
+          </td>
+        </tr>
+        <tr>
+          <td />
+          <td colSpan={2}>
+            <BaseText>
+              <br />
+              Response query parameters:<br />
+              - <b>success</b>: "true" if the transaction was successfully confirmed on blockchain<br />
+              - <b>cancelled</b>: "true" if the user cancelled the transaction<br />
+              - <b>error</b>: string, showing any error occurred. Note that if the transaction was confirmed by user but not by blockchain, you would not get a callback<br />
+              - <b>hash</b>: the transaction hash, in 0x-hex form<br />
+              - <b>address</b>: the user's wallet address<br />
+            </BaseText>
           </td>
         </tr>
       </Table>
