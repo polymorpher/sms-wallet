@@ -19,14 +19,14 @@ const config = {
   network: process.env.SERVER_NETWORK || 'harmony',
   transak: {
     staging: {
-      apiKey: '50f1c430-7807-4760-a337-57583de69f73',
-      defaultCurrency: 'USD',
-      environment: 'STAGING'
+      apiKey: process.env.TRANSAK_STAGING_API_KEY,
+      defaultCurrency: process.env.TRANSAK_STAGING_DEFAULT_CURRENCY || 'USD',
+      environment: process.env.TRANSAK_STAGING_ENVIRONMENT || 'STAGING'
     },
     production: {
-      apiKey: '28c4ba82-b701-4d05-a44c-1466fbb99265',
-      defaultCurrency: 'USD',
-      environment: 'PRODUCTION'
+      apiKey: process.env.TRANSAK_PRODUCTION_API_KEY,
+      defaultCurrency: process.env.TRANSAK_PRODUCTION_DEFAULT_CURRENCY || 'USD',
+      environment: process.env.TRANSAK_PRODUCTION_ENVIRONMENT || 'PRODUCTION'
     },
     currencies: ['USD', 'NZD', 'AUD', 'EUR', 'GBP', 'CHF', 'SEK', 'PLN', 'NOK', 'MXN', 'DKK', 'CAD', 'ARS', 'BRL', 'CLP', 'CRC', 'DOP', 'IDR', 'ILS', 'JPY', 'KRW', 'MYR', 'PYG', 'PEN', 'PHP', 'SGD', 'ZAR', 'TZS', 'THB', 'TRY', 'BBD', 'BMD', 'BGN', 'HRK', 'CZK', 'FKP', 'FJD', 'GIP', 'HUF', 'ISK', 'JMD', 'KES', 'MDL', 'RON'],
     countries: [

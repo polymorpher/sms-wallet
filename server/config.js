@@ -58,7 +58,7 @@ const config = {
     cred: !process.env.GCP_CRED_PATH ? {} : require(process.env.GCP_CRED_PATH),
     mock: !process.env.GCP_CRED_PATH,
     mockPort: 9000,
-    namespace: 'sms-wallet-server'
+    namespace: process.env.GCP_NAMESPACE || 'sms-wallet-server'
   },
 
   twilio: {
