@@ -41,7 +41,7 @@ const Wrapped = styled(BaseText)`
   }
 `
 
-const Call = () => {
+const CallDemo = () => {
   const [url, setUrl] = useState('')
   const [caller, setCaller] = useState()
   const cleanURL = new URL(location.href)
@@ -254,4 +254,4 @@ const Call = () => {
   )
 }
 
-export default Call
+export default CallDemo

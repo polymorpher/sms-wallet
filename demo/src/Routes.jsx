@@ -1,14 +1,14 @@
 import React from 'react'
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
 import Landing from './pages/Landing'
-import Call from './pages/Call'
+import CallDemo from './pages/CallDemo'
 
 const Routes = () => {
   return (
     <BrowserRouter>
       <Switch>
         <Route exact path='/' render={() => <Landing />} />
-        <Route path='' render={() => <Call />} />
+        <Route path='' render={() => <CallDemo />} />
         <Redirect to='/' />
       </Switch>
     </BrowserRouter>
