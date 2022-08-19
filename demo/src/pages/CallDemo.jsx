@@ -1,97 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Main, LinkWrarpper, Col, Row, MainContainer, Line } from '../components/Layout'
-import { Input as InputDefault, TextArea as TextAreaDefault } from '../components/Controls'
+import { LinkWrarpper, Col, Row, MainContainer, Line } from '../components/Layout'
+import { Input as InputDefault } from '../components/Controls'
 import { BaseText } from '../components/Text'
 import { clone } from 'lodash'
 import config from '../../config'
 import qs from 'query-string'
-const Table = styled.table`
-  tr {
-    vertical-align: top;
-    td {
-      padding: 16px;
-    }
-  }
+import { Input, JSONBlock, Param, SecondaryText, Table, Wrapped } from './DemoStyles'
 
-`
-
-const Input = styled(InputDefault)`
-  margin: 0;
-  width: 480px;
-  &:disabled{
-    background-color: #aaa;
-    cursor: not-allowed;
-  }
-`
-
-const SecondaryText = styled(BaseText)`
-  color: darkgrey;
-`
-
-const Param = styled(BaseText)`
-  color: black;
-`
-
-const Wrapped = styled(BaseText)`
-  width: 480px;
-  word-break: break-all;
-  pre{
-    font-size: 12px;
-  }
-`
-
-const CallDemo = () => {
-  const [url, setUrl] = useState('')
-  const [caller, setCaller] = useState()
-  const cleanURL = new URL(location.href)
-  cleanURL.search = ''
-  cleanURL.hash = ''
-  const [callback, setCallback] = useState(cleanURL.href)
-  const [comment, setComment] = useState()
-  const [amount, setAmount] = useState('0.1')
-  const [dest, setDest] = useState('0x37CCbeAa1d176f77227AEa39BE5888BF8768Bf85')
-  const [method, setMethod] = useState('test(uint32,bytes4)')
-  const [selector, setSelector] = useState()
-  const testCalldata = { method: 'test(uint32,bytes4)', parameters: [{ name: 'amount', type: 'uint32', value: 1 }, { name: 'id', type: 'bytes4', value: '0x12345678' }] }
-  const [parameters, setParameters] = useState(testCalldata.parameters)
-  const [calldata, setCalldata] = useState('eyJtZXRob2QiOiJ0ZXN0KHVpbnQzMixieXRlczQpIiwicGFyYW1ldGVycyI6W3sibmFtZSI6ImFtb3VudCIsInR5cGUiOiJ1aW50MzIiLCJ2YWx1ZSI6MX0seyJuYW1lIjoiaWQiLCJ0eXBlIjoiYnl0ZXM0IiwidmFsdWUiOiIweDEyMzQ1Njc4In1dfQ')
-  const [calldataJSON, setCalldataJSON] = useState(JSON.stringify(testCalldata, null, 2))
-  useEffect(() => {
-    const obj = { method, selector, parameters }
-    const j = JSON.stringify(obj)
-    const jf = JSON.stringify(obj, null, 2)
-    setCalldataJSON(jf)
-    setCalldata(Buffer.from(j).toString('base64'))
-    // console.log(parameters)
-  }, [parameters])
-  const onParameterUpdate = (kv, index) => {
-    setParameters(p => {
-      if (index >= p.length) {
-        console.error('Bad index', p.length, index, kv)
-        return
-      }
-      const pp = clone(p)
-      pp[index] = { ...p[index], ...kv }
-      return pp
-    })
-  }
-  useEffect(() => {
-    const url = new URL(config.clientUrl + '/call')
-    const callbackEncoded = Buffer.from(callback).toString('base64')
-    url.search = qs.stringify({ caller, callback: callbackEncoded, dest, amount, comment, calldata }, { skipEmptyString: true, skipNull: true })
-    setUrl(url.href)
-  }, [caller, calldata, amount, comment, callback])
+export const CallParameterTable = ({ caller, setCaller, comment, setComment, amount, setAmount, dest, setDest, calldata, callback, setCallback, calldataJSON }) => {
   return (
-    <MainContainer>
-      <h1>Contract Call Demo</h1>
-      <BaseText>In this demo, we show how the developer may configure various parameters to specify a transaction, and construct a URL that requests the user to approve the transaction. The URL points to a transaction approval page under the domain smswallet.xyz. As soon as the user confirms the transaction on that page, the transaction will be submitted to the blockchain immediately for processing. At the same time, the user will be redirected back to a callback parameter which the developer should specify.</BaseText>
-      <h2>Fully constructed URL</h2>
-      <BaseText>This is the URL the user should be sent to, based on the parameters below. The URL changes automatically as you update the parameters</BaseText>
-      <LinkWrarpper style={{ width: '100%', wordBreak: 'break-word' }} href={url} target='_blank'><Wrapped style={{ width: '100%' }}>{url}</Wrapped></LinkWrarpper>
-      <h2>Parameters</h2>
-      <BaseText>The following query parameters are passed into the URL. All parameters should be URL encoded (including those already base64 encoded)</BaseText>
-      <Table>
+    <Table>
+      <tbody>
         <tr>
           <td>
             <Param>caller</Param>
@@ -141,14 +61,16 @@ const CallDemo = () => {
           <td>
             <Col>
               <Wrapped>{calldata}</Wrapped>
-              <Wrapped>
+              <BaseText>
                 Equivalent JSON:
                 <Line />
-                <pre>
-                  {calldataJSON}
-                </pre>
+                <JSONBlock>
+                  <pre>
+                    {calldataJSON}
+                  </pre>
+                </JSONBlock>
                 <Line />
-              </Wrapped>
+              </BaseText>
             </Col>
           </td>
           <td>
@@ -186,10 +108,15 @@ const CallDemo = () => {
             </BaseText>
           </td>
         </tr>
-      </Table>
-      <h2>Calldata construction</h2>
-      <BaseText>The following keys and values are used for constructing the encoded-data (calldata). The encoding result is automatically reflected above. In Javascript, you may use <b>encodeURIComponent(atob(JSON.stringify(obj)))</b> to produce the same result, assuming <b>obj</b> is the JSON object containing the following keys and values. In node.js, use <b>Buffer.from(JSON.stringify(obj)).toString('base64url')</b></BaseText>
-      <Table>
+      </tbody>
+    </Table>
+  )
+}
+
+export const CalldataTable = ({ method, setMethod, selector, setSelector, parameters, setParameters, onParameterUpdate }) => {
+  return (
+    <Table>
+      <tbody>
         <tr>
           <td>
             <Param>method</Param>
@@ -248,7 +175,95 @@ const CallDemo = () => {
           </td>
           <td><BaseText>The values, types, and names of the parameters. The names are for informational purposes only. Types are optional, but it is advisable to include the type of each parameter even though the function signature already contains types, because some complex types (such as structs and types) may be hard to infer from signature. The values are in their canonical forms, that means (1) 0x-hex-encoded string for byte data and address (2) number or string for integers (3) string for strings (3) array for arrays, structs, and tuples. </BaseText></td>
         </tr>
-      </Table>
+      </tbody>
+    </Table>
+  )
+}
+
+const testCalldata = { method: 'test(uint32,bytes4)', parameters: [{ name: 'amount', type: 'uint32', value: 1 }, { name: 'id', type: 'bytes4', value: '0x12345678' }] }
+
+export const useCallParameters = () => {
+  const cleanURL = new URL(location.href)
+  cleanURL.search = ''
+  cleanURL.hash = ''
+
+  const [caller, setCaller] = useState()
+  const [callback, setCallback] = useState(cleanURL.href)
+  const [comment, setComment] = useState()
+  const [amount, setAmount] = useState('0.1')
+  const [dest, setDest] = useState('0x37CCbeAa1d176f77227AEa39BE5888BF8768Bf85')
+  const [method, setMethod] = useState('test(uint32,bytes4)')
+  const [selector, setSelector] = useState()
+  const [parameters, setParameters] = useState(testCalldata.parameters)
+  const [calldata, setCalldata] = useState('eyJtZXRob2QiOiJ0ZXN0KHVpbnQzMixieXRlczQpIiwicGFyYW1ldGVycyI6W3sibmFtZSI6ImFtb3VudCIsInR5cGUiOiJ1aW50MzIiLCJ2YWx1ZSI6MX0seyJuYW1lIjoiaWQiLCJ0eXBlIjoiYnl0ZXM0IiwidmFsdWUiOiIweDEyMzQ1Njc4In1dfQ')
+  const [calldataJSON, setCalldataJSON] = useState(JSON.stringify(testCalldata, null, 2))
+  useEffect(() => {
+    const obj = { method, selector, parameters }
+    const j = JSON.stringify(obj)
+    const jf = JSON.stringify(obj, null, 2)
+    setCalldataJSON(jf)
+    setCalldata(Buffer.from(j).toString('base64'))
+  }, [parameters])
+  const onParameterUpdate = (kv, index) => {
+    setParameters(p => {
+      if (index >= p.length) {
+        console.error('Bad index', p.length, index, kv)
+        return
+      }
+      const pp = clone(p)
+      pp[index] = { ...p[index], ...kv }
+      return pp
+    })
+  }
+  return {
+    method,
+    setMethod,
+    selector,
+    setSelector,
+    parameters,
+    setParameters,
+    onParameterUpdate,
+    caller,
+    setCaller,
+    comment,
+    setComment,
+    amount,
+    setAmount,
+    dest,
+    setDest,
+    calldata,
+    callback,
+    setCallback,
+    calldataJSON
+  }
+}
+
+const CallDemo = () => {
+  const args = useCallParameters()
+  const { caller, calldata, amount, comment, callback, dest } = args
+
+  const [url, setUrl] = useState('')
+
+  useEffect(() => {
+    const url = new URL(config.clientUrl + '/call')
+    const callbackEncoded = Buffer.from(callback).toString('base64')
+    url.search = qs.stringify({ caller, callback: callbackEncoded, dest, amount, comment, calldata }, { skipEmptyString: true, skipNull: true })
+    setUrl(url.href)
+  }, [caller, calldata, amount, comment, callback, dest])
+  return (
+    <MainContainer>
+      <h1>Contract Call Demo</h1>
+      <BaseText>In this demo, we show how the developer may configure various parameters to specify a transaction, and construct a URL that requests the user to approve the transaction. The URL points to a transaction approval page under the domain smswallet.xyz. As soon as the user confirms the transaction on that page, the transaction will be submitted to the blockchain immediately for processing. At the same time, the user will be redirected back to a callback parameter which the developer should specify.</BaseText>
+      <h2>Fully constructed URL</h2>
+      <BaseText>This is the URL the user should be sent to, based on the parameters below. The URL changes automatically as you update the parameters</BaseText>
+      <LinkWrarpper style={{ width: '100%', wordBreak: 'break-word' }} href={url} target='_blank'><Wrapped style={{ width: '100%' }}>{url}</Wrapped></LinkWrarpper>
+      <h2>Parameters</h2>
+      <BaseText>The following query parameters are passed into the URL. All parameters should be URL encoded (including those already base64 encoded)</BaseText>
+      <CallParameterTable {...args} />
+
+      <h2>Calldata construction</h2>
+      <BaseText>The following keys and values are used for constructing the encoded-data (calldata). The encoding result is automatically reflected above. In Javascript, you may use <b>encodeURIComponent(atob(JSON.stringify(obj)))</b> to produce the same result, assuming <b>obj</b> is the JSON object containing the following keys and values. In node.js, use <b>Buffer.from(JSON.stringify(obj)).toString('base64url')</b></BaseText>
+      <CalldataTable {...args} />
       <div style={{ height: 256 }} />
     </MainContainer>
   )
