@@ -348,6 +348,14 @@ router.post('/sms', async (req, res) => {
     return res.json({})
   }
   // Process Request
+  // Look up the from Phone Number to get the address
+  const { From: phoneNumber } = req.body
+  const u = await User.findByPhone({ phone: phoneNumber })
+  console.log(`user: ${JSON.stringify(u)}`)
+  if (!u) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number does not exist' })
+  }
+  // get the approved balance of this address
   return res.json({ placeholder: 'placeholder' })
 })
 
