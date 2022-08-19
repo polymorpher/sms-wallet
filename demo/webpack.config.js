@@ -9,7 +9,7 @@ const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 module.exports = {
   devServer: {
-    port: 3100,
+    port: 3099,
     https: true,
     http2: true,
     historyApiFallback: true,

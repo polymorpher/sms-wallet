@@ -63,6 +63,8 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
       const hash = receipt.transactionHash
       const returnUrl = new URL(callback)
       returnUrl.searchParams.append('success', 'true')
+      returnUrl.searchParams.append('hash', hash)
+      returnUrl.searchParams.append('address', address)
       toast.success(
         <Row>
           <BaseText style={{ marginRight: 8 }}>Execution complete</BaseText>

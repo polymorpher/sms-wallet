@@ -109,7 +109,7 @@ const Request = () => {
       caller={caller}
       callback={callback}
       comment={comment}
-      amount={amount}
+      inputAmount={amount}
       dest={dest}
       onComplete={onComplete}
     />
