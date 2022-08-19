@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { BaseText } from '../components/Text'
-import { LinkWrarpper, MainContainer, Row } from '../components/Layout'
-import querystring from 'query-string'
-import { Input, Param, SecondaryText, Table, TextArea, Wrapped } from './DemoStyles'
-import { CallParameterTable, useCallbackParameters } from './CallDemo'
+import { Col, LinkWrarpper, MainContainer, Row } from '../components/Layout'
+import { Input, Param, QRImage, SecondaryText, Table, TextArea, Wrapped } from './DemoStyles'
+import { useCallbackParameters } from './CallDemo'
 import config from '../../config'
 import qs from 'query-string'
+import qrcode from 'qrcode'
 
 const SignatureDemo = () => {
   const { caller, setCaller, callback, setCallback, comment, setComment } = useCallbackParameters()
   const [message, setMessage] = useState('Whatever message you want...')
   const [url, setUrl] = useState('')
+  const [qrCodeData, setQrCodeData] = useState('')
 
   useEffect(() => {
     const url = new URL(config.clientUrl + '/sign')
@@ -19,6 +20,14 @@ const SignatureDemo = () => {
     setUrl(url.href)
   }, [caller, comment, callback, message])
 
+  useEffect(() => {
+    async function f () {
+      const qr = await qrcode.toDataURL(url, { errorCorrectionLevel: 'low', width: 256 })
+      setQrCodeData(qr)
+    }
+    f()
+  }, [url])
+
   return (
     <MainContainer>
       <h1>Signature Demo</h1>
@@ -26,6 +35,9 @@ const SignatureDemo = () => {
       <h2>Fully constructed URL</h2>
       <BaseText>This is the URL the user should be sent to, based on the parameters below. The URL changes automatically as you update the parameters</BaseText>
       <LinkWrarpper style={{ width: '100%', wordBreak: 'break-word' }} href={url} target='_blank'><Wrapped style={{ width: '100%' }}>{url}</Wrapped></LinkWrarpper>
+      <h2>QR Code</h2>
+      <BaseText>You can also encode the URL above in a QR code and asks the user to scan on their mobile device</BaseText>
+      <QRImage src={qrCodeData} />
       <h2>Parameters</h2>
       <BaseText>The following query parameters are passed into the URL. All parameters should be URL encoded (including those already base64 encoded)</BaseText>
       <Table>

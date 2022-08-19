@@ -97,6 +97,7 @@
     "humanize-duration": "^3.27.0",
     "json-stable-stringify": "^1.0.1",
     "lodash": "^4.17.10",
+    "qrcode": "^1.5.1",
     "query-string": "^7.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

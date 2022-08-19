@@ -48,3 +48,12 @@ export const Wrapped = styled(BaseText)`
 export const JSONBlock = styled(Wrapped)`
   font-size: 12px;
 `
+
+export const QRImage = styled.img`
+  border: 1px solid lightgrey;
+  border-radius: 8px;
+  box-shadow: 0 0 10px lightgrey;
+  width: 256px;
+  height: 256px;
+  object-fit: contain;
+`
