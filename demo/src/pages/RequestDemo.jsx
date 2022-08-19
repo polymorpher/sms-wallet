@@ -1,0 +1,114 @@
+import React, { useEffect, useState } from 'react'
+import styled from 'styled-components'
+import { Main, LinkWrarpper, Col, Row, MainContainer, Line } from '../components/Layout'
+import { Button, Input as InputDefault, TextArea as TextAreaDefault } from '../components/Controls'
+import { BaseText } from '../components/Text'
+import { clone } from 'lodash'
+import config from '../../config'
+import qs from 'query-string'
+import { CalldataTable, CallParameterTable, useCallParameters } from './CallDemo'
+import { Input, JSONBlock, Param, SecondaryText, Table, Wrapped } from './DemoStyles'
+import axios from 'axios'
+
+const RequestDemo = () => {
+  const [address, setAddress] = useState()
+  const [phone, setPhone] = useState()
+  const [request, setRequest] = useState({})
+  const [response, setResponse] = useState('')
+  const [responseCode, setResponseCode] = useState()
+
+  const args = useCallParameters()
+  const { caller, calldata, amount, comment, callback, dest } = args
+
+  useEffect(() => {
+    setRequest({ caller, calldata, amount, comment, callback, dest })
+  }, [caller, calldata, amount, comment, callback, dest])
+
+  const sendRequest = async () => {
+    try {
+      console.log({ request, address, phone })
+      const { data } = await axios.post(config.serverUrl + '/request', { request, address, phone })
+      setResponse(JSON.stringify(data))
+      setResponseCode(200)
+    } catch (ex) {
+      setResponseCode(ex?.response?.status)
+      setResponse(JSON.stringify(ex?.response?.data))
+    }
+  }
+
+  return (
+    <MainContainer>
+      <h1>SMS Tx Request Demo</h1>
+      <BaseText>In this demo, we show how the developer can define and submit a transaction to SMS Wallet server REST API. The server will create a confirmation short-link for this transaction, and send the user a confirmation SMS with the short-link. The user can then click the link, view the transaction in their wallet, and approve that subsequently. </BaseText>
+      <h2>REST API Parameters</h2>
+      <BaseText>The request must be made over POST with a JSON body</BaseText>
+      <Row><BaseText>POST {config.serverUrl + '/request'}</BaseText><Button onClick={sendRequest}>Send Now</Button></Row>
+      {responseCode &&
+        <Row>
+          <Col>
+            <BaseText $color={responseCode === 200 ? 'green' : 'red'}>Response: {responseCode}</BaseText>
+            <JSONBlock $color={responseCode === 200 ? 'green' : 'red'}>{response}</JSONBlock>
+          </Col>
+        </Row>}
+      <Table>
+        <tbody>
+          <tr>
+            <td>
+              <Param>address</Param>
+              <SecondaryText>(option 1)</SecondaryText>
+            </td>
+            <td>
+              <Input
+                placeholder='0x...'
+                value={address} onChange={({ target: { value } }) => setAddress(value)}
+              />
+            </td>
+            <td><BaseText>The address of the user you are sending the tx request to via SMS. Cannot be used with <b>phone</b> together</BaseText></td>
+          </tr>
+          <tr>
+            <td>
+              <Param>phone</Param>
+              <SecondaryText>(option 2)</SecondaryText>
+            </td>
+            <td>
+              <Input
+                value={phone}
+                placeholder='+1650.......'
+                onChange={({ target: { value } }) => setPhone(value)}
+              />
+            </td>
+            <td><BaseText>The phone number of the user in E.164 format. You can provide this parameter in lieu of address, but you cannot provide both address and phone.</BaseText></td>
+          </tr>
+          <tr>
+            <td>
+              <Param>request</Param>
+            </td>
+            <td>
+              <Col>
+                <JSONBlock>
+                  {JSON.stringify(request)}
+                </JSONBlock>
+              </Col>
+            </td>
+            <td>
+              <Col>
+                <BaseText>A JSON Object describing the request and the transaction you want the user to approve. Use the tool below to automatically update</BaseText>
+              </Col>
+            </td>
+          </tr>
+        </tbody>
+      </Table>
+      <h2>Request Specification</h2>
+      <BaseText>The request use the same parameters in <LinkWrarpper href='/call'>Contract Call</LinkWrarpper></BaseText>
+      <CallParameterTable {...args} />
+
+      <h2>Calldata construction</h2>
+      <BaseText>The calldata follows the same format as in <LinkWrarpper href='/call'>Contract Call</LinkWrarpper>. The following keys and values are used for constructing the encoded-data (calldata). The encoding result is automatically reflected above. </BaseText>
+      <CalldataTable {...args} />
+
+      <div style={{ height: 256 }} />
+    </MainContainer>
+  )
+}
+
+export default RequestDemo
