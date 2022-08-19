@@ -4,6 +4,7 @@ import Landing from './pages/Landing'
 import CallDemo from './pages/CallDemo'
 import RequestDemo from './pages/RequestDemo'
 import CallbackDemo from './pages/Callback'
+import SignatureDemo from './pages/SignatureDemo'
 
 const Routes = () => {
   return (
@@ -13,6 +14,7 @@ const Routes = () => {
         <Route path='/call' render={() => <CallDemo />} />
         <Route path='/request' render={() => <RequestDemo />} />
         <Route path='/callback' render={() => <CallbackDemo />} />
+        <Route path='/signature' render={() => <SignatureDemo />} />
         <Redirect to='/' />
       </Switch>
     </BrowserRouter>
