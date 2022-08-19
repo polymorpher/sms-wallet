@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Main, LinkWrarpper, MainContainer } from '../components/Layout'
+import { BaseText } from '../components/Text'
 
 const Landing = () => {
   return (
@@ -16,6 +17,12 @@ const Landing = () => {
         <li>Login via signature</li>
         <li>Ask a player to approve an in-game transaction via SMS</li>
       </ul>
+      <h2>Bugs?</h2>
+      <BaseText>Submit a request at <LinkWrarpper href='https://github.com/polymorpher/sms-wallet' target='_blank'>https://github.com/polymorpher/sms-wallet</LinkWrarpper></BaseText>
+      <h2>Contact</h2>
+      <BaseText>Telegram: <LinkWrarpper href='https://t.me/aaronqli' target='_blank'>aaronqli</LinkWrarpper></BaseText>
+      <BaseText>Email: aaron at modulo.so</BaseText>
+      <BaseText>GitHub: <LinkWrarpper href='https://github.com/polymorpher' target='_blank'>polymorpher</LinkWrarpper></BaseText>
     </MainContainer>
   )
 }
