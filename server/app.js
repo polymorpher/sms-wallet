@@ -14,12 +14,24 @@ const https = require('https')
 const http = require('http')
 const env = process.env.NODE_ENV || 'development'
 const fs = require('fs')
+const blockchain = require('./blockchain')
 
 Error.stackTraceLimit = 100
 app.locals.ENV = env
 app.locals.ENV_DEVELOPMENT = env === 'development'
 
 app.set('trust proxy', true)
+
+try {
+  blockchain.init().catch(ex => {
+    console.error('Blockchain initialization failed')
+    console.error(ex)
+    process.exit(2)
+  })
+} catch (ex) {
+  console.error(ex)
+  process.exit(1)
+}
 
 // console.log('config', config)
 let httpServer, httpsServer

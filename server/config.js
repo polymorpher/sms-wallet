@@ -25,6 +25,7 @@ const config = {
       skip: process.env.SKIP_TESTNET,
       numAccounts: process.env.TESTNET_NUM_ACCOUNTS || 1,
       blockTime: 2,
+      assetManagerAddress: process.env.TESTNET_ASSET_MANAGER,
     },
     'harmony-mainnet': {
       key: process.env.HARMONY_MAINNET_KEY || '',
@@ -35,6 +36,7 @@ const config = {
       skip: process.env.SKIP_MAINNET,
       numAccounts: process.env.MAINNET_NUM_ACCOUNTS || 1,
       blockTime: 2,
+      assetManagerAddress: process.env.MAINNET_ASSET_MANAGER,
     },
     'eth-ganache': {
       url: process.env.GANACHE_RPC || 'http://127.0.0.1:7545',
@@ -43,6 +45,7 @@ const config = {
       mnemonic: process.env.ETH_GANACHE_MNEMONIC,
       skip: process.env.SKIP_GANACHE,
       numAccounts: process.env.GANACHE_NUM_ACCOUNTS || 1,
+      assetManagerAddress: process.env.GANACHE_ASSET_MANAGER,
     },
   },
   gasLimit: parseInt(process.env.GAS_LIMIT || '12345678'),
