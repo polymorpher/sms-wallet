@@ -7,6 +7,7 @@ const NodeCache = require('node-cache')
 const Cache = new NodeCache()
 const { phone } = require('phone')
 const Twilio = require('twilio')(config.twilio.sid, config.twilio.token)
+const TwilioV = require('twilio')
 const utils = require('../utils')
 const { User } = require('../src/data/user')
 const { isEqual, pick } = require('lodash')
@@ -336,6 +337,18 @@ router.post('/request-complete', async (req, res) => {
     console.error(ex)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
   }
+})
+
+// Process sms requests sent to the twilio operator Number
+router.post('/sms', async (req, res) => {
+  // check valid Twilio Request
+  if (!TwilioV.validateRequest(config.twilio.token, req.headers['x-twilio-signature'], ('https://' + req.get('host') + '/sms'), req.body)) {
+    res.status(500)
+    res.json({ error: 'Request not from Twilio' })
+    return res.json({})
+  }
+  // Process Request
+  return res.json({ placeholder: 'placeholder' })
 })
 
 module.exports = router
