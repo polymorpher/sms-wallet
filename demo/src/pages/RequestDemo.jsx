@@ -48,6 +48,12 @@ const RequestDemo = () => {
           <Col>
             <BaseText $color={responseCode === 200 ? 'green' : 'red'}>Response: {responseCode}</BaseText>
             <JSONBlock $color={responseCode === 200 ? 'green' : 'red'}>{response}</JSONBlock>
+            <BaseText>Response parameters:</BaseText>
+            <BaseText>
+              - <b>error</b>: shows the error occurred in the request, if any<br />
+              - <b>id</b>: the id of the transaction, can be used to check completion status in "SMS Tx Request Completion Status" API<br />
+              - <b>hash</b>: the keccak256 hash of the stable-JSON string of the request. It can be used to check integrity and enhance security<br />
+            </BaseText>
           </Col>
         </Row>}
       <Table>

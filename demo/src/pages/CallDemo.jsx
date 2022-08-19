@@ -186,6 +186,7 @@ export const useCallParameters = () => {
   const cleanURL = new URL(location.href)
   cleanURL.search = ''
   cleanURL.hash = ''
+  cleanURL.pathname = '/callback'
 
   const [caller, setCaller] = useState()
   const [callback, setCallback] = useState(cleanURL.href)
