@@ -9,6 +9,7 @@ import qs from 'query-string'
 import { CalldataTable, CallParameterTable, useCallParameters } from './CallDemo'
 import { Input, JSONBlock, Param, SecondaryText, Table, Wrapped } from './DemoStyles'
 import axios from 'axios'
+import ReactPlayer from 'react-player'
 
 const RequestDemo = () => {
   const [address, setAddress] = useState()
@@ -40,6 +41,14 @@ const RequestDemo = () => {
     <MainContainer>
       <h1>SMS Tx Request Demo</h1>
       <BaseText>In this demo, we show how the developer can define and submit a transaction to SMS Wallet server REST API. The server will create a confirmation short-link for this transaction, and send the user a confirmation SMS with the short-link. The user can then click the link, view the transaction in their wallet, and approve that subsequently. </BaseText>
+      <Row style={{ justifyContent: 'center' }}>
+        <ReactPlayer
+          playsinline
+          playing loop muted
+          config={{ youtube: { playerVars: { autoplay: 1, loop: 1, fs: 1, controls: 1 } } }}
+          url='https://www.youtube.com/watch?v=rpkWlVlFjeI' width='640px' height='360px'
+        />
+      </Row>
       <h2>REST API Parameters</h2>
       <BaseText>The request must be made over POST with a JSON body</BaseText>
       <Row><BaseText>POST {config.serverUrl + '/request'}</BaseText><Button onClick={sendRequest}>Send Now</Button></Row>

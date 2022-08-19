@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { BaseText } from '../components/Text'
-import { Col, LinkWrarpper, MainContainer, Row } from '../components/Layout'
+import { LinkWrarpper, MainContainer, Row } from '../components/Layout'
 import { Input, Param, QRImage, SecondaryText, Table, TextArea, Wrapped } from './DemoStyles'
 import { useCallbackParameters } from './CallDemo'
 import config from '../../config'
 import qs from 'query-string'
 import qrcode from 'qrcode'
-
+import ReactPlayer from 'react-player'
 const SignatureDemo = () => {
   const { caller, setCaller, callback, setCallback, comment, setComment } = useCallbackParameters()
   const [message, setMessage] = useState('Whatever message you want...')
@@ -32,6 +32,14 @@ const SignatureDemo = () => {
     <MainContainer>
       <h1>Signature Demo</h1>
       <BaseText>In this demo, we show how you can specify a message, then asks the user to cryptographically sign a message using (the private key within) their wallet. You can obtain the user's signature for this message in the callback after the user confirms signing. The signature is conforming EIP-191 and can be verified using web3.js and ethers.js. That means, given the user's signature and the message you specified, you can recovery the signing address and verify whether the address is the same as the user's.</BaseText>
+      <Row style={{ justifyContent: 'center' }}>
+        <ReactPlayer
+          playsinline
+          playing loop muted
+          config={{ youtube: { playerVars: { autoplay: 1, loop: 1, fs: 1, controls: 1 } } }}
+          url='https://www.youtube.com/watch?v=MOFXkYOVoeY' width='640px' height='360px'
+        />
+      </Row>
       <h2>Fully constructed URL</h2>
       <BaseText>This is the URL the user should be sent to, based on the parameters below. The URL changes automatically as you update the parameters</BaseText>
       <LinkWrarpper style={{ width: '100%', wordBreak: 'break-word' }} href={url} target='_blank'><Wrapped style={{ width: '100%' }}>{url}</Wrapped></LinkWrarpper>
