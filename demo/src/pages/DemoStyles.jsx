@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Input as InputDefault } from '../components/Controls'
+import { Input as InputDefault, TextArea as TextAreaDefault } from '../components/Controls'
 import { BaseText } from '../components/Text'
 
 export const Table = styled.table`
@@ -15,6 +15,16 @@ export const Table = styled.table`
 export const Input = styled(InputDefault)`
   margin: 0;
   width: 480px;
+  &:disabled{
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+`
+
+export const TextArea = styled(TextAreaDefault)`
+  margin: 0;
+  width: 480px;
+  height: 240px;
   &:disabled{
     background-color: #aaa;
     cursor: not-allowed;

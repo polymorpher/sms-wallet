@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
 import { LinkWrarpper, Col, Row, MainContainer, Line } from '../components/Layout'
-import { Input as InputDefault } from '../components/Controls'
 import { BaseText } from '../components/Text'
 import { clone } from 'lodash'
 import config from '../../config'
@@ -182,15 +180,19 @@ export const CalldataTable = ({ method, setMethod, selector, setSelector, parame
 
 const testCalldata = { method: 'test(uint32,bytes4)', parameters: [{ name: 'amount', type: 'uint32', value: 1 }, { name: 'id', type: 'bytes4', value: '0x12345678' }] }
 
-export const useCallParameters = () => {
+export const useCallbackParameters = () => {
   const cleanURL = new URL(location.href)
   cleanURL.search = ''
   cleanURL.hash = ''
   cleanURL.pathname = '/callback'
-
   const [caller, setCaller] = useState()
   const [callback, setCallback] = useState(cleanURL.href)
   const [comment, setComment] = useState()
+  return { caller, setCaller, callback, setCallback, comment, setComment }
+}
+
+export const useCallParameters = () => {
+  const { caller, setCaller, callback, setCallback, comment, setComment } = useCallbackParameters()
   const [amount, setAmount] = useState('0.1')
   const [dest, setDest] = useState('0x37CCbeAa1d176f77227AEa39BE5888BF8768Bf85')
   const [method, setMethod] = useState('test(uint32,bytes4)')
