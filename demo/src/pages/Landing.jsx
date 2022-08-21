@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Main, LinkWrarpper, MainContainer } from '../components/Layout'
+import React from 'react'
+import { LinkWrarpper, MainContainer } from '../components/Layout'
 import { BaseText } from '../components/Text'
 
 const Landing = () => {

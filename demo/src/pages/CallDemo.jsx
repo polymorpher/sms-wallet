@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
 import { LinkWrarpper, Col, Row, MainContainer, Line } from '../components/Layout'
-import { Input as InputDefault } from '../components/Controls'
 import { BaseText } from '../components/Text'
 import { clone } from 'lodash'
 import config from '../../config'
 import qs from 'query-string'
-import { Input, JSONBlock, Param, SecondaryText, Table, Wrapped } from './DemoStyles'
+import { Input, JSONBlock, Param, QRImage, SecondaryText, Table, Wrapped } from './DemoStyles'
+import qrcode from 'qrcode'
+import ReactPlayer from 'react-player'
 
 export const CallParameterTable = ({ caller, setCaller, comment, setComment, amount, setAmount, dest, setDest, calldata, callback, setCallback, calldataJSON }) => {
   return (
@@ -182,15 +182,19 @@ export const CalldataTable = ({ method, setMethod, selector, setSelector, parame
 
 const testCalldata = { method: 'test(uint32,bytes4)', parameters: [{ name: 'amount', type: 'uint32', value: 1 }, { name: 'id', type: 'bytes4', value: '0x12345678' }] }
 
-export const useCallParameters = () => {
+export const useCallbackParameters = () => {
   const cleanURL = new URL(location.href)
   cleanURL.search = ''
   cleanURL.hash = ''
   cleanURL.pathname = '/callback'
-
   const [caller, setCaller] = useState()
   const [callback, setCallback] = useState(cleanURL.href)
   const [comment, setComment] = useState()
+  return { caller, setCaller, callback, setCallback, comment, setComment }
+}
+
+export const useCallParameters = () => {
+  const { caller, setCaller, callback, setCallback, comment, setComment } = useCallbackParameters()
   const [amount, setAmount] = useState('0.1')
   const [dest, setDest] = useState('0x37CCbeAa1d176f77227AEa39BE5888BF8768Bf85')
   const [method, setMethod] = useState('test(uint32,bytes4)')
@@ -244,6 +248,7 @@ const CallDemo = () => {
   const { caller, calldata, amount, comment, callback, dest } = args
 
   const [url, setUrl] = useState('')
+  const [qrCodeData, setQrCodeData] = useState('')
 
   useEffect(() => {
     const url = new URL(config.clientUrl + '/call')
@@ -251,13 +256,33 @@ const CallDemo = () => {
     url.search = qs.stringify({ caller, callback: callbackEncoded, dest, amount, comment, calldata }, { skipEmptyString: true, skipNull: true })
     setUrl(url.href)
   }, [caller, calldata, amount, comment, callback, dest])
+
+  useEffect(() => {
+    async function f () {
+      const qr = await qrcode.toDataURL(url, { errorCorrectionLevel: 'low', width: 256 })
+      setQrCodeData(qr)
+    }
+    f()
+  }, [url])
+
   return (
     <MainContainer>
       <h1>Contract Call Demo</h1>
       <BaseText>In this demo, we show how the developer may configure various parameters to specify a transaction, and construct a URL that requests the user to approve the transaction. The URL points to a transaction approval page under the domain smswallet.xyz. As soon as the user confirms the transaction on that page, the transaction will be submitted to the blockchain immediately for processing. At the same time, the user will be redirected back to a callback parameter which the developer should specify.</BaseText>
+      <Row style={{ justifyContent: 'center' }}>
+        <ReactPlayer
+          playsinline
+          playing loop muted
+          config={{ youtube: { playerVars: { autoplay: 1, loop: 1, fs: 1, controls: 1 } } }}
+          url='https://www.youtube.com/watch?v=AO_R4lrkPmI' width='640px' height='360px'
+        />
+      </Row>
       <h2>Fully constructed URL</h2>
       <BaseText>This is the URL the user should be sent to, based on the parameters below. The URL changes automatically as you update the parameters</BaseText>
       <LinkWrarpper style={{ width: '100%', wordBreak: 'break-word' }} href={url} target='_blank'><Wrapped style={{ width: '100%' }}>{url}</Wrapped></LinkWrarpper>
+      <h2>QR Code</h2>
+      <BaseText>You can also encode the URL above in a QR code and asks the user to scan on their mobile device</BaseText>
+      <QRImage src={qrCodeData} />
       <h2>Parameters</h2>
       <BaseText>The following query parameters are passed into the URL. All parameters should be URL encoded (including those already base64 encoded)</BaseText>
       <CallParameterTable {...args} />
