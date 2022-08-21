@@ -6,7 +6,7 @@ const AssetManager = require('../miniwallet/build/contracts/AssetManager.sol/Ass
 const networks = []
 const providers = {}
 const signers = {}
-const assetManager = {}
+const assetManagers = {}
 
 const init = async () => {
   Logger.log('Initializing blockchain for server')
@@ -18,10 +18,14 @@ const init = async () => {
     const n = config.networks[k]
     if (n.key) {
       try {
+        Logger.log(`n.url: ${n.url}`)
         providers[k] = ethers.getDefaultProvider(n.url)
+        Logger.log(`n.key: ${n.key}`)
         signers[k] = new ethers.Wallet(n.key, providers[k])
-        assetManager[k] = new ethers.Contract(config.networks[k].assetManagerAddress, AssetManager.abi, signers[k])
-        Logger.log('AssetManager deployed to:', assetManager[k].address)
+        Logger.log(`am address; ${config.networks[k].assetManagerAddress}`)
+        // console.log(`AssetManager.abi: ${JSON.stringify(AssetManager.abi)}`)
+        assetManagers[k] = new ethers.Contract(config.networks[k].assetManagerAddress, AssetManager.abi, signers[k])
+        Logger.log('AssetManager deployed to:', assetManagers[k].address)
         networks.push(k)
       } catch (ex) {
         console.error(ex)
@@ -29,10 +33,13 @@ const init = async () => {
       }
     }
   })
-  Object.keys(config.networks).forEach(k => {
-  })
+  console.log(`networks: ${networks}`)
 }
 
 module.exports = {
-  init
+  init,
+  getNetworks: () => networks,
+  getProvider: (network) => providers[network],
+  getSigner: (network) => signers[network],
+  getAssetManager: (network) => assetManagers[network],
 }

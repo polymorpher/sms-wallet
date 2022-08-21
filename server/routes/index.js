@@ -15,6 +15,8 @@ const w3utils = require('../w3utils')
 const stringify = require('json-stable-stringify')
 const { Setting } = require('../src/data/setting')
 const { Request } = require('../src/data/request')
+const blockchain = require('../blockchain')
+const { ethers } = require('ethers')
 
 router.get('/health', async (req, res) => {
   Logger.log('[/health]', req.fingerprint)
@@ -343,20 +345,17 @@ router.post('/request-complete', async (req, res) => {
 router.post('/sms', async (req, res) => {
   // check valid Twilio Request
   if (!TwilioV.validateRequest(config.twilio.token, req.headers['x-twilio-signature'], ('https://' + req.get('host') + '/sms'), req.body)) {
-    res.status(500)
-    res.json({ error: 'Request not from Twilio' })
-    return res.json({})
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'request not from twilio' })
   }
-  // Process Request
   // Look up the from Phone Number to get the address
   const { From: phoneNumber } = req.body
   const u = await User.findByPhone({ phone: phoneNumber })
-  console.log(`user: ${JSON.stringify(u)}`)
   if (!u) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number does not exist' })
   }
-  // get the approved balance of this address
-  return res.json({ placeholder: 'placeholder' })
+  const assetManager = blockchain.getAssetManager('eth-ganache')
+  const balance = ethers.utils.formatEther(await assetManager.userBalances(u.address))
+  return res.json({ userAddress: u.address, balance: balance })
 })
 
 module.exports = router
