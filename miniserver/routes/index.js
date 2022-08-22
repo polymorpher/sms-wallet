@@ -45,7 +45,8 @@ function isNumeric (n) {
 const parseSMS = async (req, res, next) => {
   const message = {}
   const { From: senderPhoneNumber, Body: smsBody } = req.body
-  const from = await User.findByPhone({ phone: senderPhoneNumber })
+  const requestor = await User.findByPhone({ phone: senderPhoneNumber })
+  message.requestor = requestor
   const smsParams = smsBody.split(/(\s+)/).filter(e => { return e.trim().length > 0 })
   //   for (let i = 0; i < smsParams.length; i += 1) {
   //     Logger.log(`smsParams[${i}]: ${smsParams[i]}`)
@@ -54,37 +55,35 @@ const parseSMS = async (req, res, next) => {
   if (smsParams.length < 1) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'empty sms command' })
   }
-  let recipient = {}
-  let recipientPhone
+  let funder = {}
+  let funderPhone
   switch (smsParams[0]) {
     case 'b':
       message.command = 'balance'
-      message.from = from
       break
     case 'p':
       message.command = 'pay'
       if (smsParams.length < 2) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: 'pay request requires a to and an amount' })
       }
-      message.from = from
       // TODO review if we want to allow sending to users by address (with no registered phone number)
       // if not then change this to do a User.findByAddress
       if (smsParams[1].substr(0, 2) === '0x') {
         message.recipient = smsParams[1]
       } else {
       // set country and look up user address from Phone Number
-        recipientPhone = smsParams[1]
-        if (recipientPhone.substr(0, 1) !== '+') {
-          const { countryIso3 } = phone(from.phone)
-          const { isValid, phoneNumber } = phone(recipientPhone, countryIso3)
-          recipientPhone = phoneNumber
+        funderPhone = smsParams[1]
+        if (funderPhone.substr(0, 1) !== '+') {
+          const { countryIso3 } = phone(requestor.phone)
+          const { isValid, phoneNumber } = phone(funderPhone, countryIso3)
+          funderPhone = phoneNumber
           if (!isValid) {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid recipient phone number' })
           }
         }
-        recipient = await User.findByPhone({ phone: recipientPhone })
-        if (recipient.address) {
-          message.recipient = recipient
+        funder = await User.findByPhone({ phone: funderPhone })
+        if (funder.address) {
+          message.funder = funder
         } else {
           return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid recipient' })
         }
@@ -123,16 +122,16 @@ router.post('/sms', checkfromTwilio, parseSMS, async (req, res) => {
   let response
   switch (message.command) {
     case 'balance':
-      balance = ethers.utils.formatEther(await assetManager.userBalances(message.from.address))
+      balance = ethers.utils.formatEther(await assetManager.userBalances(message.requestor.address))
       MessagingResponse = require('twilio').twiml.MessagingResponse
       response = new MessagingResponse()
-      response.message(`phone: ${message.from.phone} address: ${message.from.address}, balance: ${balance} `)
+      response.message(`phone: ${message.requestor.phone} address: ${message.requestor.address}, balance: ${balance} `)
       return res.send(response.toString())
     case 'pay':
-      tx = await assetManager.send(message.amount, message.from.address, message.recipient.address)
+      tx = await assetManager.send(message.amount, message.funder.address, message.requestor.address)
       MessagingResponse = require('twilio').twiml.MessagingResponse
       response = new MessagingResponse()
-      response.message(`from: ${message.from.phone}, from address: ${message.from.address}, to: ${message.recipient.phone}, to address: ${message.recipient.address}, amount: ${ethers.utils.formatEther(message.amount)}, transaction: ${tx.hash}`)
+      response.message(`from: ${message.funder.phone}, from address: ${message.funder.address}, to: ${message.requestor.phone}, to address: ${message.requestor.address}, amount: ${ethers.utils.formatEther(message.amount)}, transaction: ${tx.hash}`)
       return res.send(response.toString())
     default:
       return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid sms command' })
