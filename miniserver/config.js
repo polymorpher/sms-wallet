@@ -1,8 +1,13 @@
 require('dotenv').config()
-const BN = require('bn.js')
+const ethers = require('ethers')
 const DEBUG = process.env.RELAYER_DEBUG === 'true' || process.env.RELAYER_DEBUG === '1'
+const APIDOCS = process.env.APIDOCS === 'true' || process.env.APIDOCS === '1'
 const config = {
   debug: DEBUG,
+  url: process.env.SERVER_URL || 'https://localhost',
+  port: process.env.PORT || 3000,
+  httpsPort: process.env.HTTPS_PORT || 8443,
+  apiDocs: APIDOCS,
   relayerId: process.env.RELAYER_ID || 'unknown',
   nullAddress: '0x0000000000000000000000000000000000000000',
   verbose: process.env.VERBOSE === 'true' || process.env.VERBOSE === '1',
@@ -15,16 +20,17 @@ const config = {
   secret: process.env.SECRET,
   safeNonce: process.env.SAFE_NONCE === '1' || process.env.SAFE_NONCE === 'true',
   pollingInterval: parseInt(process.env.pollingInterval || 1000),
-  defaultNetwork: process.env.DEFAULT_NETWORK || 'harmony-mainnet',
+  defaultNetwork: process.env.DEFAULT_NETWORK || 'eth-local',
   networks: {
     'harmony-testnet': {
       key: process.env.HARMONY_TESTNET_KEY || '',
       url: process.env.TESTNET_RPC || 'https://api.s0.b.hmny.io',
       wss: process.env.TESTNET_WSS,
       mnemonic: process.env.HARMONY_TESTNET_MNEMONIC,
-      skip: process.env.SKIP_TESTNET,
+      skip: process.env.SKIP_TESTNE || true,
       numAccounts: process.env.TESTNET_NUM_ACCOUNTS || 1,
       blockTime: 2,
+      assetManagerAddress: process.env.TESTNET_ASSET_MANAGER,
     },
     'harmony-mainnet': {
       key: process.env.HARMONY_MAINNET_KEY || '',
@@ -32,23 +38,23 @@ const config = {
       url: process.env.MAINNET_RPC || process.env.BEACON_MAINNET_RPC || 'https://api.s0.t.hmny.io',
       wss: process.env.MAINNET_WSS || process.env.BEACON_MAINNET_WSS,
       mnemonic: process.env.HARMONY_MAINNET_MNEMONIC,
-      skip: process.env.SKIP_MAINNET,
+      skip: process.env.SKIP_MAINNET || true,
       numAccounts: process.env.MAINNET_NUM_ACCOUNTS || 1,
       blockTime: 2,
+      assetManagerAddress: process.env.MAINNET_ASSET_MANAGER,
     },
-    'eth-ganache': {
-      url: process.env.GANACHE_RPC || 'http://127.0.0.1:7545',
-      wss: process.env.GANACHE_WSS,
-      key: process.env.ETH_GANACHE_KEY,
-      mnemonic: process.env.ETH_GANACHE_MNEMONIC,
-      skip: process.env.SKIP_GANACHE,
-      numAccounts: process.env.GANACHE_NUM_ACCOUNTS || 1,
-      assetManagerAddress: process.env.TESTNET_ASSET_MANAGER,
+    'eth-local': {
+      url: process.env.ETH_LOCAL_RPC || 'http://127.0.0.1:8545',
+      wss: process.env.ETH_LOCAL_WSS,
+      key: process.env.ETH_LOCAL_KEY,
+      mnemonic: process.env.ETH_LOCAL_MNEMONIC,
+      skip: process.env.SKIP_ETH || true,
+      numAccounts: process.env.ETH_LOCAL_NUM_ACCOUNTS || 1,
+      assetManagerAddress: process.env.ETH_LOCAL_ASSET_MANAGER,
     },
   },
   gasLimit: parseInt(process.env.GAS_LIMIT || '12345678'),
-  gasPrice: new BN(process.env.GAS_PRICE || '200'),
-  cache: process.env.CACHE || 'cache',
+  gasPrice: ethers.BigNumber.from(process.env.GAS_PRICE || '200'),
   stats: {
     // relevant to relayer root directory
     path: process.env.STATS_PATH || '../data/stats.json'

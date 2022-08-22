@@ -1,0 +1,15 @@
+[Unit]
+Description=SMS MiniWallet Server
+Documentation=https://github.com/polymorpher/sms-wallet/
+After=network.target
+
+[Service]
+Environment=PORT=80 HTTPS_PORT=443
+Type=simple
+User=ec2-user
+WorkingDirectory=/home/ec2-user/sms-wallet/miniserver
+ExecStart=/usr/bin/node /home/ec2-user/sms-wallet/miniserver/bin/run.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
