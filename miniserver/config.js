@@ -1,6 +1,6 @@
 require('dotenv').config()
 const ethers = require('ethers')
-const DEBUG = process.env.RELAYER_DEBUG === 'true' || process.env.RELAYER_DEBUG === '1'
+const DEBUG = process.env.MINISERVER_DEBUG === 'true' || process.env.MINISERVER_DEBUG === '1'
 const APIDOCS = process.env.APIDOCS === 'true' || process.env.APIDOCS === '1'
 const config = {
   debug: DEBUG,

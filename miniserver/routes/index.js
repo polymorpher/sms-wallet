@@ -30,6 +30,78 @@ router.get('/health', async (req, res) => {
   res.send('OK').end()
 })
 
+const checkfromTwilio = async (req, res, next) => {
+  // check valid Twilio Request
+  if (!Twilio.validateRequest(config.twilio.token, req.headers['x-twilio-signature'], ('https://' + req.get('host') + '/sms'), req.body)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'request not from twilio' })
+  }
+  next()
+}
+
+function isNumeric (n) {
+  return !isNaN(parseFloat(n)) && isFinite(n)
+}
+
+const parseSMS = async (req, res, next) => {
+  const message = {}
+  const { From: senderPhoneNumber, Body: smsBody } = req.body
+  const from = await User.findByPhone({ phone: senderPhoneNumber })
+  const smsParams = smsBody.split(/(\s+)/).filter(e => { return e.trim().length > 0 })
+  //   for (let i = 0; i < smsParams.length; i += 1) {
+  //     Logger.log(`smsParams[${i}]: ${smsParams[i]}`)
+  //     Logger.log(`smsParams.length: ${smsParams.length}`)
+  //   }
+  if (smsParams.length < 1) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'empty sms command' })
+  }
+  let recipient = {}
+  let recipientPhone
+  switch (smsParams[0]) {
+    case 'b':
+      message.command = 'balance'
+      message.from = from
+      break
+    case 'p':
+      message.command = 'pay'
+      if (smsParams.length < 2) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: 'pay request requires a to and an amount' })
+      }
+      message.from = from
+      // TODO review if we want to allow sending to users by address (with no registered phone number)
+      // if not then change this to do a User.findByAddress
+      if (smsParams[1].substr(0, 2) === '0x') {
+        message.recipient = smsParams[1]
+      } else {
+      // set country and look up user address from Phone Number
+        recipientPhone = smsParams[1]
+        if (recipientPhone.substr(0, 1) !== '+') {
+          const { countryIso3 } = phone(from.phone)
+          const { isValid, phoneNumber } = phone(recipientPhone, countryIso3)
+          recipientPhone = phoneNumber
+          if (!isValid) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid recipient phone number' })
+          }
+        }
+        recipient = await User.findByPhone({ phone: recipientPhone })
+        if (recipient.address) {
+          message.recipient = recipient
+        } else {
+          return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid recipient' })
+        }
+      }
+      if (!isNumeric(smsParams[2])) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: 'pay request requires a valid amount' })
+      } else {
+        message.amount = ethers.utils.parseEther(smsParams[2])
+      }
+      break
+    default:
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid sms command' })
+  }
+  req.processedBody = { ...req.processedBody, message }
+  next()
+}
+
 /**
 * @openapi
 * /sms:
@@ -39,30 +111,31 @@ router.get('/health', async (req, res) => {
 *       200:
 *         description: Request has been processed
 */
-router.post('/sms', async (req, res) => {
-  // check valid Twilio Request
-  if (!Twilio.validateRequest(config.twilio.token, req.headers['x-twilio-signature'], ('https://' + req.get('host') + '/sms'), req.body)) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'request not from twilio' })
-  }
+router.post('/sms', checkfromTwilio, parseSMS, async (req, res) => {
   // Look up the from Phone Number to get the address
-  const { From: phoneNumber, Body: message } = req.body
-  //   Logger.log(`req.body: ${JSON.stringify(req.body)}`)
-  //   Logger.log(`phoneNumber: ${phoneNumber}`)
-  const u = await User.findByPhone({ phone: phoneNumber })
-  //   Logger.log(`u: ${JSON.stringify(u)}`)
-  // TODO Improve parsing logic and remove hard coding
-  const recipient = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC'
-  const amount = ethers.utils.parseEther('1')
-  if (!u) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number does not exist' })
-  }
+  const { message } = req.processedBody
+  //   Logger.log(`req.body: ${JSON.stringify(req.processedBody)}`)
+  //   Logger.log(`message: ${JSON.stringify(message)}`)
   const assetManager = blockchain.getAssetManager('eth-ganache')
-  if (message === 'balance') {
-    const balance = ethers.utils.formatEther(await assetManager.userBalances(u.address))
-    return res.json({ userAddress: u.address, balance: balance })
-  } else if (message === 'pay') {
-    const tx = await assetManager.send(amount, u.address, recipient)
-    return res.json({ from: u.address, recipient: recipient, amount: ethers.utils.formatEther(amount), transaction: tx.hash })
+  let balance
+  let tx
+  let MessagingResponse
+  let response
+  switch (message.command) {
+    case 'balance':
+      balance = ethers.utils.formatEther(await assetManager.userBalances(message.from.address))
+      MessagingResponse = require('twilio').twiml.MessagingResponse
+      response = new MessagingResponse()
+      response.message(`phone: ${message.from.phone} address: ${message.from.address}, balance: ${balance} `)
+      return res.send(response.toString())
+    case 'pay':
+      tx = await assetManager.send(message.amount, message.from.address, message.recipient.address)
+      MessagingResponse = require('twilio').twiml.MessagingResponse
+      response = new MessagingResponse()
+      response.message(`from: ${message.from.phone}, from address: ${message.from.address}, to: ${message.recipient.phone}, to address: ${message.recipient.address}, amount: ${ethers.utils.formatEther(message.amount)}, transaction: ${tx.hash}`)
+      return res.send(response.toString())
+    default:
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid sms command' })
   }
 })
 
