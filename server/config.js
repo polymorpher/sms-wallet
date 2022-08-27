@@ -3,7 +3,6 @@ const BN = require('bn.js')
 const DEBUG = process.env.RELAYER_DEBUG === 'true' || process.env.RELAYER_DEBUG === '1'
 const config = {
   debug: DEBUG,
-  relayerId: process.env.RELAYER_ID || 'unknown',
   nullAddress: '0x0000000000000000000000000000000000000000',
   verbose: process.env.VERBOSE === 'true' || process.env.VERBOSE === '1',
   https: {
@@ -14,7 +13,7 @@ const config = {
   corsOrigins: process.env.CORS,
   secret: process.env.SECRET,
   safeNonce: process.env.SAFE_NONCE === '1' || process.env.SAFE_NONCE === 'true',
-  pollingInterval: parseInt(process.env.pollingInterval || 1000),
+  pollingInterval: parseInt(process.env.POLLING_INTERVAL || 1000),
   defaultNetwork: process.env.DEFAULT_NETWORK || 'harmony-mainnet',
   networks: {
     'harmony-testnet': {
@@ -43,7 +42,6 @@ const config = {
       mnemonic: process.env.ETH_GANACHE_MNEMONIC,
       skip: process.env.SKIP_GANACHE,
       numAccounts: process.env.GANACHE_NUM_ACCOUNTS || 1,
-      assetManagerAddress: process.env.TESTNET_ASSET_MANAGER,
     },
   },
   gasLimit: parseInt(process.env.GAS_LIMIT || '12345678'),

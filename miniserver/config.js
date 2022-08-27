@@ -1,14 +1,11 @@
 require('dotenv').config()
 const ethers = require('ethers')
 const DEBUG = process.env.MINISERVER_DEBUG === 'true' || process.env.MINISERVER_DEBUG === '1'
-const APIDOCS = process.env.APIDOCS === 'true' || process.env.APIDOCS === '1'
 const config = {
   debug: DEBUG,
   url: process.env.SERVER_URL || 'https://localhost',
   port: process.env.PORT || 3000,
   httpsPort: process.env.HTTPS_PORT || 8443,
-  apiDocs: APIDOCS,
-  relayerId: process.env.RELAYER_ID || 'unknown',
   nullAddress: '0x0000000000000000000000000000000000000000',
   verbose: process.env.VERBOSE === 'true' || process.env.VERBOSE === '1',
   https: {
@@ -19,7 +16,7 @@ const config = {
   corsOrigins: process.env.CORS,
   secret: process.env.SECRET,
   safeNonce: process.env.SAFE_NONCE === '1' || process.env.SAFE_NONCE === 'true',
-  pollingInterval: parseInt(process.env.pollingInterval || 1000),
+  pollingInterval: parseInt(process.env.POLLING_INTERVAL || 1000),
   defaultNetwork: process.env.DEFAULT_NETWORK || 'eth-local',
   networks: {
     'harmony-testnet': {

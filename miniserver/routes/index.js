@@ -9,7 +9,7 @@ const { phone } = require('phone')
 const Twilio = require('twilio')
 const utils = require('../utils')
 const { User } = require('../src/data/user')
-const { isEqual, pick } = require('lodash')
+const { toNumber } = require('lodash')
 const stringify = require('json-stable-stringify')
 const { Setting } = require('../src/data/setting')
 const { Request } = require('../src/data/request')
@@ -33,13 +33,10 @@ router.get('/health', async (req, res) => {
 const checkfromTwilio = async (req, res, next) => {
   // check valid Twilio Request
   if (!Twilio.validateRequest(config.twilio.token, req.headers['x-twilio-signature'], ('https://' + req.get('host') + '/sms'), req.body)) {
+    //   if (!Twilio.validateRequest(config.twilio.token, req.headers['x-twilio-signature'], (req.protocol + req.get('host') + req.path), req.body)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'request not from twilio' })
   }
   next()
-}
-
-function isNumeric (n) {
-  return !isNaN(parseFloat(n)) && isFinite(n)
 }
 
 const parseSMS = async (req, res, next) => {
@@ -88,10 +85,13 @@ const parseSMS = async (req, res, next) => {
           return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid recipient' })
         }
       }
-      if (!isNumeric(smsParams[2])) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: 'pay request requires a valid amount' })
-      } else {
+
+      if (toNumber(smsParams[2]) > 0) {
+        console.log('good request')
         message.amount = ethers.utils.parseEther(smsParams[2])
+      } else {
+        console.log('bad request')
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: 'pay request requires a valid amount' })
       }
       break
     default:
@@ -115,7 +115,9 @@ router.post('/sms', checkfromTwilio, parseSMS, async (req, res) => {
   const { message } = req.processedBody
   //   Logger.log(`req.body: ${JSON.stringify(req.processedBody)}`)
   //   Logger.log(`message: ${JSON.stringify(message)}`)
-  const assetManager = blockchain.getAssetManager('eth-ganache')
+  const assetManagers = blockchain.getAssetManagers()
+  const assetManager = assetManagers[1]
+  Logger.log(`assetManager.address: ${assetManager.address}`)
   let balance
   let tx
   let MessagingResponse

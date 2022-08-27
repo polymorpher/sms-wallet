@@ -16,31 +16,6 @@ const env = process.env.NODE_ENV || 'development'
 const fs = require('fs')
 const blockchain = require('./blockchain')
 
-const swaggerUI = require('swagger-ui-express')
-const swaggerJsDoc = require('swagger-jsdoc')
-const url = config.url + ':' + config.httpsPort
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'MiniWallet Server',
-      version: '0.0.1',
-      description: 'API Layer to manage the miniwallet',
-    },
-    servers: [
-      {
-        url: url,
-      },
-    ],
-  },
-  apis: ['./routes/*.js'],
-}
-
-if (config.apiDocs) {
-  const openapiSpecification = swaggerJsDoc(options)
-  app.use('/docs', swaggerUI.serve, swaggerUI.setup(openapiSpecification))
-}
-
 Error.stackTraceLimit = 100
 app.locals.ENV = env
 app.locals.ENV_DEVELOPMENT = env === 'development'
