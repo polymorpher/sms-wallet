@@ -1,4 +1,4 @@
-const JSSHA = require('jssha')
+const JSSHA = require('../server/utils')
 const sharedUtils = require('../shared/utils')
 
 const { keccak, hexView, hexString } = sharedUtils
