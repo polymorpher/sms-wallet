@@ -10,6 +10,8 @@ const { User } = require('../../server/src/data/user')
 const { toNumber } = require('lodash')
 const blockchain = require('../blockchain')
 const { ethers } = require('ethers')
+const utils = require('../utils')
+const { parseError } = utils
 
 router.get('/health', async (req, res) => {
   Logger.log('[/health]', req.fingerprint)
@@ -30,58 +32,71 @@ const checkfromTwilio = async (req, res, next) => {
 const parseSMS = async (req, res, next) => {
   const { From: senderPhoneNumber, Body: smsBody } = req.body
   const smsParams = smsBody.split(/(\s+)/).filter(e => { return e.trim().length > 0 })
-
-  let command
-  const requestor = await User.findByPhone({ phone: senderPhoneNumber })
-  if (smsParams.length < 1) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'empty sms command' })
-  }
-  if (smsParams[0] === 'b') {
-    command = 'balance'
-    req.processedBody = { ...req.processedBody, command, requestor }
-  } else if (smsParams[0] === 'p') {
-    command = 'pay'
-    let funder
-    let amount
-    if (smsParams.length < 2) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'pay request requires a to and an amount' })
+  const messagingResponse = Twilio.twiml.MessagingResponse
+  const response = new messagingResponse()
+  try {
+    let command
+    const requestor = await User.findByPhone({ phone: senderPhoneNumber })
+    if (smsParams.length < 1) {
+      response.message('error: empy sms command')
+      return res.send(response.toString())
     }
-    // Allow requesting of funds from users by address (without checking registered phone number)
-    if (smsParams[1].substr(0, 2) === '0x') {
-      funder.address = smsParams[1]
-    } else {
+    if (smsParams[0] === 'b') {
+      command = 'balance'
+      req.processedBody = { ...req.processedBody, command, requestor }
+    } else if (smsParams[0] === 'p') {
+      command = 'pay'
+      let funder
+      let amount
+      if (smsParams.length < 2) {
+        response.message('error: pay request requires funder and an amount. example request "p +14158401999 0.1"')
+        return res.send(response.toString())
+      }
+      // Allow requesting of funds from users by address (without checking registered phone number)
+      if (smsParams[1].substr(0, 2) === '0x') {
+        funder.address = smsParams[1]
+      } else {
       // set country and look up user address from Phone Number
-      let funderPhone = smsParams[1]
-      if (funderPhone.substr(0, 1) !== '+') {
-        const { countryIso3 } = phone(requestor.phone)
-        const { isValid, phoneNumber } = phone(funderPhone, countryIso3)
-        funderPhone = phoneNumber
-        if (!isValid) {
-          return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid recipient phone number' })
+        let funderPhone = smsParams[1]
+        if (funderPhone.substr(0, 1) !== '+') {
+          const { countryIso3 } = phone(requestor.phone)
+          const { isValid, phoneNumber } = phone(funderPhone, countryIso3)
+          funderPhone = phoneNumber
+          if (!isValid) {
+            response.message(`error: invalid recipient phone number ${smsParams[1]}. example request "p +14158401999 0.1"`)
+            return res.send(response.toString())
+          }
+        }
+        funder = await User.findByPhone({ phone: funderPhone })
+        if (funder ? !funder.address : true) {
+          response.message(`error: funders phone number is not a registered wallet: ${smsParams[1]}. example request "p +14158401999 0.1"`)
+          return res.send(response.toString())
         }
       }
-      funder = await User.findByPhone({ phone: funderPhone })
-      console.log(`funder: ${JSON.stringify(funder)}`)
-      if (funder ? !funder.address : true) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid recipient' })
-      }
-    }
 
-    if (toNumber(smsParams[2]) > 0) {
-      console.log('good request')
-      amount = ethers.utils.parseEther(smsParams[2])
+      if (toNumber(smsParams[2]) > 0) {
+        amount = ethers.utils.parseEther(smsParams[2])
+      } else {
+        response.message(`error: pay request requires a valid amount': ${smsParams[2]} example request "p +14158401999 0.1"`)
+        return res.send(response.toString())
+      }
+      req.processedBody = { ...req.processedBody, command, requestor, funder, amount }
     } else {
-      console.log('bad request')
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'pay request requires a valid amount' })
+      response.message('error: invalid sms command. example payment request "p +14158401999 0.1"')
+      return res.send(response.toString())
     }
-    req.processedBody = { ...req.processedBody, command, requestor, funder, amount }
-  } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid sms command' })
+  } catch (ex) {
+    console.error(ex)
+    const { code, error, success } = parseError(ex)
+    response.message(`An exception occured. code: ${code} error:${error} success: ${success}`)
+    return res.send(response.toString())
   }
   next()
 }
 
 router.post('/sms', checkfromTwilio, parseSMS, async (req, res) => {
+  const messagingResponse = Twilio.twiml.MessagingResponse
+  const response = new messagingResponse()
   // Look up the from Phone Number to get the address
   const { command, requestor, funder, amount } = req.processedBody
   Logger.log(`req.body: ${JSON.stringify(req.processedBody)}`)
@@ -92,26 +107,33 @@ router.post('/sms', checkfromTwilio, parseSMS, async (req, res) => {
   const executor = blockchain.prepareExecute(logger)
 
   Logger.log(`assetManager.address: ${assetManager.address}`)
-  if (command === 'balance') {
-    const balance = ethers.utils.formatEther(await assetManager.userBalances(requestor.address))
-    const messagingResponse = Twilio.twiml.MessagingResponse
-    const response = new messagingResponse()
-    response.message(`phone: ${requestor.phone} address: ${requestor.address}, balance: ${balance} `)
+  try {
+    if (command === 'balance') {
+      const balance = ethers.utils.formatEther(await assetManager.userBalances(requestor.address))
+      const messagingResponse = Twilio.twiml.MessagingResponse
+      const response = new messagingResponse()
+      response.message(`phone: ${requestor.phone} address: ${requestor.address}, balance: ${balance} `)
+      return res.send(response.toString())
+    } else if (command === 'pay') {
+      const method = 'send'
+      const params = [
+        amount,
+        funder.address,
+        requestor.address
+      ]
+      const receipt = await executor(method, params)
+      const messagingResponse = Twilio.twiml.MessagingResponse
+      const response = new messagingResponse()
+      response.message(`from: ${funder.phone}, from address: ${funder.address}, to: ${requestor.phone}, to address: ${requestor.address}, amount: ${ethers.utils.formatEther(amount)}, transaction: ${receipt.hash}`)
+      return res.send(response.toString())
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid sms command' })
+    }
+  } catch (ex) {
+    console.error(ex)
+    const { code, error, success } = parseError(ex)
+    response.message(`An exception occured. code: ${code} error:${error} success: ${success}`)
     return res.send(response.toString())
-  } else if (command === 'pay') {
-    const method = 'send'
-    const params = [
-      amount,
-      funder.address,
-      requestor.address
-    ]
-    const receipt = await executor(method, params)
-    const messagingResponse = require('twilio').twiml.MessagingResponse
-    const response = new messagingResponse()
-    response.message(`from: ${funder.phone}, from address: ${funder.address}, to: ${requestor.phone}, to address: ${requestor.address}, amount: ${ethers.utils.formatEther(amount)}, transaction: ${receipt.hash}`)
-    return res.send(response.toString())
-  } else {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid sms command' })
   }
 })
 
