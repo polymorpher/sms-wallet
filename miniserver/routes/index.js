@@ -5,7 +5,8 @@ const { StatusCodes } = require('http-status-codes')
 const { Logger } = require('../logger')
 const { phone } = require('phone')
 const Twilio = require('twilio')
-const { User } = require('../src/data/user')
+// const { User } = require('../src/data/user')
+const { User } = require('../../server/src/data/user')
 const { toNumber } = require('lodash')
 const blockchain = require('../blockchain')
 const { ethers } = require('ethers')
@@ -32,7 +33,6 @@ const parseSMS = async (req, res, next) => {
 
   let command
   const requestor = await User.findByPhone({ phone: senderPhoneNumber })
-
   if (smsParams.length < 1) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'empty sms command' })
   }
