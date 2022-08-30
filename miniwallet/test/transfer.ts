@@ -47,7 +47,7 @@ describe('MiniWallet', function () {
   })
 
   describe('transfer: check transfer functionality ', function () {
-    it('AM-transfer-0: positive test of ERC20 transfer', async function () {
+    it('MW-transfer-0: positive test of ERC20 transfer', async function () {
       await deploy(this, [['erc20', this.TestERC20, [getBigNumber('10000000')]]])
 
       // transfer 100 M20 to alice
@@ -77,7 +77,7 @@ describe('MiniWallet', function () {
       expect(await this.erc20.allowance(this.alice.address, this.miniWallet.address)).to.equal(67)
     })
 
-    it('AM-transfer-1: positive test of ERC721 transfer', async function () {
+    it('MW-transfer-1: positive test of ERC721 transfer', async function () {
       // Deploy 721
       await deploy(this, [['erc721', this.TestERC721, [range(10), range(10).map((e: any) => `ipfs://test721/${e}`)]]])
       // Transfer some Tokens for Alice
@@ -106,7 +106,7 @@ describe('MiniWallet', function () {
       expect(await this.erc721.balanceOf(this.bob.address)).to.equal(1)
     })
 
-    it('AM-transfer-2: positive test of ERC1155 transfer', async function () {
+    it('MW-transfer-2: positive test of ERC1155 transfer', async function () {
       // Deploy 1155
       await deploy(this, [['erc1155', this.TestERC1155, [
         range(10),

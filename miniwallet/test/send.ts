@@ -39,7 +39,7 @@ describe('MiniWallet', function () {
   })
 
   describe('send: check send functionality', function () {
-    it('AM-send-0: Positive send test', async function () {
+    it('MW-send-0: Positive send test', async function () {
       const provider = waffle.provider
 
       // check Initial Balance

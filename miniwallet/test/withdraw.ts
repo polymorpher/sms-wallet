@@ -39,7 +39,7 @@ describe('MiniWallet', function () {
   })
 
   describe('withdraw: check withdraw functionality', function () {
-    it('AM-withdraw-0: Positive withdrawal test', async function () {
+    it('MW-withdraw-0: Positive withdrawal test', async function () {
       const provider = waffle.provider
 
       // check Initial Balance

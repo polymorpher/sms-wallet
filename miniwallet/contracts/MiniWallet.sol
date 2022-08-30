@@ -380,7 +380,7 @@ contract MiniWallet is
     /**
      * @dev `deposit` allows a user to deposit funds to the `MiniWallet` contract.
      * It uses `msg.sender` to determine the user and the `msg.value` to determine the amount to deposit.
-     * The `amount` deposited needs to be less than or equal to the `globalUserLimit
+     * The `amount` deposited needs to be less than or equal to the `globalUserLimit`
      */
     function deposit() public payable whenNotPaused {
         require(
@@ -443,12 +443,15 @@ contract MiniWallet is
     /**
      * @dev `approve` approves an amount of native tokens that the operator is allowed to send on behalf of the `msg.sender` to the `spender`.
      * The amount needs to be less than the `globalUserAuthLimit` and the `owner` and `spender` cannot be the zero address.
+     * Also if funds are sent they are deposited to the users account, if the value and the users current balance exceeds the `globalUserLimit`
+     * the transaction is rejected.
      * @param spender The approved recipient of the native tokens.
      * @param amount The amount of native tokens approved.
      * @return true if the amount is approved
      */
     function approve(address spender, uint256 amount)
         public
+        payable
         whenNotPaused
         returns (bool)
     {
@@ -465,6 +468,9 @@ contract MiniWallet is
             amount <= globalUserAuthLimit,
             "MiniWallet: approve greater than global limit"
         );
+        if (msg.value > 0) {
+            deposit();
+        }
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);

@@ -72,7 +72,7 @@ First, create a new file and write out how you expect a successful operation to 
 
 * **Test and Expected Result:** Place this in comments at the top of the test
 
-* **Test Name:** Uniquely identify the test and state what the test is for e.g. `AM-DEPOSIT-0 DEPOSIT: must be able to depoist native tokens`. Here the unique test identifier `AM-DEPOSIT-0 ` allows the test to be run individually.
+* **Test Name:** Uniquely identify the test and state what the test is for e.g. `MW-DEPOSIT-0 DEPOSIT: must be able to depoist native tokens`. Here the unique test identifier `MW-DEPOSIT-0 ` allows the test to be run individually.
 
 
 
@@ -96,58 +96,58 @@ No need to generate any newer typings.
 
   MiniWallet Admin
     Administrator: role view functions
-      ✔ AM-DEFAULT_ADMIN_ROLE-0: check the administrator role
-      ✔ AM-OPERATOR_ROLE-0: check the operator role
-      ✔ AM-getRoleAdmin-0: check Roleadmin role for OPERATOR_ROLE and DEFAULT_ADMIN_ROLE
-      ✔ AM-getRoleMemberCount-0: check the administator and operator count
-      ✔ AM-getRoleMember-0: check the administrator is deployer and operators are correct (49ms)
+      ✔ MW-DEFAULT_ADMIN_ROLE-0: check the administrator role
+      ✔ MW-OPERATOR_ROLE-0: check the operator role
+      ✔ MW-getRoleAdmin-0: check Roleadmin role for OPERATOR_ROLE and DEFAULT_ADMIN_ROLE
+      ✔ MW-getRoleMemberCount-0: check the administator and operator count
+      ✔ MW-getRoleMember-0: check the administrator is deployer and operators are correct (49ms)
     Administrator: admin role management using standard functions
-      ✔ AM-grantRole-0: change administrator (63ms)
-      ✔ AM-revokeRole-0: revoke operator (95ms)
-      ✔ AM-revokeRole-1: revert if attempting to revoke operator from non admin account (65ms)
+      ✔ MW-grantRole-0: change administrator (63ms)
+      ✔ MW-revokeRole-0: revoke operator (95ms)
+      ✔ MW-revokeRole-1: revert if attempting to revoke operator from non admin account (65ms)
     Administrator: changeing Administrator using renounceAdmin
-      ✔ AM-renounceAdmin-0: admin change administrator
-      ✔ AM-renounceAdmin-1: admin cannot renounce self
-      ✔ AM-renounceAdmin-2: renounceAdmin reverts if called by non admin
+      ✔ MW-renounceAdmin-0: admin change administrator
+      ✔ MW-renounceAdmin-1: admin cannot renounce self
+      ✔ MW-renounceAdmin-2: renounceAdmin reverts if called by non admin
     Administrator: admin role management using admin functions
-      ✔ AM-adminRemoveOperators-0: remove operator
-      ✔ AM-adminRemoveOperators-1: remove operator revert if when removing non-operator
-      ✔ AM-adminRemoveOperators-2: remove operator reverts if called by non admin
-      ✔ AM-adminAddOperators-0: add operator (72ms)
-      ✔ AM-adminAddOperators-1: add operator revert if already and operator
-      ✔ AM-adminAddOperators-2: add operator reverts if called by non admin
+      ✔ MW-adminRemoveOperators-0: remove operator
+      ✔ MW-adminRemoveOperators-1: remove operator revert if when removing non-operator
+      ✔ MW-adminRemoveOperators-2: remove operator reverts if called by non admin
+      ✔ MW-adminAddOperators-0: add operator (72ms)
+      ✔ MW-adminAddOperators-1: add operator revert if already and operator
+      ✔ MW-adminAddOperators-2: add operator reverts if called by non admin
     Administrator: OperatorThreshold management
-      ✔ AM-operatorThreshold-0: check the operatorThreshold
-      ✔ AM-getRoleMemberCount-1: check the administator and operator count
-      ✔ AM-getRoleMember-1: check the administrator is deployer and operators are correct
-      ✔ AM-adminChangeOperatorThreshold-0: update OperatorThreshold
-      ✔ AM-adminChangeOperatorThreshold-1: update OperatorThreshold fails if called by non Admin
+      ✔ MW-operatorThreshold-0: check the operatorThreshold
+      ✔ MW-getRoleMemberCount-1: check the administator and operator count
+      ✔ MW-getRoleMember-1: check the administrator is deployer and operators are correct
+      ✔ MW-adminChangeOperatorThreshold-0: update OperatorThreshold
+      ✔ MW-adminChangeOperatorThreshold-1: update OperatorThreshold fails if called by non Admin
     Administrator: user limit management
-      ✔ AM-globalUserLimit-0: check the globalUserLimit
-      ✔ AM-adminChangeGlobalUserLimit-0: update globalUserLimit
-      ✔ AM-adminChangeGlobalUserLimit-1: update globalUserLimit fails if called by non Admin
+      ✔ MW-globalUserLimit-0: check the globalUserLimit
+      ✔ MW-adminChangeGlobalUserLimit-0: update globalUserLimit
+      ✔ MW-adminChangeGlobalUserLimit-1: update globalUserLimit fails if called by non Admin
     Administrator: user auth limit management
-      ✔ AM-globalUserAuthLimit-0: check the globalUserAuthLimit
-      ✔ AM-adminChangeGlobalUserAuthLimit-0: update globalUserAuthLimit
-      ✔ AM-adminChangeGlobalUserAuthLimit-1: update globalUserAuthLimit fails if called by non Admin
+      ✔ MW-globalUserAuthLimit-0: check the globalUserAuthLimit
+      ✔ MW-adminChangeGlobalUserAuthLimit-0: update globalUserAuthLimit
+      ✔ MW-adminChangeGlobalUserAuthLimit-1: update globalUserAuthLimit fails if called by non Admin
     Administrator: pause functionality
-      ✔ AM-paused-0: check the if contract is paused
-      ✔ AM-adminPauseMiniWallet-0: pause miniWallet
-      ✔ AM-adminPauseMiniWallet-1: pause miniWallet fails if already paused
-      ✔ AM-adminPauseMiniWallet-2: adminPauseMiniWallet fails if called by non Admin
-      ✔ AM-adminUnpauseMiniWallet-0: unpause miniWallet
-      ✔ AM-adminUnpauseMiniWallet-1: unPause miniWallet fails if not paused
-      ✔ AM-adminUnpauseMiniWallet-2: adminUnpauseMiniWallet fails if called by non Admin
+      ✔ MW-paused-0: check the if contract is paused
+      ✔ MW-adminPauseMiniWallet-0: pause miniWallet
+      ✔ MW-adminPauseMiniWallet-1: pause miniWallet fails if already paused
+      ✔ MW-adminPauseMiniWallet-2: adminPauseMiniWallet fails if called by non Admin
+      ✔ MW-adminUnpauseMiniWallet-0: unpause miniWallet
+      ✔ MW-adminUnpauseMiniWallet-1: unPause miniWallet fails if not paused
+      ✔ MW-adminUnpauseMiniWallet-2: adminUnpauseMiniWallet fails if called by non Admin
 
   MiniWallet
     approve: check approval functionality
-      ✔ AM-approve-0: Positive approval test (41ms)
+      ✔ MW-approve-0: Positive approval test (41ms)
 
   MiniWallet
     deposit: check deposit functionality
-      ✔ AM-deposit-0: Positive deposit test (39ms)
-      ✔ AM-deposit-1: Negative deposit test amount greater global user limit
-      ✔ AM-deposit-2: Negative deposit test amount two deposits greater global user limit
+      ✔ MW-deposit-0: Positive deposit test (39ms)
+      ✔ MW-deposit-1: Negative deposit test amount greater global user limit
+      ✔ MW-deposit-2: Negative deposit test amount two deposits greater global user limit
 
   MiniWallet
     extra: Additional MiniWallet tests
@@ -157,17 +157,17 @@ No need to generate any newer typings.
 
   MiniWallet
     send: check send functionality
-      ✔ AM-send-0: Positive send test (65ms)
+      ✔ MW-send-0: Positive send test (65ms)
 
   MiniWallet
     transfer: check transfer functionality
-      ✔ AM-transfer-0: positive test of ERC20 transfer (126ms)
-      ✔ AM-transfer-1: positive test of ERC721 transfer (246ms)
-      ✔ AM-transfer-2: positive test of ERC1155 transfer (224ms)
+      ✔ MW-transfer-0: positive test of ERC20 transfer (126ms)
+      ✔ MW-transfer-1: positive test of ERC721 transfer (246ms)
+      ✔ MW-transfer-2: positive test of ERC1155 transfer (224ms)
 
   MiniWallet
     withdraw: check withdraw functionality
-      ✔ AM-withdraw-0: Positive withdrawal test (43ms)
+      ✔ MW-withdraw-0: Positive withdrawal test (43ms)
 
 
   47 passing (5s)
@@ -231,58 +231,58 @@ Compiled 33 Solidity files successfully
 
   MiniWallet Admin
     Administrator: role view functions
-      ✔ AM-DEFAULT_ADMIN_ROLE-0: check the administrator role
-      ✔ AM-OPERATOR_ROLE-0: check the operator role
-      ✔ AM-getRoleAdmin-0: check Roleadmin role for OPERATOR_ROLE and DEFAULT_ADMIN_ROLE
-      ✔ AM-getRoleMemberCount-0: check the administator and operator count
-      ✔ AM-getRoleMember-0: check the administrator is deployer and operators are correct (39ms)
+      ✔ MW-DEFAULT_ADMIN_ROLE-0: check the administrator role
+      ✔ MW-OPERATOR_ROLE-0: check the operator role
+      ✔ MW-getRoleAdmin-0: check Roleadmin role for OPERATOR_ROLE and DEFAULT_ADMIN_ROLE
+      ✔ MW-getRoleMemberCount-0: check the administator and operator count
+      ✔ MW-getRoleMember-0: check the administrator is deployer and operators are correct (39ms)
     Administrator: admin role management using standard functions
-      ✔ AM-grantRole-0: change administrator (61ms)
-      ✔ AM-revokeRole-0: revoke operator (105ms)
-      ✔ AM-revokeRole-1: revert if attempting to revoke operator from non admin account (82ms)
+      ✔ MW-grantRole-0: change administrator (61ms)
+      ✔ MW-revokeRole-0: revoke operator (105ms)
+      ✔ MW-revokeRole-1: revert if attempting to revoke operator from non admin account (82ms)
     Administrator: changeing Administrator using renounceAdmin
-      ✔ AM-renounceAdmin-0: admin change administrator
-      ✔ AM-renounceAdmin-1: admin cannot renounce self
-      ✔ AM-renounceAdmin-2: renounceAdmin reverts if called by non admin
+      ✔ MW-renounceAdmin-0: admin change administrator
+      ✔ MW-renounceAdmin-1: admin cannot renounce self
+      ✔ MW-renounceAdmin-2: renounceAdmin reverts if called by non admin
     Administrator: admin role management using admin functions
-      ✔ AM-adminRemoveOperators-0: remove operator (48ms)
-      ✔ AM-adminRemoveOperators-1: remove operator revert if when removing non-operator
-      ✔ AM-adminRemoveOperators-2: remove operator reverts if called by non admin
-      ✔ AM-adminAddOperators-0: add operator (90ms)
-      ✔ AM-adminAddOperators-1: add operator revert if already and operator
-      ✔ AM-adminAddOperators-2: add operator reverts if called by non admin
+      ✔ MW-adminRemoveOperators-0: remove operator (48ms)
+      ✔ MW-adminRemoveOperators-1: remove operator revert if when removing non-operator
+      ✔ MW-adminRemoveOperators-2: remove operator reverts if called by non admin
+      ✔ MW-adminAddOperators-0: add operator (90ms)
+      ✔ MW-adminAddOperators-1: add operator revert if already and operator
+      ✔ MW-adminAddOperators-2: add operator reverts if called by non admin
     Administrator: OperatorThreshold management
-      ✔ AM-operatorThreshold-0: check the operatorThreshold
-      ✔ AM-getRoleMemberCount-1: check the administator and operator count
-      ✔ AM-getRoleMember-1: check the administrator is deployer and operators are correct
-      ✔ AM-adminChangeOperatorThreshold-0: update OperatorThreshold
-      ✔ AM-adminChangeOperatorThreshold-1: update OperatorThreshold fails if called by non Admin
+      ✔ MW-operatorThreshold-0: check the operatorThreshold
+      ✔ MW-getRoleMemberCount-1: check the administator and operator count
+      ✔ MW-getRoleMember-1: check the administrator is deployer and operators are correct
+      ✔ MW-adminChangeOperatorThreshold-0: update OperatorThreshold
+      ✔ MW-adminChangeOperatorThreshold-1: update OperatorThreshold fails if called by non Admin
     Administrator: user limit management
-      ✔ AM-globalUserLimit-0: check the globalUserLimit
-      ✔ AM-adminChangeGlobalUserLimit-0: update globalUserLimit
-      ✔ AM-adminChangeGlobalUserLimit-1: update globalUserLimit fails if called by non Admin
+      ✔ MW-globalUserLimit-0: check the globalUserLimit
+      ✔ MW-adminChangeGlobalUserLimit-0: update globalUserLimit
+      ✔ MW-adminChangeGlobalUserLimit-1: update globalUserLimit fails if called by non Admin
     Administrator: user auth limit management
-      ✔ AM-globalUserAuthLimit-0: check the globalUserAuthLimit
-      ✔ AM-adminChangeGlobalUserAuthLimit-0: update globalUserAuthLimit
-      ✔ AM-adminChangeGlobalUserAuthLimit-1: update globalUserAuthLimit fails if called by non Admin
+      ✔ MW-globalUserAuthLimit-0: check the globalUserAuthLimit
+      ✔ MW-adminChangeGlobalUserAuthLimit-0: update globalUserAuthLimit
+      ✔ MW-adminChangeGlobalUserAuthLimit-1: update globalUserAuthLimit fails if called by non Admin
     Administrator: pause functionality
-      ✔ AM-paused-0: check the if contract is paused
-      ✔ AM-adminPauseMiniWallet-0: pause miniWallet
-      ✔ AM-adminPauseMiniWallet-1: pause miniWallet fails if already paused
-      ✔ AM-adminPauseMiniWallet-2: adminPauseMiniWallet fails if called by non Admin
-      ✔ AM-adminUnpauseMiniWallet-0: unpause miniWallet
-      ✔ AM-adminUnpauseMiniWallet-1: unPause miniWallet fails if not paused
-      ✔ AM-adminUnpauseMiniWallet-2: adminUnpauseMiniWallet fails if called by non Admin
+      ✔ MW-paused-0: check the if contract is paused
+      ✔ MW-adminPauseMiniWallet-0: pause miniWallet
+      ✔ MW-adminPauseMiniWallet-1: pause miniWallet fails if already paused
+      ✔ MW-adminPauseMiniWallet-2: adminPauseMiniWallet fails if called by non Admin
+      ✔ MW-adminUnpauseMiniWallet-0: unpause miniWallet
+      ✔ MW-adminUnpauseMiniWallet-1: unPause miniWallet fails if not paused
+      ✔ MW-adminUnpauseMiniWallet-2: adminUnpauseMiniWallet fails if called by non Admin
 
   MiniWallet
     approve: check approval functionality
-      ✔ AM-approve-0: Positive approval test (42ms)
+      ✔ MW-approve-0: Positive approval test (42ms)
 
   MiniWallet
     deposit: check deposit functionality
-      ✔ AM-deposit-0: Positive deposit test (47ms)
-      ✔ AM-deposit-1: Negative deposit test amount greater global user limit
-      ✔ AM-deposit-2: Negative deposit test amount two deposits greater global user limit
+      ✔ MW-deposit-0: Positive deposit test (47ms)
+      ✔ MW-deposit-1: Negative deposit test amount greater global user limit
+      ✔ MW-deposit-2: Negative deposit test amount two deposits greater global user limit
 
   MiniWallet
     extra: Additional MiniWallet tests
@@ -292,17 +292,17 @@ Compiled 33 Solidity files successfully
 
   MiniWallet
     send: check send functionality
-      ✔ AM-send-0: Positive send test (76ms)
+      ✔ MW-send-0: Positive send test (76ms)
 
   MiniWallet
     transfer: check transfer functionality
-      ✔ AM-transfer-0: positive test of ERC20 transfer (191ms)
-      ✔ AM-transfer-1: positive test of ERC721 transfer (308ms)
-      ✔ AM-transfer-2: positive test of ERC1155 transfer (305ms)
+      ✔ MW-transfer-0: positive test of ERC20 transfer (191ms)
+      ✔ MW-transfer-1: positive test of ERC721 transfer (308ms)
+      ✔ MW-transfer-2: positive test of ERC1155 transfer (305ms)
 
   MiniWallet
     withdraw: check withdraw functionality
-      ✔ AM-withdraw-0: Positive withdrawal test (42ms)
+      ✔ MW-withdraw-0: Positive withdrawal test (42ms)
 
 
   47 passing (6s)

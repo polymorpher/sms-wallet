@@ -39,7 +39,7 @@ describe('MiniWallet', function () {
   })
 
   describe('deposit: check deposit functionality', function () {
-    it('AM-deposit-0: Positive deposit test', async function () {
+    it('MW-deposit-0: Positive deposit test', async function () {
       const provider = waffle.provider
 
       // check Initial Balance
@@ -75,7 +75,7 @@ describe('MiniWallet', function () {
       ).to.equal(ZERO_ETH)
     })
 
-    it('AM-deposit-1: Negative deposit test amount greater global user limit', async function () {
+    it('MW-deposit-1: Negative deposit test amount greater global user limit', async function () {
       await checkBalance(this.alice, '10000')
       const aliceBalance = await this.alice.getBalance()
       const depositAmount = config.test.initialUserLimit.add(ONE_ETH)
@@ -89,7 +89,7 @@ describe('MiniWallet', function () {
       expect(aliceNewBalance).to.be.gt(aliceBalance.sub(depositAmount))
     })
 
-    it('AM-deposit-2: Negative deposit test amount two deposits greater global user limit', async function () {
+    it('MW-deposit-2: Negative deposit test amount two deposits greater global user limit', async function () {
       let tx = await this.miniWallet.connect(this.alice).deposit({
         value: ONE_ETH
       })
