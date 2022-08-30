@@ -1,5 +1,5 @@
 const config = require('./config')
-const { ethers, BigNumber: BN } = require('ethers')
+const { ethers } = require('ethers')
 const { Logger } = require('./logger')
 const cloneDeep = require('lodash/fp/cloneDeep')
 const { backOff } = require('exponential-backoff')
@@ -39,6 +39,10 @@ const init = async () => {
     console.error(ex)
     console.trace(ex)
   }
+  for (const signer of signers) {
+    pendingNonces[signer.address] = 0
+    Logger.log(`[${config.defaultNetwork}][${signer.address}] Set pending nonce = 0`)
+  }
 }
 
 const sampleExecutionAddress = () => {
@@ -61,8 +65,8 @@ const sampleExecutionAddress = () => {
   return [signers.length - 1, signers[signers.length - 1].address, assetManagers[assetManagers.length - 1]]
 }
 
-// basic executor that
-const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => async (f) => {
+// basic executor used to send funds
+const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => async (method, params) => {
   const [fromIndex, from, assetManager] = sampleExecutionAddress()
   logger(`Sampled [${fromIndex}] ${from}`)
   const latestNonce = await rpc.getNonce({ address: from, network: config.defaultNetwork })
@@ -75,11 +79,12 @@ const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => asyn
   try {
     logger(`[pending]${printNonceStats()}`)
     let numAttempts = 0
+    // const f = () => {assetManager.send(params[0], params[1], params[2])}
     const tx = await backOff(
-      async () => f({
-        from,
-        nonce: '0x' + new BN(nonce).toString(16),
-        gasPrice: config.gasPrice.clone().muln((numAttempts || 0) + 1),
+      async () => assetManager.send(params[0], params[1], params[2], {
+        nonce,
+        // nonce: '0x' + ethers.BigNumber.from(nonce).toHexString,
+        gasPrice: ethers.BigNumber.from(config.gasPrice).mul((numAttempts || 0) + 1),
         value: 0,
       }), {
         retry: (ex, n) => {
