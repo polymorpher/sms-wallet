@@ -6,15 +6,15 @@ import {
   checkBalance,
   getTxCost
 } from './utilities'
-import config from '../src/config'
+import config from '../config'
 
 const ZERO_ETH = ethers.utils.parseEther('0')
 const ONE_ETH = ethers.utils.parseEther('1')
 
-describe('AssetManager', function () {
+describe('MiniWallet', function () {
   before(async function () {
     await prepare(this, [
-      'AssetManager'
+      'MiniWallet'
     ])
   })
 
@@ -22,8 +22,8 @@ describe('AssetManager', function () {
     this.snapshotId = await waffle.provider.send('evm_snapshot', [])
     await deployUpgradeable(this, [
       [
-        'assetManager',
-        this.AssetManager,
+        'miniWallet',
+        this.MiniWallet,
         [
           config.test.initialOperatorThreshold,
           config.test.initialOperators,
@@ -46,19 +46,19 @@ describe('AssetManager', function () {
       await checkBalance(this.alice, '10000')
       let aliceBalance = await this.alice.getBalance()
       let bobBalance = await this.bob.getBalance()
-      let assetManagerBalance = await provider.getBalance(
-        this.assetManager.address
+      let miniWalletBalance = await provider.getBalance(
+        this.miniWallet.address
       )
       // Alice Deposit one native token
-      let tx = await this.assetManager.connect(this.alice).deposit({
+      let tx = await this.miniWallet.connect(this.alice).deposit({
         value: ONE_ETH
       })
       let gasUsed = await getTxCost(tx.hash)
       // Calculate and check new balances
       aliceBalance = aliceBalance.sub(ONE_ETH).sub(gasUsed)
-      assetManagerBalance = assetManagerBalance.add(ONE_ETH)
+      miniWalletBalance = miniWalletBalance.add(ONE_ETH)
       // Alice approves one native token
-      tx = await this.assetManager
+      tx = await this.miniWallet
         .connect(this.alice)
         .approve(this.bob.address, ONE_ETH)
       gasUsed = await getTxCost(tx.hash)
@@ -66,22 +66,22 @@ describe('AssetManager', function () {
       aliceBalance = aliceBalance.sub(gasUsed)
 
       // The operator sends to Bob
-      tx = await this.assetManager
+      tx = await this.miniWallet
         .connect(this.operatorA)
         .send(ONE_ETH, this.alice.address, this.bob.address)
       await tx.wait()
       gasUsed = await getTxCost(tx.hash)
       // Calculate and check new balances
       bobBalance = bobBalance.add(ONE_ETH)
-      assetManagerBalance = assetManagerBalance.sub(ONE_ETH)
+      miniWalletBalance = miniWalletBalance.sub(ONE_ETH)
       await expect(await this.alice.getBalance()).to.equal(aliceBalance)
       await expect(await this.bob.getBalance()).to.equal(bobBalance)
       await expect(
-        await provider.getBalance(this.assetManager.address)
-      ).to.equal(assetManagerBalance)
+        await provider.getBalance(this.miniWallet.address)
+      ).to.equal(miniWalletBalance)
       // Check events emitted
       await expect(tx)
-        .to.emit(this.assetManager, 'SendSuccessful')
+        .to.emit(this.miniWallet, 'SendSuccessful')
         .withArgs(
           this.alice.address,
           this.bob.address,
@@ -90,12 +90,12 @@ describe('AssetManager', function () {
           ZERO_ETH
         )
       await tx.wait()
-      // Check Alices Balance and Auth on AssetManager
+      // Check Alices Balance and Auth on MiniWallet
       await expect(
-        await this.assetManager.userBalances(this.alice.address)
+        await this.miniWallet.userBalances(this.alice.address)
       ).to.equal(ZERO_ETH)
       expect(
-        await this.assetManager.allowance(this.alice.address, this.bob.address)
+        await this.miniWallet.allowance(this.alice.address, this.bob.address)
       ).to.equal(ZERO_ETH)
     })
   })

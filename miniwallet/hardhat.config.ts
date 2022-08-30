@@ -167,7 +167,7 @@ const hardhatUserconfig: HardhatUserConfig = {
     disambiguatePaths: false,
     runOnCompile: true,
     strict: true,
-    only: [':AssetManager$']
+    only: [':MiniWallet$']
   }
 }
 

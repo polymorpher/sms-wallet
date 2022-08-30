@@ -88,7 +88,7 @@ const parseSMS = async (req, res, next) => {
   } catch (ex) {
     console.error(ex)
     const { code, error, success } = parseError(ex)
-    response.message(`An exception occured. code: ${code} error:${error} success: ${success}`)
+    response.message(`An exception occured. success: ${success} code: ${code} error: ${error.substr(0, 100)} `)
     return res.send(response.toString())
   }
   next()
@@ -100,16 +100,16 @@ router.post('/sms', checkfromTwilio, parseSMS, async (req, res) => {
   // Look up the from Phone Number to get the address
   const { command, requestor, funder, amount } = req.processedBody
   Logger.log(`req.body: ${JSON.stringify(req.processedBody)}`)
-  const assetManagers = blockchain.getAssetManagers()
-  const assetManager = assetManagers[1]
+  const miniWallets = blockchain.getMiniWallets()
+  const miniWallet = miniWallets[1]
 
   const logger = (...args) => Logger.log('[/sms]', ...args)
   const executor = blockchain.prepareExecute(logger)
 
-  Logger.log(`assetManager.address: ${assetManager.address}`)
+  Logger.log(`miniWallet.address: ${miniWallet.address}`)
   try {
     if (command === 'balance') {
-      const balance = ethers.utils.formatEther(await assetManager.userBalances(requestor.address))
+      const balance = ethers.utils.formatEther(await miniWallet.userBalances(requestor.address))
       const messagingResponse = Twilio.twiml.MessagingResponse
       const response = new messagingResponse()
       response.message(`phone: ${requestor.phone} address: ${requestor.address}, balance: ${balance} `)
@@ -132,7 +132,7 @@ router.post('/sms', checkfromTwilio, parseSMS, async (req, res) => {
   } catch (ex) {
     console.error(ex)
     const { code, error, success } = parseError(ex)
-    response.message(`An exception occured. code: ${code} error:${error} success: ${success}`)
+    response.message(`An exception occured. success: ${success} code: ${code} error: ${error.substr(0, 100)} `)
     return res.send(response.toString())
   }
 })

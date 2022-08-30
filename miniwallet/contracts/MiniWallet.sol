@@ -18,11 +18,11 @@ import "./Enums.sol";
   @author John Whitton https://github.com/johnwhitton/
   @notice This contract allows users to transfer native tokens and authorize recipients
   (such as games) to receive these tokens. Once approved it can transfer the native tokens on behalf of the user.
-  It also can transfer ERC20, ERC721 and ERC1155 tokens on behalf of the user, after the user approves the AssetManager contract to do so.
-  @dev The AssetManager is designed to simplify management and transfer of tokens
+  It also can transfer ERC20, ERC721 and ERC1155 tokens on behalf of the user, after the user approves the MiniWallet contract to do so.
+  @dev The MiniWallet is designed to simplify management and transfer of tokens
   by light clients such as the sms-wallet.
  */
-contract AssetManager is
+contract MiniWallet is
     Initializable,
     PausableUpgradeable,
     AccessControlEnumerableUpgradeable
@@ -31,11 +31,11 @@ contract AssetManager is
     using SafeMathUpgradeable for uint256;
 
     /**
-     * @dev Emitted when a `user` deposits native tokens (`amount`) into the AssetManager
+     * @dev Emitted when a `user` deposits native tokens (`amount`) into the MiniWallet
      * `balance` is the users new balance held.
      * @param user The user depositing the native token
      * @param amount The amount of native tokens deposited
-     * @param balance The users balance of native tokens held by the AssetManager contract after the deposit
+     * @param balance The users balance of native tokens held by the MiniWallet contract after the deposit
      */
     event DepositSuccessful(
         address indexed user,
@@ -44,11 +44,11 @@ contract AssetManager is
     );
 
     /**
-     * @dev Emitted when a `user` withdraws native tokens (`amount`) from the AssetManager
+     * @dev Emitted when a `user` withdraws native tokens (`amount`) from the MiniWallet
      * `balance` is the users new balance held.
      * @param user The user withdrawing the native token
      * @param amount The amount of native tokens withdrawn
-     * @param balance The users balance of native tokens held by the AssetManager contract after the withdrawal
+     * @param balance The users balance of native tokens held by the MiniWallet contract after the withdrawal
      */
     event WithdrawalSuccessful(
         address indexed user,
@@ -62,7 +62,7 @@ contract AssetManager is
      * e.g. `Insufficient Locked Funds to Withdraw`.
      * @param user The user attempting to withdraw the native token
      * @param amount The amount of native tokens requested to withdraw
-     * @param balance The users balance of native tokens held by the AssetManager contract
+     * @param balance The users balance of native tokens held by the MiniWallet contract
      */
     error WithdrawalFailed(
         address user,
@@ -76,7 +76,7 @@ contract AssetManager is
      * a call to {approve}. `value` is the new allowance.
      * @param owner The owner of the native token which are being approved
      * @param spender The spender who can spend the native tokens (actual transferring of the funds is done by the operator)
-     * @param allowance The allowance of native tokens which can be transferred by the AssetManager Operator to the spender
+     * @param allowance The allowance of native tokens which can be transferred by the MiniWallet Operator to the spender
      */
     event Approval(
         address indexed owner,
@@ -89,8 +89,8 @@ contract AssetManager is
      * @param from The sender of the native token
      * @param to The recipient of the native token
      * @param amount The amount of native token sent
-     * @param newBalance The updated balance of native tokens held by the AssetManager contract on behalf of the user
-     * @param newAllowance The updated allowance of native tokens which can be transferred by the AssetManager Operator to the spender
+     * @param newBalance The updated balance of native tokens held by the MiniWallet contract on behalf of the user
+     * @param newAllowance The updated allowance of native tokens which can be transferred by the MiniWallet Operator to the spender
      */
     event SendSuccessful(
         address indexed from,
@@ -106,8 +106,8 @@ contract AssetManager is
      * @param from The sender of the native token
      * @param to The recipient of the native token
      * @param amount The amount of native token sent
-     * @param balance The updated balance of native tokens held by the AssetManager contract on behalf of the user
-     * @param allowance The updated allowance of native tokens which can be transferred by the AssetManager Operator to the spender
+     * @param balance The updated balance of native tokens held by the MiniWallet contract on behalf of the user
+     * @param allowance The updated allowance of native tokens which can be transferred by the MiniWallet Operator to the spender
      * @param reason The reason the Send Failed
      */
     error SendFailed(
@@ -180,7 +180,7 @@ contract AssetManager is
     event GlobalUserAuthLimitChanged(uint256 newGlobalUserAuthLimit);
 
     /**
-     * @dev Emitted when the `DEFAULT_ADMIN` changes the global limit for the amount of Native Tokens a user can hold in the AssetManager Contract
+     * @dev Emitted when the `DEFAULT_ADMIN` changes the global limit for the amount of Native Tokens a user can hold in the MiniWallet Contract
      * @param newGlobalUserLimit The updated global limit of native tokens a user can hold
      */
     event GlobalUserLimitChanged(uint256 newGlobalUserLimit);
@@ -192,13 +192,13 @@ contract AssetManager is
     uint256 public globalUserAuthLimit;
 
     /**
-     * @dev The global limit for the amount of Native Tokens a user can hold in the AssetManager Contract.
+     * @dev The global limit for the amount of Native Tokens a user can hold in the MiniWallet Contract.
      * This value is checked when depositing funds.
      */
     uint256 public globalUserLimit;
 
     /**
-     * @dev This mapping tracks the balances of native tokens stored in the AssetManager contract for each user
+     * @dev This mapping tracks the balances of native tokens stored in the MiniWallet contract for each user
      */
     mapping(address => uint256) public userBalances;
 
@@ -224,7 +224,7 @@ contract AssetManager is
 
     /**
      * @dev `onlyAdmin` modifier is used on functions which only administrators can run
-     * e.g. Updating global limits or operator Thresholds and pausing the AssetManager contract.
+     * e.g. Updating global limits or operator Thresholds and pausing the MiniWallet contract.
      */
     modifier onlyAdmin() {
         require(
@@ -247,16 +247,16 @@ contract AssetManager is
     }
 
     /**
-     * @dev `adminPauseAssetManager` pauses the `AssetManager` contract
+     * @dev `adminPauseMiniWallet` pauses the `MiniWallet` contract
      */
-    function adminPauseAssetManager() external onlyAdmin {
+    function adminPauseMiniWallet() external onlyAdmin {
         _pause();
     }
 
     /**
-     * @dev `adminUnpauseAssetManager` unpauses the `AssetManager` contract
+     * @dev `adminUnpauseMiniWallet` unpauses the `MiniWallet` contract
      */
-    function adminUnpauseAssetManager() external onlyAdmin {
+    function adminUnpauseMiniWallet() external onlyAdmin {
         _unpause();
     }
 
@@ -326,7 +326,7 @@ contract AssetManager is
     }
 
     /**
-     * @dev `adminChangeGlobalUserLimit` updates the global limit for the amount of Native Tokens a user can hold in the AssetManager Contract.
+     * @dev `adminChangeGlobalUserLimit` updates the global limit for the amount of Native Tokens a user can hold in the MiniWallet Contract.
      * This value is checked when depositing funds.
      * This function can only be called by the administrator.
      * @param newGlobalUserLimit The updated global limit.
@@ -354,8 +354,8 @@ contract AssetManager is
     }
 
     /**
-     * @dev `initialize` initializes the AssetManager contract. It should be called directly after the deploy.
-     * It is used instead of a `constructor` as the `AssetManager` is upgradeable.
+     * @dev `initialize` initializes the MiniWallet contract. It should be called directly after the deploy.
+     * It is used instead of a `constructor` as the `MiniWallet` is upgradeable.
      * The `msg.sender` is granted the `DEFAULT_ADMIN_ROLE`.
      * @param initialOperatorThreshold The initial maximum number of operators allowed
      * @param initialOperators The address of the initial operators (each will be granted the `OPERATOR_ROLE`)
@@ -378,14 +378,14 @@ contract AssetManager is
     }
 
     /**
-     * @dev `deposit` allows a user to deposit funds to the `AssetManager` contract.
+     * @dev `deposit` allows a user to deposit funds to the `MiniWallet` contract.
      * It uses `msg.sender` to determine the user and the `msg.value` to determine the amount to deposit.
      * The `amount` deposited needs to be less than or equal to the `globalUserLimit
      */
     function deposit() public payable whenNotPaused {
         require(
             (userBalances[address(msg.sender)] + msg.value) <= globalUserLimit,
-            "AssetManager: deposit greater than global limit"
+            "MiniWallet: deposit greater than global limit"
         );
         userBalances[msg.sender] += msg.value;
         // update the userBalance
@@ -455,15 +455,15 @@ contract AssetManager is
         address owner = msg.sender;
         require(
             owner != address(0),
-            "AssetManager: approve from the zero address"
+            "MiniWallet: approve from the zero address"
         );
         require(
             spender != address(0),
-            "AssetManager: approve to the zero address"
+            "MiniWallet: approve to the zero address"
         );
         require(
             amount <= globalUserAuthLimit,
-            "AssetManager: approve greater than global limit"
+            "MiniWallet: approve greater than global limit"
         );
 
         _allowances[owner][spender] = amount;
@@ -531,7 +531,7 @@ contract AssetManager is
 
     /**
      * @dev `transfer` transfers tokens (ERC20, ERC721, ERC1155).
-     * The user account must have previously approved the `AssetManager` contract to send the funds.
+     * The user account must have previously approved the `MiniWallet` contract to send the funds.
      * @param amount The amount of the token sent
      * @param tokenType an enumerated value indicating the type of token being sent
      * @param tokenAddress the address of the token contract

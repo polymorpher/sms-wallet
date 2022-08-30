@@ -61,8 +61,8 @@ const utils = {
   REASON_GIVEN: 'Reason given: ',
   parseError: (ex) => {
     let error = ex.toString()
-    if (error && error.indexOf(REASON_GIVEN) > 0) {
-      error = error.slice(error.indexOf(REASON_GIVEN) + REASON_GIVEN.length)
+    if (error && error.indexOf(utils.REASON_GIVEN) > 0) {
+      error = error.slice(error.indexOf(utils.REASON_GIVEN) + utils.REASON_GIVEN.length)
       return { success: false, code: StatusCodes.OK, error, extra: ex.extra }
     }
     return { success: false, code: StatusCodes.INTERNAL_SERVER_ERROR, error, extra: ex.extra }

@@ -4,13 +4,13 @@ const { Logger } = require('./logger')
 const cloneDeep = require('lodash/fp/cloneDeep')
 const { backOff } = require('exponential-backoff')
 const { rpc } = require('./rpc')
-const AssetManager = require('../miniwallet/build/contracts/AssetManager.sol/AssetManager.json')
+const MiniWallet = require('../miniwallet/build/contracts/MiniWallet.sol/MiniWallet.json')
 
 let networkConfig = {}
 let provider
 const pendingNonces = {}
 const signers = []
-const assetManagers = []
+const miniWallets = []
 const walletPath = 'm/44\'/60\'/0\'/0/' // https://docs.ethers.io/v5/api/signer/#Wallet.fromMnemonic'
 
 const init = async () => {
@@ -33,7 +33,7 @@ const init = async () => {
     }
     for (let i = 0; i < signers.length; i += 1) {
       Logger.log(`signers[${i}].address; ${JSON.stringify(signers[i].address)}`)
-      assetManagers[i] = new ethers.Contract(networkConfig.assetManagerAddress, AssetManager.abi, signers[i])
+      miniWallets[i] = new ethers.Contract(networkConfig.miniWalletAddress, MiniWallet.abi, signers[i])
     }
   } catch (ex) {
     console.error(ex)
@@ -59,15 +59,15 @@ const sampleExecutionAddress = () => {
   for (let i = 0; i < probs.length; i++) {
     s += probs[i]
     if (s >= r) {
-      return [i, signers[i].address, assetManagers[i]]
+      return [i, signers[i].address, miniWallets[i]]
     }
   }
-  return [signers.length - 1, signers[signers.length - 1].address, assetManagers[assetManagers.length - 1]]
+  return [signers.length - 1, signers[signers.length - 1].address, miniWallets[miniWallets.length - 1]]
 }
 
 // basic executor used to send funds
 const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => async (method, params) => {
-  const [fromIndex, from, assetManager] = sampleExecutionAddress()
+  const [fromIndex, from, miniWallet] = sampleExecutionAddress()
   logger(`Sampled [${fromIndex}] ${from}`)
   const latestNonce = await rpc.getNonce({ address: from, network: config.defaultNetwork })
   const snapshotPendingNonces = pendingNonces[from]
@@ -79,9 +79,9 @@ const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => asyn
   try {
     logger(`[pending]${printNonceStats()}`)
     let numAttempts = 0
-    // const f = () => {assetManager.send(params[0], params[1], params[2])}
+    // const f = () => {miniWallet.send(params[0], params[1], params[2])}
     const tx = await backOff(
-      async () => assetManager.send(params[0], params[1], params[2], {
+      async () => miniWallet.send(params[0], params[1], params[2], {
         nonce,
         // nonce: '0x' + ethers.BigNumber.from(nonce).toHexString,
         gasPrice: ethers.BigNumber.from(config.gasPrice).mul((numAttempts || 0) + 1),
@@ -119,6 +119,6 @@ module.exports = {
   getNetworkConfig: () => networkConfig,
   getProvider: () => provider,
   getSigners: () => signers,
-  getAssetManagers: () => assetManagers,
+  getMiniWallets: () => miniWallets,
   prepareExecute
 }

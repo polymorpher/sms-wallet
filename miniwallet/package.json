@@ -18,7 +18,7 @@
         "coverage": "npx hardhat coverage",
         "deploy": "npx hardhat deploy",
         "hardhat-local": "npx hardhat node --no-deploy",
-        "flat": "npx hardhat flatten ./contracts/AssetManager.sol >> ./flat/AssetManager.sol",
+        "flat": "npx hardhat flatten ./contracts/MiniWallet.sol >> ./flat/MiniWallet.sol",
         "gas": "REPORT_GAS=true npx hardhat test",
         "test": "npx hardhat test"
     },

@@ -17,7 +17,7 @@ It is recommended that you run tests against a local Hardhat instance (default).
 To run a specific test set, run:
 
 ```
-yarn test test/AssetManager.ts 
+yarn test test/MiniWallet.ts 
 ```
 
 To run an individual test (without compiling the contract), run
@@ -34,7 +34,7 @@ Before each test, some wallets are retrieved using `ethers.getSigners`. They are
 
 All accounts are funded with 10,000 native tokens. 
 
-* deployer : an account that deploys AssetManager and test token Contracts. The address recieves the role of `DEFAULT_ADMIN` which controls the administrative functions, such as assigning operators and adjusting limits 
+* deployer : an account that deploys MiniWallet and test token Contracts. The address recieves the role of `DEFAULT_ADMIN` which controls the administrative functions, such as assigning operators and adjusting limits 
 * operatorA, operatorB, operatorC : operators who are responsible for regular smart contract interactions, such as transferring assets on behalf of users
 
 * alice: primary user used for testing deposit, withrdrawal, approve and transfer functionality using native tokens, ERC20, ERC721, ERC1155
@@ -90,11 +90,11 @@ No need to generate any newer typings.
  ·-----------------|--------------|----------------·
  |  Contract Name  ·  Size (KiB)  ·  Change (KiB)  │
  ··················|··············|·················
- |  AssetManager   ·       9.131  ·                │
+ |  MiniWallet   ·       9.131  ·                │
  ·-----------------|--------------|----------------·
 
 
-  AssetManager Admin
+  MiniWallet Admin
     Administrator: role view functions
       ✔ AM-DEFAULT_ADMIN_ROLE-0: check the administrator role
       ✔ AM-OPERATOR_ROLE-0: check the operator role
@@ -132,40 +132,40 @@ No need to generate any newer typings.
       ✔ AM-adminChangeGlobalUserAuthLimit-1: update globalUserAuthLimit fails if called by non Admin
     Administrator: pause functionality
       ✔ AM-paused-0: check the if contract is paused
-      ✔ AM-adminPauseAssetManager-0: pause assetManager
-      ✔ AM-adminPauseAssetManager-1: pause assetManager fails if already paused
-      ✔ AM-adminPauseAssetManager-2: adminPauseAssetManager fails if called by non Admin
-      ✔ AM-adminUnpauseAssetManager-0: unpause assetManager
-      ✔ AM-adminUnpauseAssetManager-1: unPause assetManager fails if not paused
-      ✔ AM-adminUnpauseAssetManager-2: adminUnpauseAssetManager fails if called by non Admin
+      ✔ AM-adminPauseMiniWallet-0: pause miniWallet
+      ✔ AM-adminPauseMiniWallet-1: pause miniWallet fails if already paused
+      ✔ AM-adminPauseMiniWallet-2: adminPauseMiniWallet fails if called by non Admin
+      ✔ AM-adminUnpauseMiniWallet-0: unpause miniWallet
+      ✔ AM-adminUnpauseMiniWallet-1: unPause miniWallet fails if not paused
+      ✔ AM-adminUnpauseMiniWallet-2: adminUnpauseMiniWallet fails if called by non Admin
 
-  AssetManager
+  MiniWallet
     approve: check approval functionality
       ✔ AM-approve-0: Positive approval test (41ms)
 
-  AssetManager
+  MiniWallet
     deposit: check deposit functionality
       ✔ AM-deposit-0: Positive deposit test (39ms)
       ✔ AM-deposit-1: Negative deposit test amount greater global user limit
       ✔ AM-deposit-2: Negative deposit test amount two deposits greater global user limit
 
-  AssetManager
-    extra: Additional AssetManager tests
+  MiniWallet
+    extra: Additional MiniWallet tests
       ✔ Positive walk-through, deposit, withdraw, approve, send (173ms)
       ✔ checkEventLogs
       ✔ checkReverts
 
-  AssetManager
+  MiniWallet
     send: check send functionality
       ✔ AM-send-0: Positive send test (65ms)
 
-  AssetManager
+  MiniWallet
     transfer: check transfer functionality
       ✔ AM-transfer-0: positive test of ERC20 transfer (126ms)
       ✔ AM-transfer-1: positive test of ERC721 transfer (246ms)
       ✔ AM-transfer-2: positive test of ERC1155 transfer (224ms)
 
-  AssetManager
+  MiniWallet
     withdraw: check withdraw functionality
       ✔ AM-withdraw-0: Positive withdrawal test (43ms)
 
@@ -191,7 +191,7 @@ Version
 Instrumenting for coverage...
 =============================
 
-> AssetManager.sol
+> MiniWallet.sol
 > debug/TestTokens.sol
 > Enums.sol
 > lib/SafeCast.sol
@@ -200,9 +200,9 @@ Compilation:
 ============
 
 Warning: Contract code size exceeds 24576 bytes (a limit introduced in Spurious Dragon). This contract may not be deployable on mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
-  --> contracts/AssetManager.sol:28:1:
+  --> contracts/MiniWallet.sol:28:1:
    |
-28 | contract AssetManager is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable {
+28 | contract MiniWallet is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable {
    | ^ (Relevant source part starts here and spans across multiple lines).
 
 
@@ -217,9 +217,9 @@ Network Info
 > network:    hardhat
 
 Warning: Contract code size exceeds 24576 bytes (a limit introduced in Spurious Dragon). This contract may not be deployable on mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
-  --> contracts/AssetManager.sol:28:1:
+  --> contracts/MiniWallet.sol:28:1:
    |
-28 | contract AssetManager is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable {
+28 | contract MiniWallet is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable {
    | ^ (Relevant source part starts here and spans across multiple lines).
 
 
@@ -229,7 +229,7 @@ Compiled 33 Solidity files successfully
 ✅ Generated documentation for 36 contracts
 
 
-  AssetManager Admin
+  MiniWallet Admin
     Administrator: role view functions
       ✔ AM-DEFAULT_ADMIN_ROLE-0: check the administrator role
       ✔ AM-OPERATOR_ROLE-0: check the operator role
@@ -267,40 +267,40 @@ Compiled 33 Solidity files successfully
       ✔ AM-adminChangeGlobalUserAuthLimit-1: update globalUserAuthLimit fails if called by non Admin
     Administrator: pause functionality
       ✔ AM-paused-0: check the if contract is paused
-      ✔ AM-adminPauseAssetManager-0: pause assetManager
-      ✔ AM-adminPauseAssetManager-1: pause assetManager fails if already paused
-      ✔ AM-adminPauseAssetManager-2: adminPauseAssetManager fails if called by non Admin
-      ✔ AM-adminUnpauseAssetManager-0: unpause assetManager
-      ✔ AM-adminUnpauseAssetManager-1: unPause assetManager fails if not paused
-      ✔ AM-adminUnpauseAssetManager-2: adminUnpauseAssetManager fails if called by non Admin
+      ✔ AM-adminPauseMiniWallet-0: pause miniWallet
+      ✔ AM-adminPauseMiniWallet-1: pause miniWallet fails if already paused
+      ✔ AM-adminPauseMiniWallet-2: adminPauseMiniWallet fails if called by non Admin
+      ✔ AM-adminUnpauseMiniWallet-0: unpause miniWallet
+      ✔ AM-adminUnpauseMiniWallet-1: unPause miniWallet fails if not paused
+      ✔ AM-adminUnpauseMiniWallet-2: adminUnpauseMiniWallet fails if called by non Admin
 
-  AssetManager
+  MiniWallet
     approve: check approval functionality
       ✔ AM-approve-0: Positive approval test (42ms)
 
-  AssetManager
+  MiniWallet
     deposit: check deposit functionality
       ✔ AM-deposit-0: Positive deposit test (47ms)
       ✔ AM-deposit-1: Negative deposit test amount greater global user limit
       ✔ AM-deposit-2: Negative deposit test amount two deposits greater global user limit
 
-  AssetManager
-    extra: Additional AssetManager tests
+  MiniWallet
+    extra: Additional MiniWallet tests
       ✔ Positive walk-through, deposit, withdraw, approve, send (176ms)
       ✔ checkEventLogs
       ✔ checkReverts
 
-  AssetManager
+  MiniWallet
     send: check send functionality
       ✔ AM-send-0: Positive send test (76ms)
 
-  AssetManager
+  MiniWallet
     transfer: check transfer functionality
       ✔ AM-transfer-0: positive test of ERC20 transfer (191ms)
       ✔ AM-transfer-1: positive test of ERC721 transfer (308ms)
       ✔ AM-transfer-2: positive test of ERC1155 transfer (305ms)
 
-  AssetManager
+  MiniWallet
     withdraw: check withdraw functionality
       ✔ AM-withdraw-0: Positive withdrawal test (42ms)
 
@@ -311,7 +311,7 @@ Compiled 33 Solidity files successfully
 File               |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
 -------------------|----------|----------|----------|----------|----------------|
  contracts/        |      100 |    68.42 |      100 |       92 |                |
-  AssetManager.sol |      100 |    68.42 |      100 |       92 |... 436,479,496 |
+  MiniWallet.sol |      100 |    68.42 |      100 |       92 |... 436,479,496 |
   Enums.sol        |      100 |      100 |      100 |      100 |                |
  contracts/debug/  |    26.32 |        0 |    13.64 |    24.39 |                |
   TestTokens.sol   |    26.32 |        0 |    13.64 |    24.39 |... 125,129,133 |
