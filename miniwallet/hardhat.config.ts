@@ -53,6 +53,9 @@ const hardhatUserconfig: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
+      accounts: {
+        count: 200
+      },
       mining: {
         auto: true
       }
