@@ -33,7 +33,7 @@ const deployFunction: DeployFunction = async function (
 
   console.log('operators:', JSON.stringify(config.initialOperators))
   const deployedContract = await deploy('MiniWallet', {
-    contract: 'MiniWallet',
+    contract: 'MiniWallet_v2',
     from: deployer,
     proxy: {
       owner: deployer,
@@ -52,11 +52,11 @@ const deployFunction: DeployFunction = async function (
     },
     log: true
   })
-  const miniWallet = await hre.ethers.getContractAt('MiniWallet', deployedContract.address)
+  const miniWallet = await hre.ethers.getContractAt('MiniWallet_v2', deployedContract.address)
 
-  console.log('MiniWallet deployed to:', miniWallet.address)
+  console.log('MiniWallet_v2 deployed to:', miniWallet.address)
   console.log(
-    'MiniWallet Operator Threshold:',
+    'MiniWallet_v2 Operator Threshold:',
     await miniWallet.operatorThreshold()
   )
 
@@ -68,17 +68,17 @@ const deployFunction: DeployFunction = async function (
 
   const globalUserLimit = await miniWallet.globalUserLimit()
   console.log(
-    'MiniWallet Global User Auth Limit:',
+    'MiniWallet_v2 Global User Auth Limit:',
     ethers.utils.formatUnits(globalUserLimit.toString())
   )
 
   const globalUserAuthLimit = await miniWallet.globalUserAuthLimit()
   console.log(
-    'MiniWallet Global User Auth Limit:',
+    'MiniWallet_v2 Global User Auth Limit:',
     ethers.utils.formatUnits(globalUserAuthLimit.toString())
   )
 }
 
 deployFunction.dependencies = []
-deployFunction.tags = ['MiniWallet', '002', 'deploy']
+deployFunction.tags = ['MiniWallet_v2', '002', 'upgrade']
 export default deployFunction

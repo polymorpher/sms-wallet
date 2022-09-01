@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { HardhatUserConfig, task } from 'hardhat/config'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
+import '@nomiclabs/hardhat-ethers'
 import '@typechain/hardhat'
 import 'hardhat-gas-reporter'
 import 'hardhat-deploy'
@@ -56,8 +57,8 @@ const hardhatUserconfig: HardhatUserConfig = {
         auto: true
       }
     },
-    hardhatNode: {
-      url: process.env.HARDHAT_URL,
+    ethLocal: {
+      url: process.env.ETH_LOCAL_URL,
       gasPrice: 20000000000,
       gas: 6000000
     },
