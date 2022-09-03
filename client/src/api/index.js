@@ -90,8 +90,9 @@ const apis = {
       if (tokenType === 'ERC20') {
         return c.methods.balanceOf(address).call()
       } else if (tokenType === 'ERC721') {
-        const owner = await c.ownerOf(tokenId)
-        return owner === address ? new BN(1) : new BN(0)
+        const owner = await c.methods.ownerOf(tokenId).call()
+        console.log(owner)
+        return owner.toLowerCase() === address.toLowerCase() ? new BN(1) : new BN(0)
       } else if (tokenType === 'ERC1155') {
         return c.methods.balanceOf(address, tokenId).call()
       } else {
@@ -103,7 +104,7 @@ const apis = {
       if (!utils.isValidTokenType(tokenType)) {
         throw new Error(`Unknown token type: ${tokenType}`)
       }
-      const c = await getTokenMetadataContract[tokenType](contractAddress)
+      const c = getTokenMetadataContract[tokenType](contractAddress)
       let name, symbol, uri, decimals
       if (tokenType === 'ERC20') {
         [name, symbol, decimals] = await Promise.all([c.methods.name().call(), c.methods.symbol().call(), c.methods.decimals().call()])
@@ -111,6 +112,13 @@ const apis = {
         [name, symbol, uri] = await Promise.all([c.methods.name().call(), c.methods.symbol().call(), c.methods.tokenURI(tokenId).call()])
       } else if (tokenType === 'ERC1155') {
         uri = await c.methods.uri(tokenId).call()
+        try {
+          const c2 = getTokenMetadataContract.ERC721(contractAddress)
+          // eslint-disable-next-line no-lone-blocks
+          { [name, symbol] = await Promise.all([c2.methods.name().call(), c2.methods.symbol().call()]) }
+        } catch (ex) {
+          console.log('Failed to get name and symbol for', contractAddress)
+        }
       } else {
         throw Error('unreachable')
       }

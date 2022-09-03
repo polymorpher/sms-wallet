@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Address, BaseText, Desc, Title } from '../components/Text'
-import { FlexRow } from '../components/Layout'
+import { Col, FlexRow } from '../components/Layout'
 import { Button } from '../components/Controls'
 import html2canvas from 'html2canvas'
 import styled from 'styled-components'
@@ -10,6 +10,7 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useDispatch } from 'react-redux'
 import BN from 'bn.js'
+import { TailSpin } from 'react-loading-icons'
 
 export const MetadataURITransformer = (url) => {
   const IPFSIO = /https:\/\/ipfs\.io\/ipfs\/(.+)/
@@ -41,7 +42,7 @@ export const useMetadata = ({
     }
     const f = async function () {
       try {
-        const metadata = await axios.get(uri)
+        const { data: metadata } = await axios.get(uri)
         setMetadata(metadata)
         if (metadata.image && (metadata.image.length - metadata.image.lastIndexOf('.')) > 5 && !contentTypeOverride) {
           const resolvedImageUrl = NFTUtils.replaceIPFSLink(metadata.image, ipfsGateway)
@@ -68,7 +69,7 @@ export const useMetadata = ({
 export const loadNFTData = ({ contractAddress, tokenId, tokenType }) => {
   const [state, setState] = useState({ contractName: null, contractSymbol: null, uri: null })
   useEffect(() => {
-    if (!contractAddress || !tokenId || tokenType) {
+    if (!contractAddress || !tokenId || !tokenType) {
       return
     }
     async function f () {
@@ -88,7 +89,7 @@ export const loadNFTData = ({ contractAddress, tokenId, tokenType }) => {
 const loadCachedMetadata = ({ address, contractAddress, tokenId, tokenType }) => {
   const [cached, setCached] = useState({})
   useEffect(() => {
-    if (!contractAddress || !tokenId || tokenType || !address) {
+    if (!contractAddress || !tokenId || !tokenType || !address) {
       return
     }
     async function g () {
@@ -124,13 +125,13 @@ const loadCachedMetadata = ({ address, contractAddress, tokenId, tokenType }) =>
 const loadNFTBalance = ({ contractAddress, address, tokenId, tokenType }) => {
   const [balance, setBalance] = useState(new BN(0))
   useEffect(() => {
-    if (!contractAddress || !tokenId || tokenType || !address) {
+    if (!contractAddress || !tokenId || !tokenType || !address) {
       return
     }
     async function f () {
       try {
-        const balance = await apis.blockchain.getTokenBalance({ contractAddress, tokenId, tokenType })
-        setBalance(balance)
+        const balance = await apis.blockchain.getTokenBalance({ address, contractAddress, tokenId, tokenType })
+        setBalance(new BN(balance))
       } catch (ex) {
         console.error(ex)
         toast.error(`Failed to get NFT balance: ${processError(ex)}`)
@@ -141,63 +142,100 @@ const loadNFTBalance = ({ contractAddress, address, tokenId, tokenType }) => {
   return balance
 }
 
-const NFTItemContainer = styled.div`
-  color: white;
-  background: black;
+export const Gallery = styled.div`
+  display: flex;
+  flex-direction: column;
+  //padding: 16px 0;
+  box-sizing: border-box;
   width: 100%;
+  //min-height: 400px;
+  background: black;
+  color: white;
+`
+
+const NFTItemContainer = styled(Col)`
+  color: white;
+  background: #222;
+  //border: green solid 1px;
+  width: 100%;
+  margin: 16px;
+  box-sizing: content-box;
   max-width: 600px;
   min-height: 300px;
   max-height: 600px;
   position: relative;
+  border-radius: 24px;
+  padding-bottom: 32px;
+  cursor: pointer;
 `
 
 const NFTImage = styled.img`
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px 24px 0 0;
+`
+
+const Loading = styled.div`
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 `
 
 const NFTVideo = styled.video`
-  object-fit: cover;
+  object-fit: contain;
   width: 100%;
   height: 100%;
 `
 
 const NFTName = styled(BaseText)`
   color: white;
-  background: black;
+  background: transparent;
+  text-align: left;
   font-size: 16px;
+  font-weight: 400;
+  padding-left: 16px;
 `
 
 const NFTCollection = styled(BaseText)`
-  color: white;
-  background: black;
+  color: #ccc;
+  background: transparent;
   font-size: 12px;
+  font-weight: 100;
+  text-align: left;
+  padding-left: 16px;
 `
 
 const NFTQuantity = styled(BaseText)`
-  background: rgba(230, 230, 230, 0.8);
-  border-radius: 10px;
-  padding: 4px;
+  background: rgba(230, 230, 230, 0.5);
+  border-radius: 8px;
+  padding: 4px 8px;
   color: black;
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 24px;
+  left: 24px;
 `
 
 export const NFTItem = ({ address, contractAddress, tokenId, tokenType }) => {
   const { contractName, uri } = loadNFTData({ contractAddress, tokenId, tokenType })
   const balance = loadNFTBalance({ contractAddress, tokenId, tokenType, address })
-  const { metadata, resolvedImageUrl, resolvedAnimationUrl, contentType, animationUrlContentType } = useMetadata({ name, symbol, uri, contractAddress, tokenType })
+  const { metadata, resolvedImageUrl, contentType, resolvedAnimationUrl, animationUrlContentType } = useMetadata({ uri, contractAddress, tokenType })
   const isImage = contentType?.startsWith('image')
   const isVideo = contentType?.startsWith('video')
-  const isAnimationUrlImage = animationUrlContentType?.startsWith('image')
-  const isAnimationUrlVideo = animationUrlContentType?.startsWith('video')
+  console.log(balance.toString(), metadata)
+  // console.log(resolvedImageUrl)
+  // console.log(contentType)
+  // const isAnimationUrlImage = animationUrlContentType?.startsWith('image')
+  // const isAnimationUrlVideo = animationUrlContentType?.startsWith('video')
   if (balance.ltn(1)) {
     return <></>
   }
+
   return (
     <NFTItemContainer>
+      {!contentType && <Loading><TailSpin/> </Loading>}
       {isImage && <NFTImage src={resolvedImageUrl} />}
       {isVideo && <NFTVideo src={resolvedImageUrl} loop muted autoplay />}
       <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
@@ -208,12 +246,29 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType }) => {
 }
 
 const loadNFTs = ({ address }) => {
-  return []
+  return [{
+    contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
+    tokenId: '1',
+    tokenType: 'ERC721',
+  }, {
+    contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
+    tokenId: '2',
+    tokenType: 'ERC721',
+  }, {
+    contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
+    tokenId: '1',
+    tokenType: 'ERC1155',
+  }, {
+    contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
+    tokenId: '2',
+    tokenType: 'ERC1155',
+  }]
 }
-const NFTShowcase = (address) => {
+const NFTShowcase = ({ address }) => {
   const nfts = loadNFTs({ address })
+  // console.log(nfts)
   return (
-    <Desc $color='white' style={{ padding: 0 }}>
+    <Desc $color='white' style={{ padding: '0 24px' }}>
       {nfts.map((e, i) => {
         const { contractAddress, tokenId, tokenType } = e
         return <NFTItem key={`nft-${i}`} address={address} contractAddress={contractAddress} tokenType={tokenType} tokenId={tokenId} />

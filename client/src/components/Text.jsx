@@ -54,17 +54,6 @@ export const DescLeft = styled(Desc)`
   align-items: start;
 `
 
-export const Gallery = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  box-sizing: border-box;
-  width: 100%;
-  //min-height: 400px;
-  background: black;
-  color: white;
-`
-
 export const LinkText = styled(BaseText)`
   text-decoration: underline;
   cursor: pointer;
