@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Address, BaseText, Desc, Title } from '../components/Text'
-import { Col, FlexRow, Modal } from '../components/Layout'
-import { Button } from '../components/Controls'
+import { Col, FlexColumn, FlexRow, Modal, Row } from '../components/Layout'
+import { Button, LinkWrarpper } from '../components/Controls'
 import html2canvas from 'html2canvas'
 import styled from 'styled-components'
-import { NFTUtils, processError, useWindowDimensions } from '../utils'
+import { NFTUtils, processError, useWindowDimensions, utils } from '../utils'
 import apis from '../api'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -162,7 +162,6 @@ const NFTItemContainer = styled(Col)`
   box-sizing: content-box;
   max-width: 600px;
   min-height: 300px;
-  max-height: 600px;
   position: relative;
   border-radius: 24px;
   padding-bottom: 32px;
@@ -176,6 +175,12 @@ const NFTImage = styled.img`
   border-radius: 24px 24px 0 0;
 `
 
+const NFTImageFull = styled.img`
+  object-fit: contain;
+  width: 100%;
+  height: auto;
+`
+
 const Loading = styled.div`
   height: 300px;
   display: flex;
@@ -185,9 +190,26 @@ const Loading = styled.div`
 `
 
 const NFTVideo = styled.video`
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px 24px 0 0;
+`
+
+const NFTVideoFull = styled.video`
   object-fit: contain;
   width: 100%;
   height: 100%;
+`
+
+const NFTViewerContainer = styled.div`
+  color: white;
+  background: black;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: 16px;
+  flex-direction: column;
 `
 
 const NFTName = styled(BaseText)`
@@ -214,11 +236,11 @@ const NFTQuantity = styled(BaseText)`
   padding: 4px 8px;
   color: black;
   position: absolute;
-  top: 24px;
-  left: 24px;
+  top: 16px;
+  left: 16px;
 `
 
-export const NFTItem = ({ address, contractAddress, tokenId, tokenType }) => {
+export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect }) => {
   const { contractName, uri } = loadNFTData({ contractAddress, tokenId, tokenType })
   const balance = loadNFTBalance({ contractAddress, tokenId, tokenType, address })
   const { metadata, resolvedImageUrl, contentType, resolvedAnimationUrl, animationUrlContentType } = useMetadata({ uri, contractAddress, tokenType })
@@ -231,19 +253,17 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType }) => {
   }
 
   return (
-    <NFTItemContainer>
-      {!contentType && <Loading><TailSpin /> </Loading>}
-      {isImage && <NFTImage src={resolvedImageUrl} />}
-      {isVideo && <NFTVideo src={resolvedImageUrl} loop muted autoplay />}
-      <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
-      <NFTCollection>{contractName}</NFTCollection>
-      {balance.gtn(1) && <NFTQuantity>{balance.toString()}</NFTQuantity>}
-    </NFTItemContainer>
+    <>
+      <NFTItemContainer onClick={() => onSelect && onSelect({ resolvedImageUrl, contractAddress, isImage, isVideo, metadata, balance, contractName, tokenId, tokenType })}>
+        {!contentType && <Loading><TailSpin /> </Loading>}
+        {isImage && <NFTImage src={resolvedImageUrl} />}
+        {isVideo && <NFTVideo src={resolvedImageUrl} loop muted autoplay />}
+        <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
+        <NFTCollection>{contractName}</NFTCollection>
+        {balance.gtn(1) && <NFTQuantity>x{balance.toString()}</NFTQuantity>}
+      </NFTItemContainer>
+    </>
   )
-}
-
-export const NFTViewer = ({address, contractAddress, tokenId, tokenType }) =>{
-
 }
 
 const loadNFTs = ({ address }) => {
@@ -265,20 +285,66 @@ const loadNFTs = ({ address }) => {
     tokenType: 'ERC1155',
   }]
 }
+const NFTViewer = ({ contractAddress, resolvedImageUrl, isImage, isVideo, metadata, balance, contractName, tokenId, tokenType }) => {
+  const [showDetails, setShowDetails] = useState(false)
+  const [showFullAddress, setShowFullAddress] = useState(false)
+  console.log(resolvedImageUrl, isImage, isVideo, metadata, balance, contractName)
+  return (
+    <NFTViewerContainer>
+      {isImage && <NFTImageFull src={resolvedImageUrl} />}
+      {isVideo && <NFTVideoFull src={resolvedImageUrl} loop muted autoplay />}
+      <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
+      <NFTCollection>{contractName}</NFTCollection>
+      {balance.gtn(1) && <NFTQuantity>x{balance.toString()}</NFTQuantity>}
+      {!showDetails && <LinkWrarpper style={{ color: 'white' }} href='#' onClick={() => setShowDetails(true)}>Show Technical Details</LinkWrarpper>}
+      {showDetails &&
+        <Col style={{ gap: 0 }}>
+          <Row>
+            <BaseText>Contract: </BaseText>
+            <Address
+              style={{ padding: 0 }} onClick={() => {
+                setShowFullAddress(!showFullAddress)
+                navigator.clipboard.writeText(contractAddress)
+                toast.info('Copied address')
+              }}
+            >{showFullAddress ? contractAddress : utils.ellipsisAddress(contractAddress)}
+            </Address>
+          </Row>
+          <BaseText>Token ID: {tokenId}</BaseText>
+          <BaseText>Token Type: {tokenType}</BaseText>
+        </Col>}
+
+    </NFTViewerContainer>
+  )
+}
 const NFTShowcase = ({ address }) => {
-  const nfts = loadNFTs({ address })
   const [modelVisible, setModalVisible] = useState(false)
+  const nfts = loadNFTs({ address })
+  const [selected, setSelected] = useState({})
   // console.log(nfts)
+  useEffect(() => {
+    if (new BN(selected?.balance).gtn(0)) {
+      setModalVisible(true)
+    }
+  }, [selected])
   return (
     <>
-      <Desc $color='white' style={{ padding: '0 24px' }}>
-        {nfts.map((e, i) => {
-          const { contractAddress, tokenId, tokenType } = e
-          return <NFTItem key={`nft-${i}`} address={address} contractAddress={contractAddress} tokenType={tokenType} tokenId={tokenId} />
-        })}
-      </Desc>
-      {/*<Modal style={{ maxWidth: 800, width: '100%', margin: 'auto' }} visible={modelVisible} onCancel={() => setModalVisible(false)}>*/}
-      {/*</Modal>*/}
+      <Gallery style={{ flex: '100%' }}>
+        <BaseText style={{ padding: 16, fontSize: 20, textTransform: 'uppercase' }}>Your NFTs</BaseText>
+        <FlexColumn style={{ justifyContent: 'center', flex: '100%' }}>
+          <FlexRow style={{ justifyContent: 'center', width: '100%' }}>
+            <Desc $color='white' style={{ padding: '0 24px' }}>
+              {nfts.map((e, i) => {
+                const { contractAddress, tokenId, tokenType } = e
+                return <NFTItem key={`nft-${i}`} address={address} contractAddress={contractAddress} tokenType={tokenType} tokenId={tokenId} onSelect={setSelected} />
+              })}
+            </Desc>
+          </FlexRow>
+        </FlexColumn>
+      </Gallery>
+      <Modal style={{ maxWidth: 800, width: '100%', margin: 'auto', padding: 16, background: 'black' }} visible={modelVisible} onCancel={() => setModalVisible(false)}>
+        <NFTViewer {...selected} />
+      </Modal>
     </>
   )
 }

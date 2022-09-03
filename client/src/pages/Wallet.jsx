@@ -178,14 +178,8 @@ const Wallet = () => {
           <Button onClick={sendWrapper} disabled={isSending}>{isSending ? <TailSpin width={16} height={16} /> : 'Confirm'}</Button>
         </Row>
       </Modal>
-      <Gallery style={{ flex: '100%' }}>
-        <BaseText style={{ padding: 16, fontSize: 20, textTransform: 'uppercase' }}>Your NFTs</BaseText>
-        <FlexColumn style={{ justifyContent: 'center', flex: '100%' }}>
-          <FlexRow style={{ justifyContent: 'center', width: '100%' }}>
-            <NFTShowcase address={address} />
-          </FlexRow>
-        </FlexColumn>
-      </Gallery>
+      <NFTShowcase address={address} />
+
     </MainContainer>
   )
 }
