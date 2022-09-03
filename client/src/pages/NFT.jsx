@@ -258,8 +258,12 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect
         {!contentType && <Loading><TailSpin /> </Loading>}
         {isImage && <NFTImage src={resolvedImageUrl} />}
         {isVideo && <NFTVideo src={resolvedImageUrl} loop muted autoplay />}
-        <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
-        <NFTCollection>{contractName}</NFTCollection>
+        <Row>
+          <FlexColumn style={{ flex: 1 }}>
+            <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
+            <NFTCollection>{contractName}</NFTCollection>
+          </FlexColumn>
+        </Row>
         {balance.gtn(1) && <NFTQuantity>x{balance.toString()}</NFTQuantity>}
       </NFTItemContainer>
     </>
@@ -296,7 +300,7 @@ const NFTViewer = ({ contractAddress, resolvedImageUrl, isImage, isVideo, metada
       <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
       <NFTCollection>{contractName}</NFTCollection>
       {balance.gtn(1) && <NFTQuantity>x{balance.toString()}</NFTQuantity>}
-      {!showDetails && <LinkWrarpper style={{ color: 'white' }} href='#' onClick={() => setShowDetails(true)}>Show Technical Details</LinkWrarpper>}
+      {!showDetails && <LinkWrarpper style={{ color: 'white', fontSize: 10 }} href='#' onClick={() => setShowDetails(true)}>Show Technical Details</LinkWrarpper>}
       {showDetails &&
         <Col style={{ gap: 0 }}>
           <Row>
@@ -310,8 +314,18 @@ const NFTViewer = ({ contractAddress, resolvedImageUrl, isImage, isVideo, metada
             >{showFullAddress ? contractAddress : utils.ellipsisAddress(contractAddress)}
             </Address>
           </Row>
-          <BaseText>Token ID: {tokenId}</BaseText>
-          <BaseText>Token Type: {tokenType}</BaseText>
+          <BaseText onClick={() => {
+            navigator.clipboard.writeText(tokenId)
+            toast.info('Copied Token ID')
+          }}
+          >Token ID: {tokenId}
+          </BaseText>
+          <BaseText onClick={() => {
+            navigator.clipboard.writeText(tokenType)
+            toast.info('Copied Token Type')
+          }}
+          >Token Type: {tokenType}
+          </BaseText>
         </Col>}
 
     </NFTViewerContainer>
@@ -342,7 +356,7 @@ const NFTShowcase = ({ address }) => {
           </FlexRow>
         </FlexColumn>
       </Gallery>
-      <Modal style={{ maxWidth: 800, width: '100%', margin: 'auto', padding: 16, background: 'black' }} visible={modelVisible} onCancel={() => setModalVisible(false)}>
+      <Modal style={{ maxWidth: 800, width: '100%', margin: 'auto', padding: 24, background: 'black' }} visible={modelVisible} onCancel={() => setModalVisible(false)}>
         <NFTViewer {...selected} />
       </Modal>
     </>
