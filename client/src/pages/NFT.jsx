@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Address, BaseText, Desc, Title } from '../components/Text'
-import { Col, FlexRow } from '../components/Layout'
+import { Col, FlexRow, Modal } from '../components/Layout'
 import { Button } from '../components/Controls'
 import html2canvas from 'html2canvas'
 import styled from 'styled-components'
@@ -224,9 +224,6 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType }) => {
   const { metadata, resolvedImageUrl, contentType, resolvedAnimationUrl, animationUrlContentType } = useMetadata({ uri, contractAddress, tokenType })
   const isImage = contentType?.startsWith('image')
   const isVideo = contentType?.startsWith('video')
-  console.log(balance.toString(), metadata)
-  // console.log(resolvedImageUrl)
-  // console.log(contentType)
   // const isAnimationUrlImage = animationUrlContentType?.startsWith('image')
   // const isAnimationUrlVideo = animationUrlContentType?.startsWith('video')
   if (balance.ltn(1)) {
@@ -235,7 +232,7 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType }) => {
 
   return (
     <NFTItemContainer>
-      {!contentType && <Loading><TailSpin/> </Loading>}
+      {!contentType && <Loading><TailSpin /> </Loading>}
       {isImage && <NFTImage src={resolvedImageUrl} />}
       {isVideo && <NFTVideo src={resolvedImageUrl} loop muted autoplay />}
       <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
@@ -243,6 +240,10 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType }) => {
       {balance.gtn(1) && <NFTQuantity>{balance.toString()}</NFTQuantity>}
     </NFTItemContainer>
   )
+}
+
+export const NFTViewer = ({address, contractAddress, tokenId, tokenType }) =>{
+
 }
 
 const loadNFTs = ({ address }) => {
@@ -266,14 +267,19 @@ const loadNFTs = ({ address }) => {
 }
 const NFTShowcase = ({ address }) => {
   const nfts = loadNFTs({ address })
+  const [modelVisible, setModalVisible] = useState(false)
   // console.log(nfts)
   return (
-    <Desc $color='white' style={{ padding: '0 24px' }}>
-      {nfts.map((e, i) => {
-        const { contractAddress, tokenId, tokenType } = e
-        return <NFTItem key={`nft-${i}`} address={address} contractAddress={contractAddress} tokenType={tokenType} tokenId={tokenId} />
-      })}
-    </Desc>
+    <>
+      <Desc $color='white' style={{ padding: '0 24px' }}>
+        {nfts.map((e, i) => {
+          const { contractAddress, tokenId, tokenType } = e
+          return <NFTItem key={`nft-${i}`} address={address} contractAddress={contractAddress} tokenType={tokenType} tokenId={tokenId} />
+        })}
+      </Desc>
+      {/*<Modal style={{ maxWidth: 800, width: '100%', margin: 'auto' }} visible={modelVisible} onCancel={() => setModalVisible(false)}>*/}
+      {/*</Modal>*/}
+    </>
   )
 }
 
