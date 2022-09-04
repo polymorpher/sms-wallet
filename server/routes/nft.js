@@ -54,7 +54,7 @@ router.post('/untrack', hasUserSignedBody, async (req, res) => {
   try {
     const removed = await NFT.untrack({ address, contractAddress, tokenId })
     if (!removed) {
-      return res.json(StatusCodes.NOT_FOUND).json({ error: 'nft does not exist' })
+      return res.status(StatusCodes.NOT_FOUND).json({ error: 'nft cannot be hidden, or does not exist' })
     }
     res.json({ success: true, removed })
   } catch (ex) {

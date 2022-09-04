@@ -138,7 +138,7 @@ const GenericBuilder = (inKind) => {
     newData = _.omit(newData, [ds.KEY])
     newData = _.assign({}, newData, { timeUpdated: Date.now() })
     const key = install[ds.KEY]
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       ds.update({ key, data: newData }, err => err ? reject(err) : resolve(newData))
     })
   }
@@ -148,7 +148,7 @@ const GenericBuilder = (inKind) => {
       return null
     }
     const key = install[ds.KEY]
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       ds.delete(key, err => err ? reject(err) : resolve(install))
     })
   }
