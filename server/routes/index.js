@@ -14,49 +14,12 @@ const w3utils = require('../w3utils')
 const stringify = require('json-stable-stringify')
 const { Setting } = require('../src/data/setting')
 const { Request } = require('../src/data/request')
+const { partialReqCheck, reqCheck, checkExistence, hasUserSignedBody } = require('./middleware')
 
 router.get('/health', async (req, res) => {
   Logger.log('[/health]', req.fingerprint)
   res.send('OK').end()
 })
-
-const partialReqCheck = async (req, res, next) => {
-  const { phone: unvalidatedPhone, eseed } = req.body
-  const { isValid, phoneNumber } = phone(unvalidatedPhone)
-  if (!isValid) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
-  }
-  if (!(eseed?.length >= 32)) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid eseed' })
-  }
-  req.processedBody = { ...req.processedBody, phoneNumber, eseed: eseed.toLowerCase() }
-  next()
-}
-
-const reqCheck = async (req, res, next) => {
-  return partialReqCheck(req, res, () => {
-    const { ekey, address } = req.body
-
-    if (!ekey || !address) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need eseed, ekey' })
-    }
-    req.processedBody = { ...req.processedBody, ekey: ekey.toLowerCase(), address: address.toLowerCase() }
-    next()
-  })
-}
-
-const checkExistence = async (req, res, next) => {
-  const { phoneNumber, address } = req.processedBody
-  let u = await User.findByPhone({ phone: phoneNumber })
-  if (u) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number already exists' })
-  }
-  u = await User.findByAddress({ address })
-  if (u) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'address already exists' })
-  }
-  next()
-}
 
 router.post('/signup', reqCheck, checkExistence, async (req, res) => {
   const { phoneNumber, eseed, ekey, address } = req.processedBody
@@ -203,18 +166,10 @@ router.post('/lookup', async (req, res) => {
 
 // this allows a user to retrieve or update its current config. For retrieval, just pass in an empty object for `newConfig`
 // we may want to impose stronger security requirement on this, once we have some sensitive configurations. Right now the only configuration is `hide`, which determines whether another user can look up this user's address by its phone number.
-router.post('/settings', async (req, res) => {
-  const { address, signature, newSetting } = req.body
-  const msg = stringify(newSetting)
-  const expectedAddress = w3utils.ecrecover(msg, signature)
-  if (!address || !expectedAddress || address !== expectedAddress) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
-  }
-  const filteredNewSetting = pick(newSetting, ['hide'])
-  const u = await User.findByAddress({ address })
-  if (!u) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'user does not exist' })
-  }
+router.post('/settings', hasUserSignedBody, async (req, res) => {
+  const { body } = req.body
+  const filteredNewSetting = pick(body, ['hide'])
+  const u = req.user
   const isUpdate = Object.keys(filteredNewSetting).length >= 0
   if (isUpdate) {
     const updatedSetting = await Setting.update(u.id, { ...filteredNewSetting })
