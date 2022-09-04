@@ -575,17 +575,25 @@ const NFTTracker = ({ visible, setVisible }) => {
     try {
       setIsTracking(true)
       const tokenType = await apis.nft.getNFTType(contract)
-      const signature = apis.web3.signWithBody([{ contractAddress: contract, tokenId, tokenType }], pk)
-
-      const { success, error } = await apis.nft.track({ contractAddress: contract, tokenId, tokenType, address, signature })
-      if (!success) {
-        toast.error(`Unable to track token. Error: ${error}`)
+      if (!tokenType) {
+        toast.error('Unknown token type')
         return
       }
-      toast.success(`Tracked new ${tokenType} token (id=${tokenId}, contract=${utils.ellipsisAddress(contract)})`)
+      const balance = await apis.blockchain.getTokenBalance({ tokenType, tokenId, contractAddress: contract, address })
+      if (!new BN(balance).gtn(0)) {
+        toast.error('You do not own the NFT')
+        return
+      }
+      const signature = apis.web3.signWithBody([{ contractAddress: contract, tokenId, tokenType }], pk)
+      const { success, error } = await apis.nft.track({ contractAddress: contract, tokenId, tokenType, address, signature })
+      if (!success) {
+        toast.error(`Unable to add token. Error: ${error}`)
+        return
+      }
+      toast.success(`Added new ${tokenType} token (id=${tokenId}, contract=${utils.ellipsisAddress(contract)})`)
     } catch (ex) {
       console.error(ex)
-      toast.error(`Failed to track token. Error: ${processError(ex)}`)
+      toast.error(`Failed to add token. Error: ${processError(ex)}`)
     } finally {
       setIsTracking(false)
     }
@@ -607,7 +615,7 @@ const NFTTracker = ({ visible, setVisible }) => {
         <Input onChange={({ target: { value } }) => setTokenId(value)} placeholder='123...' $width='100%' value={tokenId} margin='16px' />
       </Row>
       <Row style={{ justifyContent: 'center', marginTop: 16 }}>
-        <Button onClick={track} disabled={isTracking}>{isTracking ? <TailSpin width={16} height={16} /> : 'Track'}</Button>
+        <Button onClick={track} disabled={isTracking}>{isTracking ? <TailSpin width={16} height={16} /> : 'Add'}</Button>
       </Row>
     </Modal>
   )
@@ -635,6 +643,11 @@ const NFTShowcase = ({ address }) => {
                 const { contractAddress, tokenId, tokenType } = e
                 return <NFTItem key={`nft-${i}`} address={address} contractAddress={contractAddress} tokenType={tokenType} tokenId={tokenId} onSelect={setSelected} />
               })}
+              {nfts.length === 0 &&
+                <BaseText style={{ marginBottom: 32 }}>
+                  Nothing to show here :( <br />
+                  Try adding some NFTs you own
+                </BaseText>}
               <Button style={{ width: '100%' }} onClick={() => setTrackerVisible(true)}><BaseText style={{ fontSize: 40 }}>⊕</BaseText><br />Add NFT</Button>
             </Desc>
           </FlexRow>
