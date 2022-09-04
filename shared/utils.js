@@ -118,7 +118,7 @@ const utils = {
   isValidTokenId: tokenId => {
     try {
       const t = utils.normalizeNumber(tokenId)
-      return t.gten(0)
+      return new BN(t).gten(0)
     } catch (ex) {
       return false
     }
