@@ -107,6 +107,22 @@ const utils = {
     }
     return Constants.TokenType[tokenType] !== undefined
   },
+  normalizeNumber: n => {
+    if (typeof n === 'string' && n.startsWith('0x')) {
+      const t = new BN(n.slice(2), 16)
+      return t.toString()
+    } else {
+      return new BN(n).toString()
+    }
+  },
+  isValidTokenId: tokenId => {
+    try {
+      const t = utils.normalizeNumber(tokenId)
+      return t.gten(0)
+    } catch (ex) {
+      return false
+    }
+  }
 }
 
 module.exports = utils
