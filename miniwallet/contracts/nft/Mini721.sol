@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.4;
 
-import "./HRC721/HRC721.sol";
+import "./ERC721M/ERC721M.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./rarible/royalties/contracts/impl/RoyaltiesV2Impl.sol";
 import "./rarible/royalties/contracts/LibPart.sol";
 import "./rarible/royalties/contracts/LibRoyaltiesV2.sol";
 
-contract Mini721 is HRC721, Ownable, RoyaltiesV2Impl {
+contract Mini721 is ERC721M, Ownable, RoyaltiesV2Impl {
     bytes32 internal salt;
     uint256 public maxMiniTokens;
     uint256 public mintPrice;
@@ -61,7 +61,7 @@ contract Mini721 is HRC721, Ownable, RoyaltiesV2Impl {
         uint256 _maxPerMint,
         string memory _baseUri,
         string memory contractUri_
-    ) HRC721("MiniWallet NFT", "Mini721") {
+    ) ERC721M("MiniWallet NFT", "Mini721") {
         saleIsActive = _saleIsActive;
         if (saleIsActive) {
             saleStarted = true;
@@ -102,7 +102,7 @@ contract Mini721 is HRC721, Ownable, RoyaltiesV2Impl {
     // Explicit overrides
     // ------------------
 
-    function _burn(uint256 tokenId) internal virtual override(HRC721) {
+    function _burn(uint256 tokenId) internal virtual override(ERC721M) {
         super._burn(tokenId);
     }
 
@@ -114,7 +114,7 @@ contract Mini721 is HRC721, Ownable, RoyaltiesV2Impl {
         public
         view
         virtual
-        override(HRC721)
+        override(ERC721M)
         returns (string memory)
     {
         if (!metadataFrozen && bytes(temporaryTokenUri).length > 0) {
@@ -168,7 +168,7 @@ contract Mini721 is HRC721, Ownable, RoyaltiesV2Impl {
             interfaceId == this.symbol.selector ||
             interfaceId == LibRoyaltiesV2._INTERFACE_ID_ROYALTIES ||
             interfaceId == _INTERFACE_ID_ERC2981 ||
-            HRC721.supportsInterface(interfaceId);
+            ERC721M.supportsInterface(interfaceId);
     }
 
     // ------------------
@@ -207,7 +207,7 @@ contract Mini721 is HRC721, Ownable, RoyaltiesV2Impl {
     }
 
     function burn(uint256 id) public onlyOwner whenMetadataNotFrozen {
-        HRC721._burn(id);
+        ERC721M._burn(id);
         emit MiniBurn(id);
     }
 
@@ -218,7 +218,7 @@ contract Mini721 is HRC721, Ownable, RoyaltiesV2Impl {
     {
         for (uint32 i = 0; i < ids.length; i++) {
             uint256 id = ids[i];
-            HRC721._burn(id);
+            ERC721M._burn(id);
         }
         emit MiniBatchBurn(ids);
     }

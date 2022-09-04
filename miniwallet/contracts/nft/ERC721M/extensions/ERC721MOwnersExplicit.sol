@@ -5,13 +5,13 @@
 
 pragma solidity ^0.8.4;
 
-import "../HRC721.sol";
+import "../ERC721M.sol";
 
 error AllOwnershipsHaveBeenSet();
 error QuantityMustBeNonZero();
 error NoTokensMintedYet();
 
-abstract contract HRC721OwnersExplicit is HRC721 {
+abstract contract ERC721MOwnersExplicit is ERC721M {
     uint256 public nextOwnerToExplicitlySet;
 
     /**

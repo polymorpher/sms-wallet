@@ -5,16 +5,16 @@
 
 pragma solidity ^0.8.4;
 
-import "../HRC721.sol";
+import "../ERC721M.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
 /**
- * @title HRC721 Burnable Token
- * @dev HRC721 Token that can be irreversibly burned (destroyed).
+ * @title ERC721M Burnable Token
+ * @dev ERC721M Token that can be irreversibly burned (destroyed).
  */
-abstract contract HRC721Burnable is Context, HRC721 {
+abstract contract ERC721MBurnable is Context, ERC721M {
     /**
-     * @dev Burns `tokenId`. See {HRC721-_burn}.
+     * @dev Burns `tokenId`. See {ERC721M-_burn}.
      *
      * Requirements:
      *

@@ -42,7 +42,7 @@ error URIQueryForNonexistentToken();
  *
  * Assumes that the maximum token id cannot exceed 2**128 - 1 (max value of uint128).
  */
-contract HRC721 is
+contract ERC721M is
     Context,
     ERC165,
     IERC721,
@@ -309,7 +309,7 @@ contract HRC721 is
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public override {
-        address owner = HRC721.ownerOf(tokenId);
+        address owner = ERC721M.ownerOf(tokenId);
         if (to == owner) revert ApprovalToCurrentOwner();
 
         if (_msgSender() != owner && !isApprovedForAll(owner, _msgSender())) {
