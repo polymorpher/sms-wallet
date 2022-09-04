@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { BaseText, Desc, Label } from '../components/Text'
+import { BaseText, Desc, Label, LabelSmall } from '../components/Text'
 import { Col, FlexColumn, FlexRow, Modal, Row } from '../components/Layout'
 import { Button, FloatingSwitch, Input, LinkWrarpper } from '../components/Controls'
 import styled from 'styled-components'
@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux'
 import BN from 'bn.js'
 import { TailSpin } from 'react-loading-icons'
 import PhoneInput from 'react-phone-number-input'
+import stringify from 'json-stable-stringify'
 
 export const MetadataURITransformer = (url) => {
   const IPFSIO = /https:\/\/ipfs\.io\/ipfs\/(.+)/
@@ -508,14 +509,66 @@ const NFTViewer = ({ contractAddress, resolvedImageUrl, isImage, isVideo, metada
     </NFTViewerContainer>
   )
 }
+
+const NFTTracker = ({ visible, setVisible }) => {
+  const [contract, setContract] = useState()
+  const [tokenId, setTokenId] = useState('')
+  const [isTracking, setIsTracking] = useState(false)
+  const wallet = useSelector(state => state.wallet || {})
+  const address = Object.keys(wallet)[0]
+  const pk = wallet[address]?.pk
+
+  const track = async () => {
+    try {
+      setIsTracking(true)
+      const tokenType = await apis.nft.getNFTType(contract)
+      const signature = apis.web3.signWithBody({ contractAddress: contract, tokenId, tokenType }, pk)
+
+      const { success, error } = await apis.nft.track({ contractAddress: contract, tokenId, tokenType, address, signature })
+      if (!success) {
+        toast.error(`Unable to track token. Error: ${error}`)
+        return
+      }
+      toast.success(`Tracked new ${tokenType} token (id=${tokenId}, contract=${utils.ellipsisAddress(contract)})`)
+    } catch (ex) {
+      console.error(ex)
+      toast.error(`Failed to track token. Error: ${processError(ex)}`)
+    } finally {
+      setIsTracking(false)
+    }
+  }
+
+  return (
+    <Modal style={{ maxWidth: 800, width: '100%', margin: 'auto' }} visible={visible} onCancel={() => setVisible(false)}>
+      <Row style={{ position: 'relative' }}>
+
+        <LabelSmall>Contract</LabelSmall>
+        <Input
+          onChange={({ target: { value } }) => setContract(value)}
+          placeholder='0x1234abcde...'
+          $width='100%' value={contract} margin='16px' style={{ fontSize: 10, flex: 1 }}
+        />
+      </Row>
+      <Row>
+        <LabelSmall>TokenID</LabelSmall>
+        <Input onChange={({ target: { value } }) => setTokenId(value)} placeholder='123...' $width='100%' value={tokenId} margin='16px' />
+      </Row>
+      <Row style={{ justifyContent: 'center', marginTop: 16 }}>
+        <Button onClick={track} disabled={isTracking}>{isTracking ? <TailSpin width={16} height={16} /> : 'Track'}</Button>
+      </Row>
+    </Modal>
+  )
+}
+
 const NFTShowcase = ({ address }) => {
-  const [modelVisible, setModalVisible] = useState(false)
+  const [viewerVisible, setViewerVisible] = useState(false)
+  const [trackerVisible, setTrackerVisible] = useState(false)
   const nfts = loadNFTs({ address })
   const [selected, setSelected] = useState({})
   // console.log(nfts)
   useEffect(() => {
     if (new BN(selected?.balance).gtn(0)) {
-      setModalVisible(true)
+      setViewerVisible(true)
     }
   }, [selected])
   return (
@@ -529,6 +582,7 @@ const NFTShowcase = ({ address }) => {
                 const { contractAddress, tokenId, tokenType } = e
                 return <NFTItem key={`nft-${i}`} address={address} contractAddress={contractAddress} tokenType={tokenType} tokenId={tokenId} onSelect={setSelected} />
               })}
+              <Button style={{ width: '100%' }} onClick={() => setTrackerVisible(true)}><BaseText style={{ fontSize: 40 }}>⊕</BaseText><br />Add NFT</Button>
             </Desc>
           </FlexRow>
         </FlexColumn>
@@ -536,10 +590,11 @@ const NFTShowcase = ({ address }) => {
       <Modal
         style={{ maxWidth: 800, width: '100%', margin: 'auto', padding: 0, paddingBottom: 24, background: 'black' }}
         shadowStyle={{ opacity: 0.8 }}
-        visible={modelVisible} onCancel={() => setModalVisible(false)}
+        visible={viewerVisible} onCancel={() => setViewerVisible(false)}
       >
         <NFTViewer {...selected} />
       </Modal>
+      <NFTTracker visible={trackerVisible} setVisible={setTrackerVisible} />
     </>
   )
 }

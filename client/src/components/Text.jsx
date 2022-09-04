@@ -10,6 +10,11 @@ export const SmallText = styled(BaseText)`
 export const Label = styled(BaseText)`
   width: ${props => props.$width || '64px'}
 `
+export const LabelSmall = styled(BaseText)`
+  width: ${props => props.$width || '48px'}
+  font-size: 12px;
+`
+
 export const Address = styled(BaseText)`
   word-break: break-word;
   padding: 8px 32px;
