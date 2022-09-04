@@ -231,7 +231,7 @@ const apis = {
     },
     untrack: async ({ address, contractAddress, tokenId, signature }) => {
       const { data: { removed, success } } = await apiBase.post('/nft/untrack', {
-        body: [{ contractAddress, tokenId }],
+        body: { contractAddress, tokenId },
         signature,
         address
       })
