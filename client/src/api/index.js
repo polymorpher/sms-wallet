@@ -3,7 +3,6 @@ import axios from 'axios'
 import Web3 from 'web3'
 import config from '../config'
 import BN from 'bn.js'
-import Constants from '../../../shared/constants'
 import Contract from 'web3-eth-contract'
 const IERC20 = require('../../abi/IERC20.json')
 const IERC20Metadata = require('../../abi/IERC20Metadata.json')
@@ -16,7 +15,7 @@ const headers = ({ secret, network }) => ({
   'X-NETWORK': network,
 })
 
-console.log(config)
+// console.log(config)
 
 const TIMEOUT = 60000
 const apiBase = axios.create({
@@ -26,18 +25,31 @@ const apiBase = axios.create({
 })
 
 const web3 = new Web3(config.rpc)
+web3.eth.defaultCommon = {
+  customChain: {
+    name: config.network,
+    networkId: config.networkId,
+    chainId: config.chainId,
+  }
+}
+// web3.eth.defaultChain = config.chainId
+
 Contract.setProvider(web3.currentProvider)
+const setDefaults = (c) => {
+  // console.log(c)
+  return c
+}
 
 const getTokenContract = {
-  ERC20: (address) => new Contract(IERC20, address),
-  ERC721: (address) => new Contract(IERC721, address),
-  ERC1155: (address) => new Contract(IERC1155, address)
+  ERC20: (address) => setDefaults(new Contract(IERC20, address)),
+  ERC721: (address) => setDefaults(new Contract(IERC721, address)),
+  ERC1155: (address) => setDefaults(new Contract(IERC1155, address)),
 }
 
 const getTokenMetadataContract = {
-  ERC20: (address) => new Contract(IERC20Metadata, address),
-  ERC721: (address) => new Contract(IERC721Metadata, address),
-  ERC1155: (address) => new Contract(IERC1155MetadataURI, address)
+  ERC20: (address) => setDefaults(new Contract(IERC20Metadata, address)),
+  ERC721: (address) => setDefaults(new Contract(IERC721Metadata, address)),
+  ERC1155: (address) => setDefaults(new Contract(IERC1155MetadataURI, address)),
 }
 
 const apis = {
@@ -76,6 +88,21 @@ const apis = {
     },
   },
   blockchain: {
+    sendToken: async ({ address, contractAddress, tokenType, tokenId, amount, dest }) => {
+      const c = getTokenContract[tokenType](contractAddress)
+      console.log({ address, contractAddress, tokenType, tokenId, amount, dest })
+      if (tokenType === 'ERC20') {
+        return c.methods.transferFrom(address, dest, amount).send({ from: address })
+      } else if (tokenType === 'ERC721') {
+        return c.methods.safeTransferFrom(address, dest, tokenId).send({ from: address })
+      } else if (tokenType === 'ERC1155') {
+        const data = c.methods.safeTransferFrom(address, dest, tokenId, amount, '0x').encodeABI()
+        const gas = await web3.eth.estimateGas({ from: address, to: contractAddress, data })
+        return web3.eth.sendTransaction({ data, gas: Math.floor(gas * 1.5), from: address, to: contractAddress })
+      } else {
+        throw Error('unreachable')
+      }
+    },
     getBalance: async ({ address }) => {
       const b = await web3.eth.getBalance(address)
       return new BN(b)
@@ -86,12 +113,11 @@ const apis = {
       if (!utils.isValidTokenType(tokenType)) {
         throw new Error(`Unknown token type: ${tokenType}`)
       }
-      const c = await getTokenContract[tokenType](contractAddress)
+      const c = getTokenContract[tokenType](contractAddress)
       if (tokenType === 'ERC20') {
         return c.methods.balanceOf(address).call()
       } else if (tokenType === 'ERC721') {
         const owner = await c.methods.ownerOf(tokenId).call()
-        console.log(owner)
         return owner.toLowerCase() === address.toLowerCase() ? new BN(1) : new BN(0)
       } else if (tokenType === 'ERC1155') {
         return c.methods.balanceOf(address, tokenId).call()

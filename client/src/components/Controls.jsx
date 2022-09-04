@@ -59,3 +59,11 @@ export const LinkWrarpper = styled.a`
     color: red;
   }
 `
+
+export const FloatingSwitch = styled(LinkWrarpper)`
+  position: absolute;
+  right: 0;
+  bottom: -4px;
+  font-size: 12px;
+  margin-right: 0;
+`

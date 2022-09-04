@@ -7,7 +7,7 @@ import { FlexColumn, FlexRow, Modal, Row } from '../components/Layout'
 import { processError, utils } from '../utils'
 
 import { balanceActions } from '../state/modules/balance'
-import { Button, Input, LinkWrarpper } from '../components/Controls'
+import { Button, FloatingSwitch, Input, LinkWrarpper } from '../components/Controls'
 import { toast } from 'react-toastify'
 import BN from 'bn.js'
 import apis from '../api'
@@ -17,14 +17,6 @@ import { TailSpin } from 'react-loading-icons'
 import MainContainer from '../components/Container'
 import { globalActions } from '../state/modules/global'
 import NFTShowcase, { Gallery } from './NFT'
-
-const FloatingSwitch = styled(LinkWrarpper)`
-  position: absolute;
-  right: 0;
-  bottom: -4px;
-  font-size: 12px;
-  margin-right: 0;
-`
 
 const Wallet = () => {
   // const history = useHistory()
