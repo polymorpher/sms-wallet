@@ -1,11 +1,12 @@
 const { v1: uuid } = require('uuid')
 const config = require('../../config')
 const { GenericBuilder } = require('./generic')
-const NFTPrototype = GenericBuilder('user')
+const NFTPrototype = GenericBuilder('nft')
 const NFT = ({
   ...NFTPrototype,
   track: async ({ address, contractAddress, tokenId, tokenType }) => {
     address = address.toLowerCase()
+    contractAddress = contractAddress.toLowerCase()
     const id = `${address}-${contractAddress}-${tokenId}`
     const details = {
       id,
@@ -19,14 +20,17 @@ const NFT = ({
 
   batchTrack: async ({ address, nfts }) => {
     const entities = nfts.map(({ contractAddress, tokenId, tokenType }) => {
-      const key = `${address}-${contractAddress}-${tokenId}`
+      address = address.toLowerCase()
+      contractAddress = contractAddress.toLowerCase()
+      const id = `${address}-${contractAddress}-${tokenId}`
       const data = {
-        id: key,
+        id,
         address,
         contractAddress,
         tokenId,
         tokenType
       }
+      const key = NFTPrototype.key(id)
       return { key, data }
     })
     return NFTPrototype.batchAddEntities(entities)
@@ -39,12 +43,13 @@ const NFT = ({
     return u
   },
   getAllTracked: async ({ address, contractAddress }) => {
+    address = address.toLowerCase()
     const predicates = [['address', address]]
     if (contractAddress) {
+      contractAddress = contractAddress.toLowerCase()
       predicates.push(['contractAddress', contractAddress])
     }
-    const nfts = await NFTPrototype.find(...predicates)
-    return nfts
+    return NFTPrototype.find(...predicates)
   },
   untrack: async ({ address, contractAddress, tokenId }) => {
     address = address.toLowerCase()
