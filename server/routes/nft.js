@@ -30,7 +30,7 @@ router.post('/track', hasUserSignedBody, async (req, res) => {
   }
 })
 
-router.get('/lookup', hasUserSignedBody, async (req, res) => {
+router.post('/lookup', hasUserSignedBody, async (req, res) => {
   const { body: { contractAddress } } = req.body
   const { address } = req.user
   if (contractAddress && !w3utils.isValidAddress(contractAddress)) {

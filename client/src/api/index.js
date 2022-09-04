@@ -211,7 +211,27 @@ const apis = {
         return 'ERC1155'
       }
       return null
-    }
+    },
+    lookup: async ({ address, contractAddress, signature }) => {
+      const { data: nfts } = await apiBase.post('/nft/lookup', { body: { contractAddress }, signature, address })
+      return nfts
+    },
+    track: async ({ address, contractAddress, tokenId, tokenType, signature }) => {
+      const { data: { numTracked, success } } = await apiBase.post('/nft/track', {
+        body: [{ contractAddress, tokenId, tokenType }],
+        signature,
+        address
+      })
+      return { numTracked, success }
+    },
+    untrack: async ({ address, contractAddress, tokenId, signature }) => {
+      const { data: { removed, success } } = await apiBase.post('/nft/untrack', {
+        body: [{ contractAddress, tokenId }],
+        signature,
+        address
+      })
+      return { removed, success }
+    },
   }
 }
 if (window) {
