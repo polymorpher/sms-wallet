@@ -445,15 +445,68 @@ const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddr
   )
 }
 
+const NFTManagementPanel = styled.div`
+  top: 0;
+  position: absolute;
+  background-color: grey;
+  opacity: 0.7;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+`
+const NFTDisplayWrapper = styled.div`
+  cursor: pointer;
+  position: relative;
+`
+
 const NFTViewer = ({ contractAddress, resolvedImageUrl, isImage, isVideo, metadata, balance, contractName, tokenId, tokenType }) => {
   const [showDetails, setShowDetails] = useState(false)
   const [showFullAddress, setShowFullAddress] = useState(false)
-  const [modelVisible, setModalVisible] = useState(false)
-  // console.log(resolvedImageUrl, isImage, isVideo, metadata, balance, contractName)
+  const [sendModelVisible, setSendModalVisible] = useState(false)
+  const [managementVisible, setManagementVisible] = useState(false)
+  const [isTracking, setIsTracking] = useState(false)
+  const wallet = useSelector(state => state.wallet || {})
+  const address = Object.keys(wallet)[0]
+  const pk = wallet[address]?.pk
+
+  const showManagement = () => {
+    setManagementVisible(true)
+    setTimeout(() => setManagementVisible(false), 2500)
+  }
+  const untrack = async () => {
+    try {
+      setIsTracking(true)
+      const signature = apis.web3.signWithBody({ contractAddress, tokenId }, pk)
+      const { success, error, removed } = await apis.nft.untrack({ contractAddress, tokenId, address, signature })
+      if (!success) {
+        toast.error(`Unable to hide token. Error: ${error}`)
+        return
+      }
+      console.log(removed)
+      toast.success(`Moved ${tokenType} token into hiding (id=${tokenId}, contract=${utils.ellipsisAddress(contractAddress)})`)
+      setManagementVisible(false)
+    } catch (ex) {
+      console.error(ex)
+      toast.error(`Failed to hide token. Error: ${processError(ex)}`)
+    } finally {
+      setIsTracking(false)
+    }
+  }
   return (
     <NFTViewerContainer>
-      {isImage && <NFTImageFull src={resolvedImageUrl} />}
-      {isVideo && <NFTVideoFull src={resolvedImageUrl} loop muted autoplay />}
+      <NFTDisplayWrapper>
+        {isImage && <NFTImageFull src={resolvedImageUrl} onClick={() => showManagement()} />}
+        {isVideo && <NFTVideoFull src={resolvedImageUrl} onClick={() => showManagement()} loop muted autoplay />}
+        {managementVisible &&
+          <NFTManagementPanel>
+            <Button style={{ width: '100%', height: '100%' }} onClick={() => untrack()}>
+              {isTracking ? <TailSpin /> : <><BaseText style={{ fontSize: 40 }}>✕</BaseText><br />Hide NFT</>}
+            </Button>
+          </NFTManagementPanel>}
+      </NFTDisplayWrapper>
 
       <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
       <NFTCollection>{contractName}</NFTCollection>
@@ -464,7 +517,7 @@ const NFTViewer = ({ contractAddress, resolvedImageUrl, isImage, isVideo, metada
           {!showDetails && <LinkWrarpper href='#' onClick={() => setShowDetails(true)}><TechnicalText>Show Technical Details</TechnicalText></LinkWrarpper>}
           {showDetails && <LinkWrarpper href='#' onClick={() => setShowDetails(false)}><TechnicalText>Hide Technical Details</TechnicalText></LinkWrarpper>}
         </Col>
-        <Button style={{ background: '#222', whiteSpace: 'nowrap' }} onClick={() => setModalVisible(true)}>Send NFT</Button>
+        <Button style={{ background: '#222', whiteSpace: 'nowrap' }} onClick={() => setSendModalVisible(true)}>Send NFT</Button>
       </Row>
       {showDetails &&
         <Col style={{ gap: 0, padding: '0 16px' }}>
@@ -501,8 +554,8 @@ const NFTViewer = ({ contractAddress, resolvedImageUrl, isImage, isVideo, metada
         contractAddress={contractAddress}
         tokenId={tokenId}
         tokenType={tokenType}
-        modelVisible={modelVisible}
-        setModelVisible={setModalVisible}
+        modelVisible={sendModelVisible}
+        setModelVisible={setSendModalVisible}
         maxQuantity={balance}
       />
 
@@ -511,7 +564,7 @@ const NFTViewer = ({ contractAddress, resolvedImageUrl, isImage, isVideo, metada
 }
 
 const NFTTracker = ({ visible, setVisible }) => {
-  const [contract, setContract] = useState()
+  const [contract, setContract] = useState('')
   const [tokenId, setTokenId] = useState('')
   const [isTracking, setIsTracking] = useState(false)
   const wallet = useSelector(state => state.wallet || {})
@@ -522,7 +575,7 @@ const NFTTracker = ({ visible, setVisible }) => {
     try {
       setIsTracking(true)
       const tokenType = await apis.nft.getNFTType(contract)
-      const signature = apis.web3.signWithBody({ contractAddress: contract, tokenId, tokenType }, pk)
+      const signature = apis.web3.signWithBody([{ contractAddress: contract, tokenId, tokenType }], pk)
 
       const { success, error } = await apis.nft.track({ contractAddress: contract, tokenId, tokenType, address, signature })
       if (!success) {
@@ -539,7 +592,7 @@ const NFTTracker = ({ visible, setVisible }) => {
   }
 
   return (
-    <Modal style={{ maxWidth: 800, width: '100%', margin: 'auto' }} visible={visible} onCancel={() => setVisible(false)}>
+    <Modal style={{ maxWidth: 800, width: '100%', padding: 8, margin: 'auto' }} visible={visible} onCancel={() => setVisible(false)}>
       <Row style={{ position: 'relative' }}>
 
         <LabelSmall>Contract</LabelSmall>
