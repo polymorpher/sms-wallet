@@ -45,7 +45,9 @@ const checkExistence = async (req, res, next) => {
 const hasUserSignedBody = async (req, res, next) => {
   const { address, signature, body } = req.body
   const msg = stringify(body)
+
   const expectedAddress = w3utils.ecrecover(msg, signature)
+  // console.log(msg, expectedAddress, address)
   if (!address || !expectedAddress || address !== expectedAddress) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
