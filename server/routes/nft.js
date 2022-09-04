@@ -30,9 +30,9 @@ router.post('/track', hasUserSignedBody, async (req, res) => {
   }
 })
 
-router.post('/lookup', hasUserSignedBody, async (req, res) => {
-  const { body: { contractAddress } } = req.body
-  const { address } = req.user
+// TODO: rate limit
+router.post('/lookup', async (req, res) => {
+  const { address, contractAddress } = req.body
   if (contractAddress && !w3utils.isValidAddress(contractAddress)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad contractAddress ' + contractAddress })
   }

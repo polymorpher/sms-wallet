@@ -293,24 +293,40 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect
   )
 }
 
+// eslint-disable-next-line no-unused-vars
+const DUMMY_NFTS = [{
+  contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
+  tokenId: '1',
+  tokenType: 'ERC721',
+}, {
+  contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
+  tokenId: '2',
+  tokenType: 'ERC721',
+}, {
+  contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
+  tokenId: '1',
+  tokenType: 'ERC1155',
+}, {
+  contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
+  tokenId: '2',
+  tokenType: 'ERC1155',
+}]
+
 const loadNFTs = ({ address }) => {
-  return [{
-    contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
-    tokenId: '1',
-    tokenType: 'ERC721',
-  }, {
-    contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
-    tokenId: '2',
-    tokenType: 'ERC721',
-  }, {
-    contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
-    tokenId: '1',
-    tokenType: 'ERC1155',
-  }, {
-    contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
-    tokenId: '2',
-    tokenType: 'ERC1155',
-  }]
+  const [nfts, setNfts] = useState([])
+  useEffect(() => {
+    async function f () {
+      try {
+        const nfts = await apis.nft.lookup({ address })
+        setNfts(nfts)
+      } catch (ex) {
+        console.error(ex)
+        toast.error('Unable to look up NFTs owned by this wallet')
+      }
+    }
+    f()
+  }, [address])
+  return nfts
 }
 
 const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddress, tokenId, tokenType }) => {

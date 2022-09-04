@@ -5,6 +5,7 @@ import config from '../config'
 import BN from 'bn.js'
 import Contract from 'web3-eth-contract'
 import Constants from '../../../shared/constants'
+import stringify from 'json-stable-stringify'
 const IERC20 = require('../../abi/IERC20.json')
 const IERC165 = require('../../abi/IERC165.json')
 const IERC20Metadata = require('../../abi/IERC20Metadata.json')
@@ -88,6 +89,10 @@ const apis = {
       const message = `${msg} ${nonce}`
       return web3.eth.accounts.sign(message, key).signature
     },
+    signWithBody: (body, key) => {
+      const msg = stringify(body)
+      return web3.eth.accounts.sign(msg, key).signature
+    }
   },
   blockchain: {
     sendToken: async ({ address, contractAddress, tokenType, tokenId, amount, dest }) => {
@@ -212,8 +217,8 @@ const apis = {
       }
       return null
     },
-    lookup: async ({ address, contractAddress, signature }) => {
-      const { data: nfts } = await apiBase.post('/nft/lookup', { body: { contractAddress }, signature, address })
+    lookup: async ({ address, contractAddress }) => {
+      const { data: nfts } = await apiBase.post('/nft/lookup', { contractAddress, address })
       return nfts
     },
     track: async ({ address, contractAddress, tokenId, tokenType, signature }) => {
