@@ -91,17 +91,18 @@ const apis = {
     sendToken: async ({ address, contractAddress, tokenType, tokenId, amount, dest }) => {
       const c = getTokenContract[tokenType](contractAddress)
       console.log({ address, contractAddress, tokenType, tokenId, amount, dest })
+      let data
       if (tokenType === 'ERC20') {
-        return c.methods.transferFrom(address, dest, amount).send({ from: address })
+        data = c.methods.transferFrom(address, dest, amount).encodeABI()
       } else if (tokenType === 'ERC721') {
-        return c.methods.safeTransferFrom(address, dest, tokenId).send({ from: address })
+        data = c.methods.safeTransferFrom(address, dest, tokenId).encodeABI()
       } else if (tokenType === 'ERC1155') {
-        const data = c.methods.safeTransferFrom(address, dest, tokenId, amount, '0x').encodeABI()
-        const gas = await web3.eth.estimateGas({ from: address, to: contractAddress, data })
-        return web3.eth.sendTransaction({ data, gas: Math.floor(gas * 1.5), from: address, to: contractAddress })
+        data = c.methods.safeTransferFrom(address, dest, tokenId, amount, '0x').encodeABI()
       } else {
         throw Error('unreachable')
       }
+      const gas = await web3.eth.estimateGas({ from: address, to: contractAddress, data })
+      return web3.eth.sendTransaction({ data, gas: Math.floor(gas * 1.5), from: address, to: contractAddress })
     },
     getBalance: async ({ address }) => {
       const b = await web3.eth.getBalance(address)

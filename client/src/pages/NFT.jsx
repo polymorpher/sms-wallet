@@ -1,18 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Address, BaseText, Desc, Label, Title } from '../components/Text'
+import React, { useState, useEffect } from 'react'
+import { BaseText, Desc, Label } from '../components/Text'
 import { Col, FlexColumn, FlexRow, Modal, Row } from '../components/Layout'
 import { Button, FloatingSwitch, Input, LinkWrarpper } from '../components/Controls'
-import html2canvas from 'html2canvas'
 import styled from 'styled-components'
-import { NFTUtils, processError, useWindowDimensions, utils } from '../utils'
+import { NFTUtils, processError, utils } from '../utils'
 import apis from '../api'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import BN from 'bn.js'
 import { TailSpin } from 'react-loading-icons'
 import PhoneInput from 'react-phone-number-input'
-import { balanceActions } from '../state/modules/balance'
 
 export const MetadataURITransformer = (url) => {
   const IPFSIO = /https:\/\/ipfs\.io\/ipfs\/(.+)/
@@ -88,6 +86,7 @@ export const loadNFTData = ({ contractAddress, tokenId, tokenType }) => {
   return { ...state }
 }
 
+// eslint-disable-next-line no-unused-vars
 const loadCachedMetadata = ({ address, contractAddress, tokenId, tokenType }) => {
   const [cached, setCached] = useState({})
   useEffect(() => {
@@ -266,6 +265,7 @@ const TechnicalText = styled(BaseText)`
 export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect }) => {
   const { contractName, uri } = loadNFTData({ contractAddress, tokenId, tokenType })
   const balance = loadNFTBalance({ contractAddress, tokenId, tokenType, address })
+  // eslint-disable-next-line no-unused-vars
   const { metadata, resolvedImageUrl, contentType, resolvedAnimationUrl, animationUrlContentType } = useMetadata({ uri, contractAddress, tokenType })
   const isImage = contentType?.startsWith('image')
   const isVideo = contentType?.startsWith('video')
@@ -317,9 +317,8 @@ const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddr
   const [isAddressInput, setIsAddressInput] = useState(false)
   const [phone, setPhone] = useState('')
   const [to, setTo] = useState('')
-  const [amount, setAmount] = useState('')
+  const [amount, setAmount] = useState('1')
   const [isSending, setIsSending] = useState(false)
-  const dispatch = useDispatch()
   const wallet = useSelector(state => state.wallet || {})
   const address = Object.keys(wallet)[0]
   const pk = wallet[address]?.pk
@@ -358,7 +357,14 @@ const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddr
     toast.info('Submitting transaction...')
     try {
       apis.web3.changeAccount(pk)
-      const { transactionHash } = await apis.blockchain.sendToken({ address, contractAddress, tokenId, tokenType, dest, amount: value })
+      const { transactionHash } = await apis.blockchain.sendToken({
+        address,
+        contractAddress,
+        tokenId,
+        tokenType,
+        dest,
+        amount: value
+      })
 
       toast.success(
         <FlexRow>
