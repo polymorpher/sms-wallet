@@ -27,7 +27,7 @@ const config = {
       skip: process.env.SKIP_TESTNE || true,
       numAccounts: process.env.TESTNET_NUM_ACCOUNTS || 1,
       blockTime: 2,
-      miniWalletAddress: process.env.TESTNET_ASSET_MANAGER,
+      miniWalletAddress: process.env.TESTNET_MINI_WALLET,
     },
     'harmony-mainnet': {
       key: process.env.HARMONY_MAINNET_KEY || '',
@@ -38,7 +38,7 @@ const config = {
       skip: process.env.SKIP_MAINNET || true,
       numAccounts: process.env.MAINNET_NUM_ACCOUNTS || 1,
       blockTime: 2,
-      miniWalletAddress: process.env.MAINNET_ASSET_MANAGER,
+      miniWalletAddress: process.env.MAINNET_MINI_WALLET,
     },
     'eth-local': {
       url: process.env.ETH_LOCAL_RPC || 'http://127.0.0.1:8545',
@@ -47,7 +47,7 @@ const config = {
       mnemonic: process.env.ETH_LOCAL_MNEMONIC,
       skip: process.env.SKIP_ETH || true,
       numAccounts: process.env.ETH_LOCAL_NUM_ACCOUNTS || 1,
-      miniWalletAddress: process.env.ETH_LOCAL_ASSET_MANAGER,
+      miniWalletAddress: process.env.ETH_LOCAL_MINI_WALLET,
     },
   },
   gasLimit: parseInt(process.env.GAS_LIMIT || '12345678'),

@@ -1,7 +1,7 @@
 const axios = require('axios')
 const config = require('./config')
 const { ethers } = require('ethers')
-const utils = require('./utils')
+const utils = require('../server/utils')
 const { hexStringToBytes } = utils
 
 const rpc = {
@@ -30,29 +30,17 @@ const rpc = {
     })
     return hexStringToBytes(result)
   },
-
   gasPrice: async ({ network }) => {
     const url = config.networks[network].url
     const { data: { result } } = await axios.post(url, {
       jsonrpc: '2.0',
-      method: 'hmy_gasPrice', // eth_getAccountNonce also works but is nonstandard (Harmony only)
+      method: 'eth_gasPrice', // eth_getAccountNonce also works but is nonstandard (Harmony only)
       params: [],
       id: 1
     })
     const bn = ethers.BigNumber.from(result.slice(2))
     return bn.toNumber()
-  },
-
-  latestHeader: async ({ network, beacon = false }) => {
-    const url = beacon ? config.networks[network].beacon : config.networks[network].url
-    const { data: { result } } = await axios.post(url, {
-      jsonrpc: '2.0',
-      method: 'hmy_latestHeader', // eth_getAccountNonce also works but is nonstandard (Harmony only)
-      params: [],
-      id: 1
-    })
-    return result
-  },
+  }
 }
 
 module.exports = { rpc }

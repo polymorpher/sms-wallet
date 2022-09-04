@@ -37,7 +37,7 @@ const deployFunction: DeployFunction = async function (
     from: deployer,
     proxy: {
       owner: deployer,
-      proxyContract: 'OpenZeppelinTransparentProxy',
+      proxyContract: 'EIP173Proxy',
       execute: {
         init: {
           methodName: 'initialize',
@@ -68,7 +68,7 @@ const deployFunction: DeployFunction = async function (
 
   const globalUserLimit = await miniWallet.globalUserLimit()
   console.log(
-    'MiniWallet_v2 Global User Auth Limit:',
+    'MiniWallet_v2 Global User Limit:',
     ethers.utils.formatUnits(globalUserLimit.toString())
   )
 

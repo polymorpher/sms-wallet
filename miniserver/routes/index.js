@@ -10,7 +10,7 @@ const { User } = require('../../server/src/data/user')
 const { toNumber } = require('lodash')
 const blockchain = require('../blockchain')
 const { ethers } = require('ethers')
-const utils = require('../utils')
+const utils = require('../../server/utils')
 const { parseError } = utils
 
 router.get('/health', async (req, res) => {
@@ -20,8 +20,10 @@ router.get('/health', async (req, res) => {
 
 const checkfromTwilio = async (req, res, next) => {
   // if not in debug mode check valid Twilio Request
-  if (config.debug ? false : !Twilio.validateRequest(config.twilio.token, req.headers['x-twilio-signature'], (req.protocol + req.get('host') + req.path), req.body)) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'request not from twilio' })
+  if (config.debug === false) {
+    if (!Twilio.validateRequest(config.twilio.token, req.headers['x-twilio-signature'], (req.protocol + req.get('host') + req.path), req.body)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'request not from twilio' })
+    }
   }
   next()
 }
@@ -32,8 +34,7 @@ const checkfromTwilio = async (req, res, next) => {
 const parseSMS = async (req, res, next) => {
   const { From: senderPhoneNumber, Body: smsBody } = req.body
   const smsParams = smsBody.split(/(\s+)/).filter(e => { return e.trim().length > 0 })
-  const messagingResponse = Twilio.twiml.MessagingResponse
-  const response = new messagingResponse()
+  const response = new Twilio.twiml.MessagingResponse()
   try {
     let command
     const requestor = await User.findByPhone({ phone: senderPhoneNumber })
@@ -54,7 +55,12 @@ const parseSMS = async (req, res, next) => {
       }
       // Allow requesting of funds from users by address (without checking registered phone number)
       if (smsParams[1].substr(0, 2) === '0x') {
-        funder.address = smsParams[1]
+        if (ethers.utils.isAddress(funder.address)) {
+          funder.address = smsParams[1]
+        } else {
+          response.message(`error: invalid funder address ${smsParams[1]}. example request "p 0x8ba1f109551bd432803012645ac136ddd64dba72 0.1"`)
+          return res.send(response.toString())
+        }
       } else {
       // set country and look up user address from Phone Number
         let funderPhone = smsParams[1]
@@ -67,8 +73,9 @@ const parseSMS = async (req, res, next) => {
             return res.send(response.toString())
           }
         }
+        Logger.log(`funderPhone: ${funderPhone}`)
         funder = await User.findByPhone({ phone: funderPhone })
-        if (funder ? !funder.address : true) {
+        if (!funder?.address) {
           response.message(`error: funders phone number is not a registered wallet: ${smsParams[1]}. example request "p +14158401999 0.1"`)
           return res.send(response.toString())
         }
@@ -100,8 +107,8 @@ router.post('/sms', checkfromTwilio, parseSMS, async (req, res) => {
   // Look up the from Phone Number to get the address
   const { command, requestor, funder, amount } = req.processedBody
   Logger.log(`req.body: ${JSON.stringify(req.processedBody)}`)
-  const miniWallets = blockchain.getMiniWallets()
-  const miniWallet = miniWallets[1]
+  const miniWallet = blockchain.getMiniWallet()
+  //   const miniWallet = miniWallets[1]
 
   const logger = (...args) => Logger.log('[/sms]', ...args)
   const executor = blockchain.prepareExecute(logger)
@@ -110,9 +117,8 @@ router.post('/sms', checkfromTwilio, parseSMS, async (req, res) => {
   try {
     if (command === 'balance') {
       const balance = ethers.utils.formatEther(await miniWallet.userBalances(requestor.address))
-      const messagingResponse = Twilio.twiml.MessagingResponse
-      const response = new messagingResponse()
-      response.message(`phone: ${requestor.phone} address: ${requestor.address}, balance: ${balance} `)
+      const response = new Twilio.twiml.MessagingResponse()
+      response.message(`Your balance is ${balance} (address: ${requestor.address})`)
       return res.send(response.toString())
     } else if (command === 'pay') {
       const method = 'send'
@@ -122,9 +128,8 @@ router.post('/sms', checkfromTwilio, parseSMS, async (req, res) => {
         requestor.address
       ]
       const receipt = await executor(method, params)
-      const messagingResponse = Twilio.twiml.MessagingResponse
-      const response = new messagingResponse()
-      response.message(`from: ${funder.phone}, from address: ${funder.address}, to: ${requestor.phone}, to address: ${requestor.address}, amount: ${ethers.utils.formatEther(amount)}, transaction: ${receipt.hash}`)
+      const response = new Twilio.twiml.MessagingResponse()
+      response.message(`Payment Succesful\nfrom: ${funder.phone} (address: ${funder.address})\nto: ${requestor.phone} (address: ${requestor.address})\namount: ${ethers.utils.formatEther(amount)}\ntransaction: ${receipt.hash}`)
       return res.send(response.toString())
     } else {
       return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid sms command' })

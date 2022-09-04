@@ -5,13 +5,12 @@ const cloneDeep = require('lodash/fp/cloneDeep')
 const { backOff } = require('exponential-backoff')
 const { rpc } = require('./rpc')
 const MiniWallet = require('../miniwallet/build/contracts/MiniWallet.sol/MiniWallet.json')
-
+const constants = require('../server/constants')
 let networkConfig = {}
 let provider
+let miniWallet
 const pendingNonces = {}
 const signers = []
-const miniWallets = []
-const walletPath = 'm/44\'/60\'/0\'/0/' // https://docs.ethers.io/v5/api/signer/#Wallet.fromMnemonic'
 
 const init = async () => {
   Logger.log('Initializing blockchain for server')
@@ -20,10 +19,11 @@ const init = async () => {
     networkConfig = config.networks[config.defaultNetwork]
     Logger.log(`network: ${JSON.stringify(networkConfig)}`)
     provider = ethers.getDefaultProvider(networkConfig.url)
+    miniWallet = new ethers.Contract(networkConfig.miniWalletAddress, MiniWallet.abi, provider)
     provider.pollingInterval = config.pollingInterval
     if (networkConfig.mnemonic) {
       for (let i = 0; i < networkConfig.numAccounts; i += 1) {
-        const path = walletPath + i.toString()
+        const path = constants.WalletPath + i.toString()
         Logger.log(`path: ${path}`)
         const signer = new ethers.Wallet.fromMnemonic(networkConfig.mnemonic, path)
         signers[i] = signer.connect(provider)
@@ -31,10 +31,8 @@ const init = async () => {
     } else {
       signers[0] = new ethers.Wallet(networkConfig.key, networkConfig.provider)
     }
-    for (let i = 0; i < signers.length; i += 1) {
-      Logger.log(`signers[${i}].address; ${JSON.stringify(signers[i].address)}`)
-      miniWallets[i] = new ethers.Contract(networkConfig.miniWalletAddress, MiniWallet.abi, signers[i])
-    }
+    Logger.log(`networkConfig.miniWalletAddress: ${networkConfig.miniWalletAddress}`)
+    Logger.log(`miniWallet.address             : ${miniWallet.address}`)
   } catch (ex) {
     console.error(ex)
     console.trace(ex)
@@ -59,15 +57,17 @@ const sampleExecutionAddress = () => {
   for (let i = 0; i < probs.length; i++) {
     s += probs[i]
     if (s >= r) {
-      return [i, signers[i].address, miniWallets[i]]
+      return [i]
     }
   }
-  return [signers.length - 1, signers[signers.length - 1].address, miniWallets[miniWallets.length - 1]]
+  return [signers.length - 1]
 }
 
 // basic executor used to send funds
 const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => async (method, params) => {
-  const [fromIndex, from, miniWallet] = sampleExecutionAddress()
+  const [fromIndex] = sampleExecutionAddress()
+  const from = signers[fromIndex].address
+  const miniWalletSigner = miniWallet.connect(signers[fromIndex])
   logger(`Sampled [${fromIndex}] ${from}`)
   const latestNonce = await rpc.getNonce({ address: from, network: config.defaultNetwork })
   const snapshotPendingNonces = pendingNonces[from]
@@ -79,11 +79,9 @@ const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => asyn
   try {
     logger(`[pending]${printNonceStats()}`)
     let numAttempts = 0
-    // const f = () => {miniWallet.send(params[0], params[1], params[2])}
     const tx = await backOff(
-      async () => miniWallet.send(params[0], params[1], params[2], {
+      async () => miniWalletSigner.send(...params, {
         nonce,
-        // nonce: '0x' + ethers.BigNumber.from(nonce).toHexString,
         gasPrice: ethers.BigNumber.from(config.gasPrice).mul((numAttempts || 0) + 1),
         value: 0,
       }), {
@@ -119,6 +117,6 @@ module.exports = {
   getNetworkConfig: () => networkConfig,
   getProvider: () => provider,
   getSigners: () => signers,
-  getMiniWallets: () => miniWallets,
+  getMiniWallet: () => miniWallet,
   prepareExecute
 }
