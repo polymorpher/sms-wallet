@@ -6,7 +6,6 @@ const config = {
   url: process.env.SERVER_URL || 'https://localhost',
   port: process.env.PORT || 3000,
   httpsPort: process.env.HTTPS_PORT || 8443,
-  nullAddress: '0x0000000000000000000000000000000000000000',
   verbose: process.env.VERBOSE === 'true' || process.env.VERBOSE === '1',
   https: {
     only: process.env.HTTPS_ONLY === 'true' || process.env.HTTPS_ONLY === '1',
@@ -15,7 +14,6 @@ const config = {
   },
   corsOrigins: process.env.CORS,
   secret: process.env.SECRET,
-  safeNonce: process.env.SAFE_NONCE === '1' || process.env.SAFE_NONCE === 'true',
   pollingInterval: parseInt(process.env.POLLING_INTERVAL || 1000),
   defaultNetwork: process.env.DEFAULT_NETWORK || 'eth-local',
   networks: {
@@ -52,10 +50,6 @@ const config = {
   },
   gasLimit: parseInt(process.env.GAS_LIMIT || '12345678'),
   gasPrice: ethers.BigNumber.from(process.env.GAS_PRICE || '200'),
-  stats: {
-    // relevant to relayer root directory
-    path: process.env.STATS_PATH || '../data/stats.json'
-  },
 
   datastore: {
     gceProjectId: process.env.GCP_PROJECT,
@@ -71,11 +65,6 @@ const config = {
     from: process.env.TWILIO_FROM,
   },
 
-  otp: {
-    salt: process.env.OTP_SALT,
-    interval: parseInt(process.env.OTP_INTERVAL || 60000)
-  },
   defaultSignatureValidDuration: 1000 * 60 * 15,
-  clientRoot: process.env.CLIENT_ROOT || 'https://smswallet.xyz',
 }
 module.exports = config
