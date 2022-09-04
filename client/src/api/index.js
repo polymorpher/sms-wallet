@@ -4,7 +4,9 @@ import Web3 from 'web3'
 import config from '../config'
 import BN from 'bn.js'
 import Contract from 'web3-eth-contract'
+import Constants from '../../../shared/constants'
 const IERC20 = require('../../abi/IERC20.json')
+const IERC165 = require('../../abi/IERC165.json')
 const IERC20Metadata = require('../../abi/IERC20Metadata.json')
 const IERC721 = require('../../abi/IERC721.json')
 const IERC721Metadata = require('../../abi/IERC721Metadata.json')
@@ -197,6 +199,18 @@ const apis = {
   nft: {
     getCachedData: async (address, tokenType, contractAddress, tokenId) => {
       return {}
+    },
+    getNFTType: async (contractAddress) => {
+      const c = new web3.eth.Contract(IERC165, contractAddress)
+      const is721 = await c.methods.supportsInterface(Constants.TokenInterfaces.ERC721).call()
+      if (is721) {
+        return 'ERC721'
+      }
+      const is1155 = await c.methods.supportsInterface(Constants.TokenInterfaces.ERC1155).call()
+      if (is1155) {
+        return 'ERC1155'
+      }
+      return null
     }
   }
 }
