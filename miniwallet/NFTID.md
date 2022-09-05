@@ -43,7 +43,7 @@ TEST_MINI721_DEPLOY_BASE_URI=ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49Dv
 TEST_MINI721_DEPLOY_CONTRACT_URI=ipfs://Qmezo5wDKz7kHwAPRUSJby96rnCfvhqgVqDD7Zorx9rqy8
 ```
 
-### Metadata
+### Metadata [structure](https://docs.opensea.io/docs/metadata-standards)
   * Country 
   * Region
 
@@ -65,6 +65,9 @@ TEST_MINI721_DEPLOY_CONTRACT_URI=ipfs://Qmezo5wDKz7kHwAPRUSJby96rnCfvhqgVqDD7Zor
 # References
   * [Decentralized Identity](https://ethereum.org/en/decentralized-identity/)
   * [SpruceID](https://www.spruceid.dev/) [Wayne Chang](https://www.linkedin.com/in/waynebuilds/)
+  * [OpenSea Metadata Standards](https://docs.opensea.io/docs/metadata-standards)
+  * [Chainlink NFT Tutorial](https://blog.chain.link/build-deploy-and-sell-your-own-dynamic-nft/)
+  * [Sample NFT Generation CodeBase](https://github.com/PatrickAlphaC/dungeons-and-dragons-nft)
  
 
 
