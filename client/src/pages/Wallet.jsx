@@ -2,28 +2,19 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import paths from './paths'
-import { Address, BaseText, Desc, Gallery, Label } from '../components/Text'
-import { FlexColumn, FlexRow, Modal, Row } from '../components/Layout'
+import { Address, BaseText, Desc, Label } from '../components/Text'
+import { FlexRow, Modal, Row } from '../components/Layout'
 import { processError, utils } from '../utils'
 
 import { balanceActions } from '../state/modules/balance'
-import { Button, Input, LinkWrarpper } from '../components/Controls'
+import { Button, FloatingSwitch, Input, LinkWrarpper } from '../components/Controls'
 import { toast } from 'react-toastify'
 import BN from 'bn.js'
 import apis from '../api'
 import PhoneInput from 'react-phone-number-input'
-import styled from 'styled-components'
 import { TailSpin } from 'react-loading-icons'
 import MainContainer from '../components/Container'
-import { globalActions } from '../state/modules/global'
-
-const FloatingSwitch = styled(LinkWrarpper)`
-  position: absolute;
-  right: 0;
-  bottom: -4px;
-  font-size: 12px;
-  margin-right: 0;
-`
+import NFTShowcase from './NFT'
 
 const Wallet = () => {
   // const history = useHistory()
@@ -177,14 +168,8 @@ const Wallet = () => {
           <Button onClick={sendWrapper} disabled={isSending}>{isSending ? <TailSpin width={16} height={16} /> : 'Confirm'}</Button>
         </Row>
       </Modal>
-      <Gallery style={{ flex: '100%' }}>
-        <BaseText style={{ fontSize: 20, textTransform: 'uppercase' }}>NFT Gallery</BaseText>
-        <FlexColumn style={{ justifyContent: 'center', flex: '100%' }}>
-          <FlexRow style={{ justifyContent: 'center', width: '100%' }}>
-            <BaseText>COMING SOON</BaseText>
-          </FlexRow>
-        </FlexColumn>
-      </Gallery>
+      <NFTShowcase address={address} />
+
     </MainContainer>
   )
 }

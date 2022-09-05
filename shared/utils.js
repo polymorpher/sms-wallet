@@ -2,6 +2,7 @@ const createKeccakHash = require('keccak')
 const Conversion = require('ethjs-unit')
 const STANDARD_DECIMAL = 18
 const BN = require('bn.js')
+const Constants = require('./constants')
 
 const utils = {
   /**
@@ -94,7 +95,53 @@ const utils = {
     const floored = Number(`${Math.floor(`${number}e+${digits}`)}e-${digits}`)
     return floored.toString()
   },
-
+  isValidTokenType: (tokenType) => {
+    if (tokenType === 'NONE' || typeof tokenType !== 'string') {
+      return false
+    }
+    return Constants.TokenType[tokenType] !== undefined
+  },
+  isValidNumericTokenType: (tokenType) => {
+    if (tokenType === 3 || typeof tokenType !== 'number') {
+      return false
+    }
+    return Constants.TokenType[tokenType] !== undefined
+  },
+  normalizeNumber: n => {
+    if (typeof n === 'string' && n.startsWith('0x')) {
+      const t = new BN(n.slice(2), 16)
+      return t.toString()
+    } else {
+      return new BN(n).toString()
+    }
+  },
+  isValidTokenId: tokenId => {
+    try {
+      const t = utils.normalizeNumber(tokenId)
+      return new BN(t).gten(0)
+    } catch (ex) {
+      return false
+    }
+  },
+  computeTokenKey: ({tokenId, tokenType, contractAddress}) =>{
+    if(!contractAddress || !tokenId || (tokenType!== 0 && !tokenType)){
+      return ''
+    }
+    contractAddress = contractAddress.toLowerCase()
+    if (typeof tokenType === 'string' && tokenType.startsWith('ERC')){
+      tokenType = Constants.TokenType[tokenType]
+    }
+    const bytes = new Uint8Array(96)
+    const s1 = new BN(tokenType, 10).toArrayLike(Uint8Array, 'be', 32)
+    const s2 = utils.hexStringToBytes(contractAddress, 32)
+    const s3 = new BN(tokenId, 10).toArrayLike(Uint8Array, 'be', 32)
+    bytes.set(s1)
+    bytes.set(s2, 32)
+    bytes.set(s3, 64)
+    const hash = utils.keccak(bytes)
+    const string = utils.hexView(hash)
+    return { string, hash, bytes }
+  },
 }
 
 module.exports = utils

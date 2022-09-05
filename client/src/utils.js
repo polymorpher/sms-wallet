@@ -171,3 +171,25 @@ export const getTextFromFile = file =>
     reader.addEventListener('error', () => reject(reader.error))
     reader.readAsText(file)
   })
+
+export const NFTUtils = {
+  replaceIPFSLink: (link, ipfsGateway) => {
+    if (!link) {
+      return link
+    }
+    if (link.indexOf('://') < 0) {
+      return exports.default.replaceIPFSLink(`ipfs://${link}`, ipfsGateway)
+    }
+    if (!link.startsWith('ipfs://')) {
+      return link
+    }
+    let end = link.indexOf('?')
+    if (end < 0) {
+      end = link.length
+    }
+    const hash = link.slice(7, end)
+    // console.log({ link, ipfsGateway })
+    // console.trace()
+    return (ipfsGateway || config.ipfs.gateway).replace('{{hash}}', hash)
+  },
+}

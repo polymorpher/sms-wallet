@@ -8,8 +8,13 @@ export const SmallText = styled(BaseText)`
   font-size: 12px;
 `
 export const Label = styled(BaseText)`
-  width: ${props => props.$width || '64px'}
+  width: ${props => props.$width || '64px'};
 `
+export const LabelSmall = styled(BaseText)`
+  width: ${props => props.$width || '48px'};
+  font-size: 12px;
+`
+
 export const Address = styled(BaseText)`
   word-break: break-word;
   padding: 8px 32px;
@@ -40,7 +45,7 @@ export const Heading = styled.div`
 export const Desc = styled.div`
   box-sizing: border-box;
   padding: 16px;
-  color: black;
+  color: ${props => props.$color || 'black'};
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -52,17 +57,6 @@ export const Desc = styled.div`
 export const DescLeft = styled(Desc)`
   text-align: left;
   align-items: start;
-`
-
-export const Gallery = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  box-sizing: border-box;
-  width: 100%;
-  //min-height: 400px;
-  background: black;
-  color: white;
 `
 
 export const LinkText = styled(BaseText)`
