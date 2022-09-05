@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import paths from './paths'
 import { Address, BaseText, Desc, Label } from '../components/Text'
-import { FlexColumn, FlexRow, Modal, Row } from '../components/Layout'
+import { FlexRow, Modal, Row } from '../components/Layout'
 import { processError, utils } from '../utils'
 
 import { balanceActions } from '../state/modules/balance'
@@ -12,11 +12,9 @@ import { toast } from 'react-toastify'
 import BN from 'bn.js'
 import apis from '../api'
 import PhoneInput from 'react-phone-number-input'
-import styled from 'styled-components'
 import { TailSpin } from 'react-loading-icons'
 import MainContainer from '../components/Container'
-import { globalActions } from '../state/modules/global'
-import NFTShowcase, { Gallery } from './NFT'
+import NFTShowcase from './NFT'
 
 const Wallet = () => {
   // const history = useHistory()
