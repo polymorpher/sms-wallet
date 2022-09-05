@@ -1,9 +1,9 @@
 import { expect } from 'chai'
-import { LogDescription } from 'ethers/lib/utils'
 import { ethers, network } from 'hardhat'
 import config from '../config'
+import Constants from './utilities/constants'
 
-import { mini1155Mint, mini1155SafeTransferFrom, mini1155configure } from './utilities'
+import { mini1155configure } from './utilities'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 
@@ -12,47 +12,6 @@ const deploymentConfig = config.test.mini1155.deploy
 const c1 = config.test.mini1155.collection1
 const c2 = config.test.mini1155.collection2
 
-// // Collection 1 configuration
-// const c1 = {
-//   revenueAccount: '0xa636a88102a7821b7e42292a4A3920A25a5d49b5',
-//   maxPerMint: 10,
-//   mintPrice: ethers.utils.parseEther('0.042'),
-//   exchangeRatio: 0, // will be 20 after sale
-//   rareProbabilityPercentage: 1,
-//   // standard token configuration
-//   s: {
-//     tokenId: 1,
-//     maxSupply: 770,
-//     personalCap: 10
-//   },
-//   // rare token configuration
-//   r: {
-//     tokenId: 2,
-//     maxSupply: 7, // will be 84 after Sale
-//     personalCap: 1
-//   }
-// }
-
-// // Collection 2 configuration
-// const c2 = {
-//   revenueAccount: '0xa636a88102a7821b7e42292a4A3920A25a5d49b5',
-//   maxPerMint: 20,
-//   mintPrice: ethers.utils.parseEther('0.084'),
-//   exchangeRatio: 0,
-//   rareProbabilityPercentage: 2,
-//   // standard token configuration
-//   s: {
-//     tokenId: 3,
-//     maxSupply: 1540,
-//     personalCap: 20
-//   },
-//   // rare token configuration
-//   r: {
-//     tokenId: 4,
-//     maxSupply: 28, // will be 168 after sale
-//     personalCap: 2
-//   }
-// }
 describe('Mini1155', function () {
   before(async function (this) {
     this.signers = await ethers.getSigners()
@@ -134,7 +93,7 @@ describe('Mini1155', function () {
       expect(await this.mini1155.saleStarted()).to.equal(false)
       expect(await this.mini1155.salt()).to.equal(deploymentConfig.salt)
       expect(await this.mini1155.standardTokenId()).to.equal(deploymentConfig.s.tokenId)
-      expect(await this.mini1155.supportsInterface(0x2a55205a)).to.equal(true)
+      expect(await this.mini1155.supportsInterface(Constants.InterfaceId.ERC2981_NFT_ROYALTY_STANDARD)).to.equal(true)
       expect(await this.mini1155.symbol()).to.equal(deploymentConfig.symbol)
       expect(await this.mini1155.totalSupply(deploymentConfig.s.tokenId)).to.equal(0)
       expect(await this.mini1155.uri(deploymentConfig.s.tokenId)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/1.json')
@@ -190,7 +149,7 @@ describe('Mini1155', function () {
       expect(await this.mini1155.saleStarted()).to.equal(false)
       expect(await this.mini1155.salt()).to.equal(deploymentConfig.salt)
       expect(await this.mini1155.standardTokenId()).to.equal(c1.s.tokenId)
-      expect(await this.mini1155.supportsInterface(0x2a55205a)).to.equal(true)
+      expect(await this.mini1155.supportsInterface(Constants.InterfaceId.ERC2981_NFT_ROYALTY_STANDARD)).to.equal(true)
       expect(await this.mini1155.totalSupply(c1.s.tokenId)).to.equal(0)
       expect(await this.mini1155.uri(1)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/1.json')
     })
@@ -248,13 +207,11 @@ describe('Mini1155', function () {
       expect(await this.mini1155.paused()).to.equal(false)
       expect(await this.mini1155.rareProbabilityPercentage()).to.equal(1)
       expect(await this.mini1155.revenueAccount()).to.equal(c1.revenueAccount)
-      // expect(await this.mini1155.royalties(1, 1)).to.deep.equal(this.deployer.address, '0')
-      // expect(await this.mini1155.royaltyInfo(1, 1)).to.deep.equal(this.deployer.address, '0')
       expect(await this.mini1155.saleIsActive()).to.equal(true)
       expect(await this.mini1155.saleStarted()).to.equal(true)
       expect(await this.mini1155.salt()).to.equal(deploymentConfig.salt)
       expect(await this.mini1155.standardTokenId()).to.equal(c1.s.tokenId)
-      expect(await this.mini1155.supportsInterface(0x2a55205a)).to.equal(true)
+      expect(await this.mini1155.supportsInterface(Constants.InterfaceId.ERC2981_NFT_ROYALTY_STANDARD)).to.equal(true)
       expect(await this.mini1155.totalSupply(c1.s.tokenId)).to.equal(1)
       expect(await this.mini1155.uri(1)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/1.json')
     })
@@ -314,25 +271,6 @@ describe('Mini1155', function () {
       await expect(
         this.mini1155.mint(numTokens)
       ).to.be.revertedWith('exceeded per mint limit')
-      // expect(await this.mini1155.uri(c1.s.tokenId)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/3.json')
-      // await this.mini1155.connect(this.alice)['mint(uint256)'](numTokens, {
-      //   value: c1.mintPrice.mul(numTokens)
-      // })
-      // expect(await this.mini1155.exists(c1.s.tokenId)).to.equal(true)
-      // // expect(await this.mini1155.exists(2)).to.equal(true)
-      // expect(await this.mini1155.totalSupply(c1.s.tokenId)).to.equal(101)
-      // numTokens = 5
-      // await this.mini1155.connect(this.alice).mint(numTokens, {
-      //   value: c1.mintPrice.mul(numTokens)
-      // })
-      // expect(await this.mini1155.totalSupply(c1.s.tokenId)).to.equal(106)
-      // expect(await this.mini1155.totalSupply(c1.r.tokenId)).to.equal(0)
-      // await expect(
-      //   this.mini1155.connect(this.alice)['mint(uint256)'](numTokens, {
-      //     value: c1.mintPrice.mul(numTokens)
-      //   })
-      // ).to.be.revertedWith('standard token personal cap exceeded')
-      // expect(await this.mini1155.totalSupply(2)).to.equal(1)
 
       // Batch Functions
       const owner = await this.mini1155.owner()
@@ -350,19 +288,6 @@ describe('Mini1155', function () {
       expect((await this.mini1155.balanceOfBatch([owner], [tid1])).map(x => x.toString())).to.deep.equal(['630'])
       await this.mini1155.safeTransferFrom(owner, this.alice.address, tid1, 100, '0x')
       expect((await this.mini1155.balanceOfBatch([owner, this.alice.address], [tid1, tid1])).map(x => x.toString())).to.deep.equal(['530', '170'])
-
-      // Ownership functions
-      // TODO "function setApprovalForAll(address,bool)",
-      // TODO "function renounceOwnership()",
-      // TODO "function transferOwnership(address)",
-
-      // Royalty Functionality
-      // "function royalties(uint256,uint256) view returns (address, uint96)",
-      // "function royaltyInfo(uint256,uint256) view returns (address, uint256)",
-      // "function getRaribleV2Royalties(uint256) view returns (tuple(address,uint96)[])",
-
-      // Withdrawal functionality
-      // TODO "function withdraw(uint256,bool)"
     })
 
     it('Mini1155-5 User Validation', async function () {
@@ -384,15 +309,10 @@ describe('Mini1155', function () {
       // Should never have exchangeRatio set when sales is active otherwise users can mint and exchange to exceed personal limits
       await this.mini1155.setExchangeRatio(10)
       for (let i = 0; i < 77; i++) {
-        // console.log(`i: ${i}`)
         // Mint 10 exchange them for rare and then
         await this.mini1155.connect(this.bob).mint(numTokens, {
           value: c1.mintPrice.mul(numTokens)
         })
-        // const standardCount = await this.mini1155.balanceOf(this.bob.address, c1.s.tokenId)
-        // const rareCount = await this.mini1155.balanceOf(this.bob.address, c1.r.tokenId)
-        // // console.log(`Bob Standard Token Balance: ${standardCount}`)
-        // // console.log(`Bob Rare Token Balance:     ${rareCount}`)
         await this.mini1155.connect(this.bob).exchange()
       }
       // Validate Sale Changes
@@ -564,14 +484,6 @@ describe('Mini1155', function () {
 
       // Freeze Metadata (Owner)
       await this.mini1155.freezeMetadata()
-    })
-
-    it('Mini1155-9 Royalty Validation', async function () {
-      // Do multiple transfers and check the royalties account balance gets updatedeploymentConfig.
-    })
-
-    it('Mini1155-10 GAS Usage', async function () {
-
     })
   })
 })

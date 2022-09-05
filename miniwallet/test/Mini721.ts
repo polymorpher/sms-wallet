@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { ethers, network } from 'hardhat'
 import { ADDRESS_ZERO, prepare721, userMint721, communityMint721 } from './utilities'
 import { BigNumber } from 'ethers'
+import Constants from './utilities/constants'
 
 // let snapshotId: string;
 
@@ -58,7 +59,7 @@ describe('Mini721', function () {
       await expect(this.mini721.tokenURI(0)).to.be.revertedWith(
         'URIQueryForNonexistentToken()'
       )
-      expect(await this.mini721.supportsInterface('0x2a55205a')).to.equal(true)
+      expect(await this.mini721.supportsInterface(Constants.InterfaceId.ERC2981_NFT_ROYALTY_STANDARD)).to.equal(true)
       expect(await this.mini721.exists(18)).to.equal(false)
       expect(await this.mini721.contractURI()).to.equal('')
       // Token should hold no eth initially
@@ -142,7 +143,7 @@ describe('Mini721', function () {
       )
 
       // TODO review supportsInterface logic
-      expect(await this.mini721.supportsInterface('0x2a55205a')).to.equal(true)
+      expect(await this.mini721.supportsInterface(Constants.InterfaceId.ERC2981_NFT_ROYALTY_STANDARD)).to.equal(true)
       expect(await this.mini721.exists(2198)).to.equal(true)
       expect(await this.mini721.contractURI()).to.equal('')
       // Token should hold no eth initially
@@ -257,7 +258,7 @@ describe('Mini721', function () {
       )
 
       // TODO review supportsInterface logic
-      expect(await this.mini721.supportsInterface('0x2a55205a')).to.equal(true)
+      expect(await this.mini721.supportsInterface(Constants.InterfaceId.ERC2981_NFT_ROYALTY_STANDARD)).to.equal(true)
       expect(await this.mini721.exists(12)).to.equal(true)
       expect(await this.mini721.contractURI()).to.equal('')
       // Token should hold 1.7 ETH from the 17 mints
@@ -471,7 +472,7 @@ describe('Mini721', function () {
       console.log(`tokenURI[12]: ${tokenUri}`)
 
       // TODO review supportsInterface logic
-      expect(await this.mini721.supportsInterface('0x2a55205a')).to.equal(true)
+      expect(await this.mini721.supportsInterface(Constants.InterfaceId.ERC2981_NFT_ROYALTY_STANDARD)).to.equal(true)
       expect(await this.mini721.exists(12)).to.equal(true)
       expect(await this.mini721.contractURI()).to.equal(
         'ipfs://Qmf8WkAVZtkBwngG4mTrPk23vDd6z8dZW2UshV9ywWGyB9/contract.json'
@@ -765,53 +766,9 @@ describe('Mini721', function () {
     })
   })
 
-  // NFT Royalty Testing
-  describe('Mini721Royalties', function (this) {
-    it('Mini721 Test Royalties', async function () {
-      // safeTransferFrom(this.carol.address, this.bob.address, 13)
-      // safeTransferFrom(this.carol.address, this.bob.address, 13, "bytes")
-      // getRaribleV2Royalties(uint256)
-    })
-  })
-
-  // NFT Event Testing
-  describe('Mini721TestEvents', function (this) {
-    it('Mini721 Test all events are emitted correctly', async function () {
-      // safeTransferFrom(this.carol.address, this.bob.address, 13)
-      // safeTransferFrom(this.carol.address, this.bob.address, 13, "bytes")
-      // getRaribleV2Royalties(uint256)
-    })
-  })
-
-  // Test remaining functions including royalties and granitng approval
-  describe('MiniRemainingFunctions', function (this) {
-    it('Mini721 remaining functions including royaltiess and approvals', async function () {
-      // Remaining Update Functions
-      // mintMini(1)
-      // freezeMetaData()
-      // freezeProvenance()
-      // toggleSaleState()
-      // setOffsetValue(13)
-      // setMaxPerMint
-      // setMintPrice(ethers.utils.parseEther("0.2"))
-      // setBaseUri
-      // receive
-      // HRC721 Update Functions
-      // approve(this.carol.address,13)
-      // setApprovalForAll(this.carol.address, true)
-      // safeTransferFrom(this.carol.address, this.bob.address, 13)
-      // safeTransferFrom(this.carol.address, this.bob.address, 13, "bytes")
-
-      // setTemporaryTokenUri(string)
-      // setStartIndex()
-      // setUri(uint256,string)
-
-    })
-  })
-
   // NFT (Transfer Ownership)
-  describe('Mini721NFTSale', function (this) {
-    it('Mini721 tokens should be sold by users', async function () {
+  describe('Mini721NFTTransferOwnership', function (this) {
+    it('Mini721 tokens should be transferred by users', async function () {
       // Mint 2200 tokens for airdrop to OG
       let releaseCount
       releaseCount = 100
@@ -841,23 +798,4 @@ describe('Mini721', function () {
       expect(await this.mini721.ownerOf(1)).to.equal(this.alice.address)
     })
   })
-  // 7. Metadata Update (fixing outdated metadata)
-  // MetaData
-  describe('checkMetaData', function (this) {
-    it('Mini721 Metadata can be updated until frozen', async function () {
-      // ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/
-      await this.mini721.setBaseUri(
-        'ipfs://Qmf8WkAVZtkBwngG4mTrPk23vDd6z8dZW2UshV9ywWGyB9/'
-      )
-      // TODO Check the baseURI is used in tokenURI
-      await this.mini721.freezeMetadata()
-      await expect(this.mini721.setBaseUri('badURI')).to.be.revertedWith(
-        'Mini721: Metadata is frozen'
-      )
-    })
-  })
-
-  // TODO Additional Tests (tested separately)
-  // A. Auctions
-  // B. Airdrops
 })
