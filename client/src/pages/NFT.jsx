@@ -7,11 +7,12 @@ import { NFTUtils, processError, utils } from '../utils'
 import apis from '../api'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import BN from 'bn.js'
 import { TailSpin } from 'react-loading-icons'
 import PhoneInput from 'react-phone-number-input'
-import stringify from 'json-stable-stringify'
+import { walletActions } from '../state/modules/wallet'
+import { balanceActions } from '../state/modules/balance'
 
 export const MetadataURITransformer = (url) => {
   const IPFSIO = /https:\/\/ipfs\.io\/ipfs\/(.+)/
@@ -125,23 +126,19 @@ const loadCachedMetadata = ({ address, contractAddress, tokenId, tokenType }) =>
 }
 
 const loadNFTBalance = ({ contractAddress, address, tokenId, tokenType }) => {
-  const [balance, setBalance] = useState(new BN(0))
+  const dispatch = useDispatch()
+  const key = utils.computeTokenKey({ contractAddress, tokenId, tokenType }).string
+  const balance = useSelector(state => state.balance?.[address]?.tokenBalances?.[key] || '')
   useEffect(() => {
     if (!contractAddress || !tokenId || !tokenType || !address) {
       return
     }
     async function f () {
-      try {
-        const balance = await apis.blockchain.getTokenBalance({ address, contractAddress, tokenId, tokenType })
-        setBalance(new BN(balance))
-      } catch (ex) {
-        console.error(ex)
-        toast.error(`Failed to get NFT balance: ${processError(ex)}`)
-      }
+      dispatch(balanceActions.fetchTokenBalance({ address, contractAddress, tokenId, tokenType }))
     }
     f()
   }, [contractAddress, address, tokenId, tokenType])
-  return balance
+  return new BN(balance)
 }
 
 export const Gallery = styled.div`
@@ -278,7 +275,7 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect
 
   return (
     <>
-      <NFTItemContainer onClick={() => onSelect && onSelect({ resolvedImageUrl, contractAddress, isImage, isVideo, metadata, balance, contractName, tokenId, tokenType })}>
+      <NFTItemContainer onClick={() => onSelect && onSelect({ resolvedImageUrl, contractAddress, isImage, isVideo, metadata, contractName, tokenId, tokenType })}>
         {!contentType && <Loading><TailSpin /> </Loading>}
         {isImage && <NFTImage src={resolvedImageUrl} />}
         {isVideo && <NFTVideo src={resolvedImageUrl} loop muted autoplay />}
@@ -314,11 +311,16 @@ const DUMMY_NFTS = [{
 }]
 
 const loadNFTs = ({ address }) => {
-  const [nfts, setNfts] = useState(DUMMY_NFTS)
+  const dispatch = useDispatch()
+  const tracked = useSelector(state => state.wallet?.[address]?.trackedTokens || [])
+  const [nfts, setNfts] = useState([...tracked, ...DUMMY_NFTS])
   useEffect(() => {
     async function f () {
       try {
         const nfts = await apis.nft.lookup({ address })
+        console.log(nfts)
+        const tokens = nfts.map(e => ({ ...e, key: utils.computeTokenKey(e).string }))
+        dispatch(walletActions.overrideTokens({ tokens }))
         setNfts([...nfts, ...DUMMY_NFTS])
       } catch (ex) {
         console.error(ex)
@@ -331,6 +333,7 @@ const loadNFTs = ({ address }) => {
 }
 
 const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddress, tokenId, tokenType }) => {
+  const dispatch = useDispatch()
   const [isAddressInput, setIsAddressInput] = useState(false)
   const [phone, setPhone] = useState('')
   const [to, setTo] = useState('')
@@ -382,7 +385,9 @@ const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddr
         dest,
         amount: value
       })
-
+      const key = utils.computeTokenKey({ contractAddress, tokenId, tokenType }).string
+      // dispatch(balanceActions.fetchTokenBalance({ contractAddress, tokenId, tokenType, address }))
+      dispatch(balanceActions.fetchTokenBalanceSuccess({ key, balance: new BN(maxQuantity).sub(new BN(value)).toString(), address }))
       toast.success(
         <FlexRow>
           <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
@@ -462,7 +467,8 @@ const NFTDisplayWrapper = styled.div`
   position: relative;
 `
 
-const NFTViewer = ({ visible, setVisible, contractAddress, resolvedImageUrl, isImage, isVideo, metadata, balance, contractName, tokenId, tokenType }) => {
+const NFTViewer = ({ visible, setVisible, onClose, contractAddress, resolvedImageUrl, isImage, isVideo, metadata, contractName, tokenId, tokenType }) => {
+  const dispatch = useDispatch()
   const [showDetails, setShowDetails] = useState(false)
   const [showFullAddress, setShowFullAddress] = useState(false)
   const [sendModelVisible, setSendModalVisible] = useState(false)
@@ -471,6 +477,8 @@ const NFTViewer = ({ visible, setVisible, contractAddress, resolvedImageUrl, isI
   const wallet = useSelector(state => state.wallet || {})
   const address = Object.keys(wallet)[0]
   const pk = wallet[address]?.pk
+  const key = utils.computeTokenKey({ contractAddress, tokenId, tokenType }).string
+  const balance = new BN(useSelector(state => state.balance?.[address]?.tokenBalances?.[key] || ''))
 
   const showManagement = () => {
     setManagementVisible(true)
@@ -480,12 +488,13 @@ const NFTViewer = ({ visible, setVisible, contractAddress, resolvedImageUrl, isI
     try {
       setIsTracking(true)
       const signature = apis.web3.signWithBody({ contractAddress, tokenId }, pk)
-      const { success, error, removed } = await apis.nft.untrack({ contractAddress, tokenId, address, signature })
+      const { success, error } = await apis.nft.untrack({ contractAddress, tokenId, address, signature })
       if (!success) {
         toast.error(`Unable to hide token. Error: ${error}`)
         return
       }
-      console.log(removed)
+      const key = utils.computeTokenKey({ contractAddress, tokenId, tokenType }).string
+      dispatch(walletActions.untrackTokens({ tokens: [{ key, contractAddress, tokenId, tokenType }] }))
       toast.success(`Hiding ${tokenType} token (id=${tokenId}, contract=${utils.ellipsisAddress(contractAddress)})`)
       setManagementVisible(false)
       setVisible && setVisible(false)
@@ -497,79 +506,85 @@ const NFTViewer = ({ visible, setVisible, contractAddress, resolvedImageUrl, isI
     }
   }
   return (
-    <Modal
-      style={{ maxWidth: 800, width: '100%', margin: 'auto', padding: 0, paddingBottom: 24, background: 'black' }}
-      shadowStyle={{ opacity: 0.8 }}
-      visible={visible} onCancel={() => setVisible(false)}
-    >
-      <NFTViewerContainer>
-        <NFTDisplayWrapper>
-          {isImage && <NFTImageFull src={resolvedImageUrl} onClick={() => showManagement()} />}
-          {isVideo && <NFTVideoFull src={resolvedImageUrl} onClick={() => showManagement()} loop muted autoplay />}
-          {managementVisible &&
-            <NFTManagementPanel>
-              <Button style={{ width: '100%', height: '100%' }} onClick={() => untrack()}>
-                {isTracking ? <TailSpin /> : <><BaseText style={{ fontSize: 40 }}>✕</BaseText><br />Hide NFT</>}
-              </Button>
-            </NFTManagementPanel>}
-        </NFTDisplayWrapper>
+    <>
+      <Modal
+        style={{ maxWidth: 800, width: '100%', margin: 'auto', padding: 0, paddingBottom: 24, background: 'black' }}
+        shadowStyle={{ opacity: 0.8 }}
+        visible={visible} onCancel={() => {
+          onClose && onClose()
+          setVisible && setVisible(false)
+        }}
+      >
+        <NFTViewerContainer>
+          <NFTDisplayWrapper>
+            {isImage && <NFTImageFull src={resolvedImageUrl} onClick={() => showManagement()} />}
+            {isVideo && <NFTVideoFull src={resolvedImageUrl} onClick={() => showManagement()} loop muted autoplay />}
+            {managementVisible &&
+              <NFTManagementPanel>
+                <Button style={{ width: '100%', height: '100%' }} onClick={() => untrack()}>
+                  {isTracking ? <TailSpin /> : <><BaseText style={{ fontSize: 40 }}>✕</BaseText><br />Hide NFT</>}
+                </Button>
+              </NFTManagementPanel>}
+          </NFTDisplayWrapper>
 
-        <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
-        <NFTCollection>{contractName}</NFTCollection>
-        <NFTDescription>{metadata?.description}</NFTDescription>
-        {balance?.gtn(1) && <NFTQuantity>x{balance.toString()}</NFTQuantity>}
-        <Row style={{ padding: '0 16px' }}>
-          <Col style={{ flex: '100%' }}>
-            {!showDetails && <LinkWrarpper href='#' onClick={() => setShowDetails(true)}><TechnicalText>Show Technical Details</TechnicalText></LinkWrarpper>}
-            {showDetails && <LinkWrarpper href='#' onClick={() => setShowDetails(false)}><TechnicalText>Hide Technical Details</TechnicalText></LinkWrarpper>}
-          </Col>
-          <Button style={{ background: '#222', whiteSpace: 'nowrap' }} onClick={() => setSendModalVisible(true)}>Send NFT</Button>
-        </Row>
-        {showDetails &&
-          <Col style={{ gap: 0, padding: '0 16px' }}>
-            <Row>
-              <TechnicalText>Contract: </TechnicalText>
-              <TechnicalText onClick={() => {
-                setShowFullAddress(!showFullAddress)
-                navigator.clipboard.writeText(contractAddress)
-                toast.info('Copied address')
-              }}
-              >{showFullAddress ? contractAddress : utils.ellipsisAddress(contractAddress)}
-              </TechnicalText>
-            </Row>
-            <Row>
-              <TechnicalText>ID: </TechnicalText>
-              <TechnicalText onClick={() => {
-                navigator.clipboard.writeText(tokenId)
-                toast.info('Copied Token ID')
-              }}
-              >{tokenId}
-              </TechnicalText>
-            </Row>
-            <Row>
-              <TechnicalText>Type: </TechnicalText>
-              <TechnicalText onClick={() => {
-                navigator.clipboard.writeText(tokenType)
-                toast.info('Copied Token Type')
-              }}
-              >{tokenType}
-              </TechnicalText>
-            </Row>
-          </Col>}
-        <NFTSendModal
-          contractAddress={contractAddress}
-          tokenId={tokenId}
-          tokenType={tokenType}
-          modelVisible={sendModelVisible}
-          setModelVisible={setSendModalVisible}
-          maxQuantity={balance}
-        />
-      </NFTViewerContainer>
-    </Modal>
+          <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
+          <NFTCollection>{contractName}</NFTCollection>
+          <NFTDescription>{metadata?.description}</NFTDescription>
+          {balance?.gtn(1) && <NFTQuantity>x{balance.toString()}</NFTQuantity>}
+          <Row style={{ padding: '0 16px' }}>
+            <Col style={{ flex: '100%' }}>
+              {!showDetails && <LinkWrarpper href='#' onClick={() => setShowDetails(true)}><TechnicalText>Show Technical Details</TechnicalText></LinkWrarpper>}
+              {showDetails && <LinkWrarpper href='#' onClick={() => setShowDetails(false)}><TechnicalText>Hide Technical Details</TechnicalText></LinkWrarpper>}
+            </Col>
+            <Button style={{ background: '#222', whiteSpace: 'nowrap' }} onClick={() => setSendModalVisible(true)}>Send NFT</Button>
+          </Row>
+          {showDetails &&
+            <Col style={{ gap: 0, padding: '0 16px' }}>
+              <Row>
+                <TechnicalText>Contract: </TechnicalText>
+                <TechnicalText onClick={() => {
+                  setShowFullAddress(!showFullAddress)
+                  navigator.clipboard.writeText(contractAddress)
+                  toast.info('Copied address')
+                }}
+                >{showFullAddress ? contractAddress : utils.ellipsisAddress(contractAddress)}
+                </TechnicalText>
+              </Row>
+              <Row>
+                <TechnicalText>ID: </TechnicalText>
+                <TechnicalText onClick={() => {
+                  navigator.clipboard.writeText(tokenId)
+                  toast.info('Copied Token ID')
+                }}
+                >{tokenId}
+                </TechnicalText>
+              </Row>
+              <Row>
+                <TechnicalText>Type: </TechnicalText>
+                <TechnicalText onClick={() => {
+                  navigator.clipboard.writeText(tokenType)
+                  toast.info('Copied Token Type')
+                }}
+                >{tokenType}
+                </TechnicalText>
+              </Row>
+            </Col>}
+        </NFTViewerContainer>
+      </Modal>
+      <NFTSendModal
+        contractAddress={contractAddress}
+        tokenId={tokenId}
+        tokenType={tokenType}
+        modelVisible={sendModelVisible}
+        setModelVisible={setSendModalVisible}
+        maxQuantity={balance}
+      />
+    </>
   )
 }
 
 const NFTTracker = ({ visible, setVisible }) => {
+  const dispatch = useDispatch()
   const [contract, setContract] = useState('')
   const [tokenId, setTokenId] = useState('')
   const [isTracking, setIsTracking] = useState(false)
@@ -596,7 +611,10 @@ const NFTTracker = ({ visible, setVisible }) => {
         toast.error(`Unable to add token. Error: ${error}`)
         return
       }
+      const key = utils.computeTokenKey({ contractAddress: contract, tokenId, tokenType }).string
+      dispatch(walletActions.trackTokens({ tokens: [{ key, contractAddress: contract, tokenId, tokenType }] }))
       toast.success(`Added new ${tokenType} token (id=${tokenId}, contract=${utils.ellipsisAddress(contract)})`)
+      setVisible && setVisible(false)
     } catch (ex) {
       console.error(ex)
       toast.error(`Failed to add token. Error: ${processError(ex)}`)
@@ -631,10 +649,10 @@ const NFTShowcase = ({ address }) => {
   const [viewerVisible, setViewerVisible] = useState(false)
   const [trackerVisible, setTrackerVisible] = useState(false)
   const nfts = loadNFTs({ address })
-  const [selected, setSelected] = useState({})
+  const [selected, setSelected] = useState()
   // console.log(nfts)
   useEffect(() => {
-    if (new BN(selected?.balance).gtn(0)) {
+    if (selected) {
       setViewerVisible(true)
     }
   }, [selected])
@@ -659,7 +677,7 @@ const NFTShowcase = ({ address }) => {
           </FlexRow>
         </FlexColumn>
       </Gallery>
-      <NFTViewer visible={viewerVisible} setVisible={setViewerVisible} {...selected} />
+      <NFTViewer visible={viewerVisible} setVisible={setViewerVisible} onClose={() => setSelected(null)} {...selected} />
       <NFTTracker visible={trackerVisible} setVisible={setTrackerVisible} />
     </>
   )
