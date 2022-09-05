@@ -1,79 +1,58 @@
 import { expect } from 'chai'
+import { LogDescription } from 'ethers/lib/utils'
 import { ethers, network } from 'hardhat'
+import config from '../config'
 
 import { mini1155Mint, mini1155SafeTransferFrom, mini1155configure } from './utilities'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 
 // Deployment configuration
-const d = {
-  name: 'Mini Wallet',
-  symbol: 'Mini1155',
-  salt: ethers.utils.formatBytes32String('1'),
-  baseUri: 'ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/',
-  contractUri: 'ipfs://QmdKB6d1zT7R8dNmEQzc6N1m5p2LDJZ66Hzu8F4fGhdVrq',
-  revenueAccount: '0xa636a88102a7821b7e42292a4A3920A25a5d49b5',
-  saleIsActive: false,
-  metadataFrozen: false,
-  mintPrice: ethers.utils.parseEther('0.042'),
-  exchangeRatio: 0, // will be 10 after sale
-  rareProbabilityPercentage: 1,
-  maxPerMint: 10,
-  // standard token configuration
-  s: {
-    tokenId: 1,
-    maxSupply: 770,
-    personalCap: 10
-  },
-  // rare token configuration
-  r: {
-    tokenId: 2,
-    maxSupply: 7, // will be 84 after Sale
-    personalCap: 1
-  }
-}
+const deploymentConfig = config.test.mini1155.deploy
+const c1 = config.test.mini1155.collection1
+const c2 = config.test.mini1155.collection2
 
-// Collection 1 configuration
-const c1 = {
-  revenueAccount: '0xa636a88102a7821b7e42292a4A3920A25a5d49b5',
-  maxPerMint: 10,
-  mintPrice: ethers.utils.parseEther('0.042'),
-  exchangeRatio: 0, // will be 20 after sale
-  rareProbabilityPercentage: 1,
-  // standard token configuration
-  s: {
-    tokenId: 1,
-    maxSupply: 770,
-    personalCap: 10
-  },
-  // rare token configuration
-  r: {
-    tokenId: 2,
-    maxSupply: 7, // will be 84 after Sale
-    personalCap: 1
-  }
-}
+// // Collection 1 configuration
+// const c1 = {
+//   revenueAccount: '0xa636a88102a7821b7e42292a4A3920A25a5d49b5',
+//   maxPerMint: 10,
+//   mintPrice: ethers.utils.parseEther('0.042'),
+//   exchangeRatio: 0, // will be 20 after sale
+//   rareProbabilityPercentage: 1,
+//   // standard token configuration
+//   s: {
+//     tokenId: 1,
+//     maxSupply: 770,
+//     personalCap: 10
+//   },
+//   // rare token configuration
+//   r: {
+//     tokenId: 2,
+//     maxSupply: 7, // will be 84 after Sale
+//     personalCap: 1
+//   }
+// }
 
-// Collection 2 configuration
-const c2 = {
-  revenueAccount: '0xa636a88102a7821b7e42292a4A3920A25a5d49b5',
-  maxPerMint: 20,
-  mintPrice: ethers.utils.parseEther('0.084'),
-  exchangeRatio: 0,
-  rareProbabilityPercentage: 2,
-  // standard token configuration
-  s: {
-    tokenId: 3,
-    maxSupply: 1540,
-    personalCap: 20
-  },
-  // rare token configuration
-  r: {
-    tokenId: 4,
-    maxSupply: 28, // will be 168 after sale
-    personalCap: 2
-  }
-}
+// // Collection 2 configuration
+// const c2 = {
+//   revenueAccount: '0xa636a88102a7821b7e42292a4A3920A25a5d49b5',
+//   maxPerMint: 20,
+//   mintPrice: ethers.utils.parseEther('0.084'),
+//   exchangeRatio: 0,
+//   rareProbabilityPercentage: 2,
+//   // standard token configuration
+//   s: {
+//     tokenId: 3,
+//     maxSupply: 1540,
+//     personalCap: 20
+//   },
+//   // rare token configuration
+//   r: {
+//     tokenId: 4,
+//     maxSupply: 28, // will be 168 after sale
+//     personalCap: 2
+//   }
+// }
 describe('Mini1155', function () {
   before(async function (this) {
     this.signers = await ethers.getSigners()
@@ -90,28 +69,29 @@ describe('Mini1155', function () {
     this.snapshotId = await ethers.provider.send('evm_snapshot', [])
     const Mini1155 = await ethers.getContractFactory('Mini1155')
     this.mini1155 = await Mini1155.deploy(
-      d.saleIsActive,
-      d.metadataFrozen,
-      d.mintPrice,
-      d.maxPerMint,
-      d.s.tokenId,
-      d.r.tokenId,
-      d.exchangeRatio,
-      d.rareProbabilityPercentage,
-      d.salt,
-      d.baseUri,
-      d.contractUri
+      deploymentConfig.saleIsActive,
+      deploymentConfig.metadataFrozen,
+      deploymentConfig.mintPrice,
+      deploymentConfig.maxPerMint,
+      deploymentConfig.s.tokenId,
+      deploymentConfig.r.tokenId,
+      deploymentConfig.exchangeRatio,
+      deploymentConfig.rareProbabilityPercentage,
+      deploymentConfig.salt,
+      deploymentConfig.baseUri,
+      deploymentConfig.contractUri
     )
+    console.log('finished deploy')
     await this.mini1155.deployed()
     // set the revenue account
-    await this.mini1155.setRevenueAccount(d.revenueAccount)
+    await this.mini1155.setRevenueAccount(deploymentConfig.revenueAccount)
     // set the standard and rare maxSupply
-    await this.mini1155.setMaxSupply(d.s.tokenId, d.s.maxSupply) // standard tokenId (Access Pass)
-    await this.mini1155.setMaxSupply(d.r.tokenId, d.r.maxSupply) // rare TokenId (Collector Pass)
+    await this.mini1155.setMaxSupply(deploymentConfig.s.tokenId, deploymentConfig.s.maxSupply) // standard tokenId (Access Pass)
+    await this.mini1155.setMaxSupply(deploymentConfig.r.tokenId, deploymentConfig.r.maxSupply) // rare TokenId (Collector Pass)
     // set the standard and rare maxPersonalCap
-    await this.mini1155.setMaxPersonalCap(d.s.tokenId, d.s.personalCap) // standard tokenId (Access Pass)
-    await this.mini1155.setMaxPersonalCap(d.r.tokenId, d.r.personalCap) // rare TokenId (Collector Pass)
-    await this.mini1155.setNameSymbol(d.name, d.symbol)
+    await this.mini1155.setMaxPersonalCap(deploymentConfig.s.tokenId, deploymentConfig.s.personalCap) // standard tokenId (Access Pass)
+    await this.mini1155.setMaxPersonalCap(deploymentConfig.r.tokenId, deploymentConfig.r.personalCap) // rare TokenId (Collector Pass)
+    await this.mini1155.setNameSymbol(deploymentConfig.name, deploymentConfig.symbol)
   })
 
   afterEach(async function (this) {
@@ -131,39 +111,39 @@ describe('Mini1155', function () {
       expect(owner).to.equal(this.deployer.address)
       expect(await this.mini1155.balanceOf(owner, tid)).to.equal(0)
       expect((await this.mini1155.balanceOfBatch([owner, owner], [1, 2])).map(x => x.toString())).to.deep.equal(['0', '0'])
-      expect(await this.mini1155.baseUri()).to.equal(d.baseUri)
-      expect(await this.mini1155.contractURI()).to.equal(d.contractUri)
-      expect(await this.mini1155.exchangeRatio()).to.equal(d.exchangeRatio)
-      expect(await this.mini1155.exists(d.s.tokenId)).to.equal(false)
+      expect(await this.mini1155.baseUri()).to.equal(deploymentConfig.baseUri)
+      expect(await this.mini1155.contractURI()).to.equal(deploymentConfig.contractUri)
+      expect(await this.mini1155.exchangeRatio()).to.equal(deploymentConfig.exchangeRatio)
+      expect(await this.mini1155.exists(deploymentConfig.s.tokenId)).to.equal(false)
       expect(await this.mini1155.getRaribleV2Royalties(1)).to.deep.equal([])
       expect(await this.mini1155.isApprovedForAll(this.alice.address, owner)).to.equal(false)
-      expect(await this.mini1155.maxPerMint()).to.equal(d.maxPerMint)
-      expect(await this.mini1155.maxPersonalCap(d.s.tokenId)).to.equal(d.s.personalCap)
-      expect(await this.mini1155.maxSupply(d.s.tokenId)).to.equal(d.s.maxSupply)
+      expect(await this.mini1155.maxPerMint()).to.equal(deploymentConfig.maxPerMint)
+      expect(await this.mini1155.maxPersonalCap(deploymentConfig.s.tokenId)).to.equal(deploymentConfig.s.personalCap)
+      expect(await this.mini1155.maxSupply(deploymentConfig.s.tokenId)).to.equal(deploymentConfig.s.maxSupply)
       expect(await this.mini1155.metadataFrozen()).to.equal(false)
-      expect(await this.mini1155.metadataUris(d.s.tokenId)).to.equal('')
-      expect(await this.mini1155.mintPrice()).to.equal(d.mintPrice)
-      expect(await this.mini1155.name()).to.equal(d.name)
+      expect(await this.mini1155.metadataUris(deploymentConfig.s.tokenId)).to.equal('')
+      expect(await this.mini1155.mintPrice()).to.equal(deploymentConfig.mintPrice)
+      expect(await this.mini1155.name()).to.equal(deploymentConfig.name)
       expect(await this.mini1155.owner()).to.equal(this.deployer.address)
       expect(await this.mini1155.paused()).to.equal(false)
-      expect(await this.mini1155.rareProbabilityPercentage()).to.equal(d.rareProbabilityPercentage)
-      expect(await this.mini1155.revenueAccount()).to.equal(d.revenueAccount)
+      expect(await this.mini1155.rareProbabilityPercentage()).to.equal(deploymentConfig.rareProbabilityPercentage)
+      expect(await this.mini1155.revenueAccount()).to.equal(deploymentConfig.revenueAccount)
       // expect(await this.mini1155.royalties(1, 1)).to.equal(0, this.deployer.address)
       // expect(await this.mini1155.royaltyInfo(1, 1)).to.equal(this.deployer.address, 0)
-      expect(await this.mini1155.saleIsActive()).to.equal(d.saleIsActive)
+      expect(await this.mini1155.saleIsActive()).to.equal(deploymentConfig.saleIsActive)
       expect(await this.mini1155.saleStarted()).to.equal(false)
-      expect(await this.mini1155.salt()).to.equal(d.salt)
-      expect(await this.mini1155.standardTokenId()).to.equal(d.s.tokenId)
+      expect(await this.mini1155.salt()).to.equal(deploymentConfig.salt)
+      expect(await this.mini1155.standardTokenId()).to.equal(deploymentConfig.s.tokenId)
       expect(await this.mini1155.supportsInterface(0x2a55205a)).to.equal(true)
-      expect(await this.mini1155.symbol()).to.equal(d.symbol)
-      expect(await this.mini1155.totalSupply(d.s.tokenId)).to.equal(0)
-      expect(await this.mini1155.uri(d.s.tokenId)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/1.json')
+      expect(await this.mini1155.symbol()).to.equal(deploymentConfig.symbol)
+      expect(await this.mini1155.totalSupply(deploymentConfig.s.tokenId)).to.equal(0)
+      expect(await this.mini1155.uri(deploymentConfig.s.tokenId)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/1.json')
     })
 
     it('Mini1155-2 Configuration Validation', async function () {
       // Set Standard and Rare Tokens
       // await mini1155configure({ mini1155: this.mini1155, revenueAccount: await this.mini1155.owner() })
-      await mini1155configure({ mini1155: this.mini1155, config: c1 })
+      await mini1155configure({ mini1155: this.mini1155, collectionConfig: c1 })
       // Check all readOnlyFunctions
       expect(this.mini1155.address).to.equal(
         '0x5FbDB2315678afecb367f032d93F642f64180aa3'
@@ -208,7 +188,7 @@ describe('Mini1155', function () {
       // expect(await this.mini1155.royaltyInfo(1, 1)).to.equal(this.deployer.address, 0)
       expect(await this.mini1155.saleIsActive()).to.equal(false)
       expect(await this.mini1155.saleStarted()).to.equal(false)
-      expect(await this.mini1155.salt()).to.equal(d.salt)
+      expect(await this.mini1155.salt()).to.equal(deploymentConfig.salt)
       expect(await this.mini1155.standardTokenId()).to.equal(c1.s.tokenId)
       expect(await this.mini1155.supportsInterface(0x2a55205a)).to.equal(true)
       expect(await this.mini1155.totalSupply(c1.s.tokenId)).to.equal(0)
@@ -217,7 +197,7 @@ describe('Mini1155', function () {
 
     it('Mini1155-3 Sale Validation', async function () {
       // await mini1155configure({ mini1155: this.mini1155, revenueAccount: await this.mini1155.owner() })
-      await mini1155configure({ mini1155: this.mini1155, config: c1 })
+      await mini1155configure({ mini1155: this.mini1155, collectionConfig: c1 })
       let numTokens = 1
       // const mintPrice = await this.mini1155.mintPrice()
       // Can only mint when sale is active
@@ -272,7 +252,7 @@ describe('Mini1155', function () {
       // expect(await this.mini1155.royaltyInfo(1, 1)).to.deep.equal(this.deployer.address, '0')
       expect(await this.mini1155.saleIsActive()).to.equal(true)
       expect(await this.mini1155.saleStarted()).to.equal(true)
-      expect(await this.mini1155.salt()).to.equal(d.salt)
+      expect(await this.mini1155.salt()).to.equal(deploymentConfig.salt)
       expect(await this.mini1155.standardTokenId()).to.equal(c1.s.tokenId)
       expect(await this.mini1155.supportsInterface(0x2a55205a)).to.equal(true)
       expect(await this.mini1155.totalSupply(c1.s.tokenId)).to.equal(1)
@@ -283,7 +263,7 @@ describe('Mini1155', function () {
       const standardURI = 'ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/3.json'
       const rareURI = 'ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/4.json'
       const royaltyPercentage = 10
-      await mini1155configure({ mini1155: this.mini1155, config: c1 })
+      await mini1155configure({ mini1155: this.mini1155, collectionConfig: c1 })
       let numTokens = 1
       // set sale to active
       await this.mini1155.toggleSaleState()
@@ -308,13 +288,13 @@ describe('Mini1155', function () {
       await this.mini1155.setExchangeRatio(c1.exchangeRatio)
 
       // test other setters
-      await this.mini1155.setBaseUri(d.baseUri)
-      await this.mini1155.setContractUri(d.contractUri)
+      await this.mini1155.setBaseUri(deploymentConfig.baseUri)
+      await this.mini1155.setContractUri(deploymentConfig.contractUri)
       await this.mini1155.setMaxPerMint(c1.maxPerMint)
       await this.mini1155.setMintPrice(c1.mintPrice)
       await this.mini1155.setRareProbabilityPercentage(c1.rareProbabilityPercentage)
       await this.mini1155.setRoyalties(c1.s.tokenId, this.royalties.address, royaltyPercentage)
-      await this.mini1155.setSalt(d.salt)
+      await this.mini1155.setSalt(deploymentConfig.salt)
       await this.mini1155.pause()
       await this.mini1155.unpause()
       await this.mini1155.freezeMetadata()
@@ -397,7 +377,7 @@ describe('Mini1155', function () {
       ).to.be.revertedWith('Ownable: caller is not the owner')
 
       // One User should not be able to mint and exchange all the tokens
-      await mini1155configure({ mini1155: this.mini1155, config: c1 })
+      await mini1155configure({ mini1155: this.mini1155, collectionConfig: c1 })
       const numTokens = 10
       // set sale to active
       await this.mini1155.toggleSaleState()
@@ -434,7 +414,7 @@ describe('Mini1155', function () {
       const owner = await this.mini1155.owner()
       // Deploy (Owner done in before each)
       // Configure Collection 1 (Owner)
-      await mini1155configure({ mini1155: this.mini1155, config: c1 })
+      await mini1155configure({ mini1155: this.mini1155, collectionConfig: c1 })
 
       // Start Sale (Owner)
       await this.mini1155.toggleSaleState()
@@ -504,7 +484,7 @@ describe('Mini1155', function () {
 
       // ==== LAUNCH A NEW COLLECTION ====
       // Configure Collection2 (Owner)
-      await mini1155configure({ mini1155: this.mini1155, config: c2 })
+      await mini1155configure({ mini1155: this.mini1155, collectionConfig: c2 })
 
       // Start Sale (Owner)
       await this.mini1155.toggleSaleState()
@@ -587,7 +567,7 @@ describe('Mini1155', function () {
     })
 
     it('Mini1155-9 Royalty Validation', async function () {
-      // Do multiple transfers and check the royalties account balance gets updated.
+      // Do multiple transfers and check the royalties account balance gets updatedeploymentConfig.
     })
 
     it('Mini1155-10 GAS Usage', async function () {

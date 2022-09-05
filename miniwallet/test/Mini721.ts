@@ -37,9 +37,7 @@ describe('Mini721', function () {
   // Deployment Tests
   describe('validate Initial Deploy', function (this) {
     it('Mini721 contract should be created', async function () {
-      expect(await this.mini721.address).to.equal(
-        '0x5FbDB2315678afecb367f032d93F642f64180aa3'
-      )
+      await expect(this.mini721.address).to.be.properAddress
 
       // Public Variables
       expect(await this.mini721.maxMiniTokens()).to.equal(10000)
@@ -64,17 +62,8 @@ describe('Mini721', function () {
       expect(await this.mini721.exists(18)).to.equal(false)
       expect(await this.mini721.contractURI()).to.equal('')
       // Token should hold no eth initially
-      // expect(await ethers.provider.getBalance(this.mini721.address)).to.equal(
-      //   ethers.utils.parseEther("0")
-      // );
       // Alices is the owner and there should be nothing to withdraw
-      // expect(await ethers.provider.getBalance(this.alice.address)).to.equal(
-      //   ethers.utils.parseEther("9999.993762362500000000")
-      // );
       await this.mini721.withdraw(ethers.utils.parseEther('0'), false)
-      // expect(await ethers.provider.getBalance(this.alice.address)).to.equal(
-      //   ethers.utils.parseEther("9999.993718938161152720")
-      // );
       expect(await this.mini721.tokensOfOwner(this.alice.address)).to.deep.equal(
         []
       )
@@ -157,20 +146,8 @@ describe('Mini721', function () {
       expect(await this.mini721.exists(2198)).to.equal(true)
       expect(await this.mini721.contractURI()).to.equal('')
       // Token should hold no eth initially
-      // expect(await ethers.provider.getBalance(this.mini721.address)).to.equal(
-      //   ethers.utils.parseEther("0")
-      // );
       // Alices is the owner and there should be nothing to withdraw
-      // expect(await ethers.provider.getBalance(this.alice.address)).to.equal(
-      //   ethers.utils.parseEther("9999.985685653318801876")
-      // );
       await this.mini721.withdraw(ethers.utils.parseEther('0'), false)
-      // expect(await ethers.provider.getBalance(this.alice.address)).to.equal(
-      //   ethers.utils.parseEther("9999.985653474264747487")
-      // );
-      // expect(await this.mini721.tokensOfOwner(this.alice.address)).to.deep.equal(
-      //   []
-      // );
       expect(await this.mini721.tokensOfOwner(this.dev.address)).to.deep.equal([
         BigNumber.from(2195),
         BigNumber.from(2196),
@@ -237,10 +214,6 @@ describe('Mini721', function () {
       expect(await this.mini721.totalSupply()).to.equal(2201)
       releaseCount = 5
       await userMint721(this, this.bob, releaseCount)
-      // const mintPrice = await this.mini721.mintPrice();
-      // await this.mini721.connect(this.bob).mintMini(releaseCount, {
-      //   value: mintPrice.mul(releaseCount),
-      // });
 
       expect(await this.mini721.totalSupply()).to.equal(2206)
       releaseCount = 10
@@ -288,41 +261,15 @@ describe('Mini721', function () {
       expect(await this.mini721.exists(12)).to.equal(true)
       expect(await this.mini721.contractURI()).to.equal('')
       // Token should hold 1.7 ETH from the 17 mints
-      // expect(await ethers.provider.getBalance(this.mini721.address)).to.equal(
-      //   ethers.utils.parseEther("1.7")
-      // );
       // Alice is the owner and there should be 1.7 ETH to withdraw
-      // expect(await ethers.provider.getBalance(this.alice.address)).to.equal(
-      //   ethers.utils.parseEther("9999.784673934091280850")
-      // );
       await expect(
         this.mini721.withdraw(ethers.utils.parseEther('1.8'), false)
       ).to.be.revertedWith('')
       await this.mini721.withdraw(ethers.utils.parseEther('0.7'), false)
-      // expect(await ethers.provider.getBalance(this.alice.address)).to.equal(
-      //   ethers.utils.parseEther("10000.493126781913573560")
-      // );
       await this.mini721.setRevenueAccount(this.bob.address)
       await this.mini721
         .connect(this.bob)
         .withdraw(ethers.utils.parseEther('1.0'), true)
-      // expect(await ethers.provider.getBalance(this.bob.address)).to.equal(
-      //   ethers.utils.parseEther("10000.484604394681221011")
-      // );
-      // expect(await this.mini721.tokensOfOwner(this.carol.address)).to.deep.equal(
-      //   [
-      //     BigNumber.from(6),
-      //     BigNumber.from(7),
-      //     BigNumber.from(8),
-      //     BigNumber.from(9),
-      //     BigNumber.from(10),
-      //     BigNumber.from(11),
-      //     BigNumber.from(12),
-      //     BigNumber.from(13),
-      //     BigNumber.from(14),
-      //     BigNumber.from(15),
-      //   ]
-      // );
 
       // Public Functions HRC721
       expect(await this.mini721.totalSupply()).to.equal(2217)
@@ -395,17 +342,11 @@ describe('Mini721', function () {
         })
       ).to.be.revertedWith('Mini721: Ether value sent is not correct')
       // Test Mint with excess amount gets refunded
-      // expect(await ethers.provider.getBalance(this.bob.address)).to.equal(
-      //   ethers.utils.parseEther("10000")
-      // );
       // mint 3 tokens parsing 1 eth
       await this.mini721.connect(this.bob).mintMini(3, {
         value: ethers.utils.parseEther('1')
       })
       // bobs balance should be less 0.3 eth + gas
-      // expect(await ethers.provider.getBalance(this.bob.address)).to.equal(
-      //   ethers.utils.parseEther("9999.699901322127631927")
-      // );
 
       // Test Mini Community minting negative use cases
       releaseCount = 1
@@ -801,44 +742,14 @@ describe('Mini721', function () {
       expect(
         await this.mini721.tokenOfOwnerByIndex(this.carol.address, 3)
       ).to.equal(303)
-      // expect(await this.mini721.tokensOfOwner(this.carol.address)).to.deep.equal(
-      //   [
-      //     BigNumber.from(6),
-      //     BigNumber.from(7),
-      //     BigNumber.from(8),
-      //     BigNumber.from(9),
-      //     BigNumber.from(10),
-      //     BigNumber.from(11),
-      //     BigNumber.from(12),
-      //     BigNumber.from(13),
-      //     BigNumber.from(14),
-      //     BigNumber.from(15),
-      //   ]
-      // );
       // Burn a token
       await this.mini721.burn(9)
       // Check current State
       expect(await this.mini721.totalSupply()).to.equal(2236)
-      // await expect(this.mini721.ownerOf(2237)).to.be.revertedWith(
-      //   "OwnerQueryForNonexistentToken()"
-      // );
       expect(await this.mini721.balanceOf(this.carol.address)).to.equal(1905)
       expect(
         await this.mini721.tokenOfOwnerByIndex(this.carol.address, 3)
       ).to.equal(303)
-      // expect(await this.mini721.tokensOfOwner(this.carol.address)).to.deep.equal(
-      //   [
-      //     BigNumber.from(6),
-      //     BigNumber.from(7),
-      //     BigNumber.from(8),
-      //     BigNumber.from(10),
-      //     BigNumber.from(11),
-      //     BigNumber.from(12),
-      //     BigNumber.from(13),
-      //     BigNumber.from(14),
-      //     BigNumber.from(15),
-      //   ]
-      // );
 
       // Burn some tokens
       await this.mini721.batchBurn([7, 12, 14])
@@ -851,25 +762,6 @@ describe('Mini721', function () {
       expect(
         await this.mini721.tokenOfOwnerByIndex(this.carol.address, 3)
       ).to.equal(303)
-      // expect(await this.mini721.tokensOfOwner(this.carol.address)).to.deep.equal(
-      //   [
-      //     BigNumber.from(6),
-      //     BigNumber.from(8),
-      //     BigNumber.from(10),
-      //     BigNumber.from(11),
-      //     BigNumber.from(13),
-      //     BigNumber.from(15),
-      //   ]
-      // );
-
-      // freezeMetaData() means burning no longer allowed
-      // await this.mini721.freezeMetadata();
-      // await expect(this.mini721.burn(8)).to.be.revertedWith(
-      //   "Mini721: Metadata is frozen"
-      // );
-      // await expect(this.mini721.batchBurn([10, 11, 13])).to.be.revertedWith(
-      //   "Mini721: Metadata is frozen"
-      // );
     })
   })
 

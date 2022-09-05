@@ -3,25 +3,24 @@ import { expect } from 'chai'
 import { MockProvider } from 'ethereum-waffle'
 import { Contract, BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
-import Mocha from 'mocha'
 
 export const BASE_TEN = 10
 
-export async function prepare (thisObject: Mocha.Context, contracts: string[]) {
+export async function prepare (testEnvironment, contracts) {
   for (const i in contracts) {
     const contract = contracts[i]
-    thisObject[contract] = await ethers.getContractFactory(contract)
+    testEnvironment[contract] = await ethers.getContractFactory(contract)
   }
-  thisObject.signers = await ethers.getSigners()
-  thisObject.deployer = thisObject.signers[0]
-  thisObject.operatorA = thisObject.signers[1]
-  thisObject.operatorB = thisObject.signers[2]
-  thisObject.operatorC = thisObject.signers[3]
-  thisObject.alice = thisObject.signers[4]
-  thisObject.bob = thisObject.signers[5]
-  thisObject.carol = thisObject.signers[6]
-  thisObject.dora = thisObject.signers[7]
-  thisObject.ernie = thisObject.signers[8]
+  testEnvironment.signers = await ethers.getSigners()
+  testEnvironment.deployer = testEnvironment.signers[0]
+  testEnvironment.operatorA = testEnvironment.signers[1]
+  testEnvironment.operatorB = testEnvironment.signers[2]
+  testEnvironment.operatorC = testEnvironment.signers[3]
+  testEnvironment.alice = testEnvironment.signers[4]
+  testEnvironment.bob = testEnvironment.signers[5]
+  testEnvironment.carol = testEnvironment.signers[6]
+  testEnvironment.dora = testEnvironment.signers[7]
+  testEnvironment.ernie = testEnvironment.signers[8]
 }
 
 export async function deploy (context, contracts) {
@@ -31,11 +30,11 @@ export async function deploy (context, contracts) {
   }
 }
 
-export async function deployUpgradeable (thisObject, contracts) {
+export async function deployUpgradeable (testEnvironment, contracts) {
   for (const contract of contracts) {
-    thisObject[contract[0]] = await contract[1].deploy()
-    await thisObject[contract[0]].deployed()
-    const tx = await thisObject[contract[0]].initialize(...(contract[2] || []))
+    testEnvironment[contract[0]] = await contract[1].deploy()
+    await testEnvironment[contract[0]].deployed()
+    const tx = await testEnvironment[contract[0]].initialize(...(contract[2] || []))
     await tx.wait()
     // await ethers.provider.waitForTransaction(tx.hash)
   }
