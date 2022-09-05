@@ -98,7 +98,8 @@ const hardhatUserconfig: HardhatUserConfig = {
     },
     mainnet: {
       url: process.env.MAINNET_URL,
-      accounts: [normalizeHex(process.env.PRIVATE_KEY)]
+      accounts: [normalizeHex(process.env.PRIVATE_KEY)],
+      chainId: 1666600000
     },
     localgeth: {
       url: process.env.LOCALGETH_URL,

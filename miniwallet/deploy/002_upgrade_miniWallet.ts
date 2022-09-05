@@ -18,20 +18,21 @@ const deployFunction: DeployFunction = async function (
   let initialAuthLimit
 
   console.log(`chainId: ${chainId}`)
-  if (chainId === '31337') {
-    console.log('Local Testing Deploy')
-    initialOperatorThreshold = config.test.initialOperatorThreshold
-    initialOperators = config.test.initialOperators
-    initialUserLimit = config.test.initialUserLimit
-    initialAuthLimit = config.test.initialAuthLimit
+  if (chainId === '1666600000,') {
+    console.log('Harmony Mainnet Deploy')
+    initialOperatorThreshold = config.mainnet.miniWallet.initialOperatorThreshold
+    initialOperators = config.mainnet.miniWallet.initialOperators
+    initialUserLimit = config.mainnet.miniWallet.initialUserLimit
+    initialAuthLimit = config.mainnet.miniWallet.initialAuthLimit
   } else {
-    initialOperatorThreshold = config.initialOperatorThreshold
-    initialOperators = config.initialOperators
-    initialUserLimit = config.initialUserLimit
-    initialAuthLimit = config.initialAuthLimit
+    console.log(`Test Deploy on chainId: ${chainId}`)
+    initialOperatorThreshold = config.test.miniWallet.initialOperatorThreshold
+    initialOperators = config.test.miniWallet.initialOperators
+    initialUserLimit = config.test.miniWallet.initialUserLimit
+    initialAuthLimit = config.test.miniWallet.initialAuthLimit
   }
 
-  console.log('operators:', JSON.stringify(config.initialOperators))
+  console.log('operators:', JSON.stringify(initialOperators))
   const deployedContract = await deploy('MiniWallet', {
     contract: 'MiniWallet_v2',
     from: deployer,
@@ -80,5 +81,5 @@ const deployFunction: DeployFunction = async function (
 }
 
 deployFunction.dependencies = []
-deployFunction.tags = ['MiniWallet_v2', '002', 'upgrade']
+deployFunction.tags = ['MiniWallet_v2', '002', 'upgrade', 'MiniWalletUpgrade']
 export default deployFunction
