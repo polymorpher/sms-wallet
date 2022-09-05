@@ -30,6 +30,14 @@ const reducer = handleActions({
       untrackedTokens: (state[action.payload.address]?.untrackedTokens || []).filter(k => (action.payload.tokens || []).find(t => t.key === k) === undefined)
     }
   }),
+  [walletActions.overrideTokens]: (state, action) => ({
+    ...state,
+    [action.payload.address]: {
+      ...state[action.payload.address],
+      trackedTokens: [...action.payload.tokens],
+      untrackedTokens: [],
+    }
+  }),
   [walletActions.untrackTokens]: (state, action) => ({
     ...state,
     [action.payload.address]: {
