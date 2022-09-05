@@ -7,6 +7,7 @@ const updateWallet = createAction('UPDATE_WALLET')
 const deleteWallet = createAction('DELETE_WALLET')
 
 const trackTokens = createAction('TRACK_TOKENS')
+const overrideTokens = createAction('OVERRIDE_TOKENS')
 const untrackTokens = createAction('UNTRACK_TOKENS')
 const setSelectedToken = createAction('SET_SELECTED_TOKEN')
 
@@ -17,6 +18,7 @@ export default {
   updateWallet,
   deleteWallet,
 
+  overrideTokens,
   trackTokens,
   untrackTokens,
   setSelectedToken,

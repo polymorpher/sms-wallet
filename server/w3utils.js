@@ -24,7 +24,7 @@ const utils = {
       return false
     }
     return address1.toLowerCase() === address2.toLowerCase()
-  }
+  },
 
 }
 
