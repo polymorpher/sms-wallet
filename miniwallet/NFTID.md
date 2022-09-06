@@ -4,6 +4,15 @@ When registering their phone number for sms-wallet we would like to issue an NFT
 
 In terms of Decentralized Identity. SMS-Wallet is attesting to the digital identity of the creators and users.
 
+## Requirements/Considerations
+* Gas Payment (should the user pay for the mint cost)?
+* Use of MultiSig Wallets for the Operators
+* NFT Contract supports Multiple Operators Minting NFT's
+* Image would be useful to support encoding information like chainId and address in qrcode
+* Metadata : could store country and region
+* NFT Contract should be upgradeable
+
+
 ## Registration Flow
 A semi-protected API can be added on miniwallet server for this. The API can be called by the client, but the client should provide its address and a valid signature. The miniwallet server can then call the server backend (or simply lookup from datastore) and verify the address is indeed a registered user, before issuing the NFT. [comment is here](https://github.com/polymorpher/sms-wallet/issues/10#issuecomment-1236012684)
 
@@ -21,13 +30,14 @@ All registered users are read from the datastore. There addresses are collected.
 * Add MiniID to DummyNFT's 
 
 ### Contract
-  * No Limit on Number of NFT Tokens
-  * Operator Logic added and Minting of Tokens can only be done by Operator
-  * Minting allows only one token per address
-  * Approval Mechanism for allowing other users to use your identity
-  * Remove Sales Logic
-  * Provenance is never frozen
-  * Metadata is never frozen
+Contract base can be generated using [OpenZepplin Solidity Wizard](https://wizard.openzeppelin.com/#erc721) and then enhanced for the following
+* No Limit on Number of NFT Tokens
+* Operator Logic added and Minting of Tokens can only be done by Operator
+* Minting allows only one token per address
+* Approval Mechanism for allowing other users to use your identity
+* Remove Sales Logic
+* Provenance is never frozen
+* Metadata is never frozen
 
 ### Contract Configuration
 ```

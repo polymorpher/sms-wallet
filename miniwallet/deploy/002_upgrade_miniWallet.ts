@@ -12,47 +12,19 @@ const deployFunction: DeployFunction = async function (
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
   const chainId = await getChainId()
-  let initialOperatorThreshold
-  let initialOperators
-  let initialUserLimit
-  let initialAuthLimit
-
   console.log(`chainId: ${chainId}`)
-  if (chainId === '1666600000,') {
-    console.log('Harmony Mainnet Deploy')
-    initialOperatorThreshold = config.mainnet.miniWallet.initialOperatorThreshold
-    initialOperators = config.mainnet.miniWallet.initialOperators
-    initialUserLimit = config.mainnet.miniWallet.initialUserLimit
-    initialAuthLimit = config.mainnet.miniWallet.initialAuthLimit
-  } else {
-    console.log(`Test Deploy on chainId: ${chainId}`)
-    initialOperatorThreshold = config.test.miniWallet.initialOperatorThreshold
-    initialOperators = config.test.miniWallet.initialOperators
-    initialUserLimit = config.test.miniWallet.initialUserLimit
-    initialAuthLimit = config.test.miniWallet.initialAuthLimit
-  }
 
-  console.log('operators:', JSON.stringify(initialOperators))
   const deployedContract = await deploy('MiniWallet', {
     contract: 'MiniWallet_v2',
     from: deployer,
     proxy: {
       owner: deployer,
-      proxyContract: 'EIP173Proxy',
-      execute: {
-        init: {
-          methodName: 'initialize',
-          args: [
-            initialOperatorThreshold,
-            initialOperators,
-            initialUserLimit,
-            initialAuthLimit
-          ]
-        }
-      }
+      proxyContract: 'EIP173Proxy'
     },
     log: true
   })
+
+  console.log('Deploy Finished')
   const miniWallet = await hre.ethers.getContractAt('MiniWallet_v2', deployedContract.address)
 
   console.log('MiniWallet_v2 deployed to:', miniWallet.address)

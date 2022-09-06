@@ -38,11 +38,15 @@ A cleaner solution was proposed in [Pull Request #12](https://github.com/polymor
 For each chain, we only need three things: proxy contract, deployed proxy address, and logic contract address. Rather than keeping a bunch of JSON files and irrelevant information in those files, I think it is better to just store these three pieces of information in a file inside a folder (similar to relayer/cache, but can be simpler, e.g. the versions can be hash of contracts instead). When we need to upgrade the contract later, we just read from that file and call relevant functions accordingly (i.e. (1) deploy a new logic contract, (2) redirect proxy to the address of the new logic contract). I have read https://github.com/wighawag/hardhat-deploy#deploying-and-upgrading-proxies and examined underlying types (ProxyOptionsBase, etc.) but I am not sure whether hardhat-deploy library supports manual selection (of logic contract address) during upgrade. It would be nice if it does, but even if it doesn't, it seems not hard to just implement on our own - should be just a few lines.
 
 To Implement this we need to do the following
-1. Create our own MiniWalletProxy.sol (which can based of any of the Proxy Contract below, suggest using EIP173 from Hardhat Deploy). This would enhance readabilty.
+1. Create our own MiniWalletProxy.sol. In order to support openzeppelin upgrades we should use a UUPS Compliant Proxy [ERC1967.sol](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/proxy/ERC1967/ERC1967Proxy.sol). However there is currently an issue with Hardhat support of openzeppelin UUPS Proxies. I have [commented on the issue](https://github.com/wighawag/hardhat-deploy/issues/146#issuecomment-1238731556) and the [response](https://github.com/wighawag/hardhat-deploy/issues/146#issuecomment-1238741706) is currently to deploy  and then manually saving hardhat-deploy's artifact. However this solution does not allow us to use our own proxy as openZepplin only supports [their own ("uups" | "transparent" | "beacon") proxies](https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades).
 2. Update the Deployment scripts to use this proxy ` proxyContract: 'MiniWalletProxy',`
-3. Capture the MiniWalletProxy and MiniWallet Logic contract deployed addresses in the Deployment Scripts and persist them under a separate folder (e.g. `cache`).
-4. Update the upgrade script to call MiniWallet Deploy and MiniWalletProxy.upgradeTo explicitly.
-5. Use [deterministicDeployment](https://github.com/wighawag/hardhat-deploy#deploymentsdeployname-options) `  deterministicDeployment? boolean | string; // if true, it will deploy the contract at a deterministic address based on bytecode and constructor arguments. The address will be the same across all network. It use create2 opcode for that, if it is a string, the string will be used as the salt.`
+3. Update the upgrade script to call MiniWallet Deploy and MiniWalletProxy.upgradeTo explicitly.
+4. Use [deterministicDeployment](https://github.com/wighawag/hardhat-deploy#deploymentsdeployname-options) `  deterministicDeployment? boolean | string; // if true, it will deploy the contract at a deterministic address based on bytecode and constructor arguments. The address will be the same across all network. It use create2 opcode for that, if it is a string, the string will be used as the salt.`
+5. Test using different deployers (can do this by changing mnemonic when starting chain locally)
+6. If desired create our our Deployment Factory using a `create3` opcode based deterministic deploy.
+7. Capture the MiniWalletProxy and MiniWallet Logic contract deployed addresses in the Deployment Scripts and persist them under a separate folder (e.g. `cache`).
+
+**Note: [OpenZepplin UUPS Hardhat Deploy Support Issue](https://github.com/wighawag/hardhat-deploy/issues/146)**
 
 ### Improve Modularity (NFT Identity)
 As we develop NFT Identity we may want to have the MiniWallet Proxy point to multiple (MiniWallet and Mini721 and Mini1155) contracts (facets). We can support this using [EIP-2535: Diamonds, Multi-Facet Proxy](https://eips.ethereum.org/EIPS/eip-2535) as implemented in [Hardhat Deploy: Built-In Support for Diamonds](https://github.com/wighawag/hardhat-deploy#builtin-in-support-for-diamonds-eip2535.) 
@@ -66,9 +70,16 @@ If we decide we want to provide the ability for Creators to deploy their own con
   - [UUPSUpgradeable: Open Zeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol)
   - [ProxyAdmin: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/blob/master/solc_0.8/openzeppelin/proxy/transparent/ProxyAdmin.sol): This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}.
 
+- Deterministic Deploy (not based of deployer)
+  - [EIP-1014: Skinny CREATE2](https://eips.ethereum.org/EIPS/eip-1014)
+  - [Hardhat Deploy specifing a deployment factory](https://github.com/wighawag/hardhat-deploy#4-deterministicdeployment-ability-to-specify-a-deployment-factory)
+  - [OpenZepplin Deploying Smart Contracts Using CREATE2](https://docs.openzeppelin.com/cli/2.8/deploying-with-create2)
+  - [0xsequence create3](https://github.com/0xsequence/create3)
+  - [Zoltu Deterministic Deploy Proxy](https://github.com/Zoltu/deterministic-deployment-proxy)
 
 - Ethereum Improvement Proposals
   - [EIP-173: Contract Ownership Standard](https://eips.ethereum.org/EIPS/eip-173)
+  - [EIP-1014: Skinny CREATE2](https://eips.ethereum.org/EIPS/eip-1014)
   - [EIP-1967: Standard Proxy Storage Slots](https://eips.ethereum.org/EIPS/eip-1967)
   - [EIP-1822: Universal Upgradeable Proxy Standard (UUPS)](https://eips.ethereum.org/EIPS/eip-1822)
   - [EIP-2535: Diamonds, Multi-Facet Proxy](https://eips.ethereum.org/EIPS/eip-2535)
