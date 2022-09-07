@@ -3,6 +3,7 @@ const { StatusCodes } = require('http-status-codes')
 const { User } = require('../src/data/user')
 const stringify = require('json-stable-stringify')
 const w3utils = require('../w3utils')
+const { ethers } = require('ethers')
 
 const partialReqCheck = async (req, res, next) => {
   const { phone: unvalidatedPhone, eseed } = req.body
@@ -59,4 +60,27 @@ const hasUserSignedBody = async (req, res, next) => {
   next()
 }
 
-module.exports = { partialReqCheck, reqCheck, checkExistence, hasUserSignedBody }
+const validateID = async (req, res, next) => {
+  const { id: unvalidatedID } = req.body
+  let u
+  if (unvalidatedID.substr(0, 2) === '0x') {
+    if (!ethers.utils.isAddress(unvalidatedID)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: `invalid Address: ${unvalididatedID}` })
+    } else {
+      // find by address
+      u = await User.findByAddress({ unvalidatedID })
+      if (!u?.id) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: `address does not exists: ${unvalidatedID}` })
+      }
+    }
+  } else {
+    u = await User.findByPhone({ phone: unvalidatedID })
+    if (!u?.id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: `invalid Address: ${unvalididatedID}` })
+    }
+  }
+  req.processedBody = { ...req.processedBody, phone: u.phone, address: u.address.toLowerCase() }
+  next()
+}
+
+module.exports = { partialReqCheck, reqCheck, checkExistence, hasUserSignedBody, validateID }

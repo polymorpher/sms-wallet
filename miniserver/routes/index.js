@@ -55,7 +55,7 @@ const parseSMS = async (req, res, next) => {
       }
       // Allow requesting of funds from users by address (without checking registered phone number)
       if (smsParams[1].substr(0, 2) === '0x') {
-        if (ethers.utils.isAddress(funder.address)) {
+        if (ethers.utils.isAddress(smsParams[1])) {
           funder.address = smsParams[1]
         } else {
           response.message(`error: invalid funder address ${smsParams[1]}. example request "p 0x8ba1f109551bd432803012645ac136ddd64dba72 0.1"`)
