@@ -30,11 +30,15 @@ All registered users are read from the datastore. There addresses are collected.
 
 We model three actors
 
-**Operator**(+1 737 232 7333): The SMS Operator has multiple operator accounts for test purposes. However it’s unique identifier in the system is it’s phone number and the registered address associated with it. 
+**Operator**(+1 737 232 7333): The SMS Operator has multiple operator accounts for test purposes. However it’s unique identifier in the system is it’s phone number and the registered address associated with it.
+![The Operator](https://1wallet.mypinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/0.png)
+
 
 **Creator**(+1 650 547 3175): The Creator has one account and requests authorizations from users via the miniwallet and asks operators to make payments
+![The Creator](https://1wallet.mypinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/1.png)
 
-**Community Member**(+1 415 840 1410): Community Member authorizes 
+**Community Member**(+1 415 840 1410): Community Member uses the sms-wallet to hold native tokens, ERC20, ERC721 and ERC115's. They can deposit funds and nft's in the miniwallet and approve operators to automatically transfer those funds (e.g. to creators) when needed.
+![The First Community Member](https://1wallet.mypinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/2.png)
 
 ## Tokens
 
@@ -68,8 +72,8 @@ Additional [off-chain attestations](https://ethereum.org/en/decentralized-identi
 
 ## Sample Metadata
 
-[MinID](https://gateway.pinata.cloud/ipfs/QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/MiniID) (Image URL to be replaced with QR Code)
-ipfs://QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/MiniID
+[MinID](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/MiniID) (Image URL to be replaced with QR Code)
+ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/MiniID
 
 ```
 {
@@ -98,9 +102,9 @@ ipfs://QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/MiniID
 }
 ```
 
-[Min721](https://gateway.pinata.cloud/ipfs/QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini721) 
+[Min721](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini721) 
 
-ipfs://QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini721
+ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini721
 
 ```
 {
@@ -129,9 +133,9 @@ ipfs://QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini721
 }
 ```
 
-[Mini1155](https://gateway.pinata.cloud/ipfs/QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini1155) (Image URL to be replaced with QR Code)
+[Mini1155](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155) (Image URL to be replaced with QR Code)
 
-[https://gateway.pinata.cloud/ipfs/QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini1155](https://gateway.pinata.cloud/ipfs/QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini1155)
+[https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155)
 
 ```
 {

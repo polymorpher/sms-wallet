@@ -84,13 +84,13 @@ const deployFunction: DeployFunction = async function (
   if (chainId !== '1666600000,') {
     console.log(`operatorA           : ${operatorA}`)
     console.log(`config.test.operator: ${config.test.operator}`)
-    await mini1155.mintAsOwner(config.test.user, 0, 1)
-    await mini1155.mintAsOwner(config.test.creator, 0, 1)
-    await mini1155.mintAsOwner(config.test.user, 2, 1)
+    await mini1155.mintAsOwner(config.test.creator, 0, 1) // Operator Friend Token to creator
+    await mini1155.mintAsOwner(config.test.user, 0, 1) // Operator Friend Token to User
+    await mini1155.mintAsOwner(config.test.user, 1, 1) // Creator Friend Token to User
 
     console.log(`Operator Token 0 User Balance   : ${await mini1155.balanceOf(config.test.user, 0)}`)
     console.log(`Operator Token 0 Creator Balance: ${await mini1155.balanceOf(config.test.creator, 0)}`)
-    console.log(`Creator  Token 2 User Balance   : ${await mini1155.balanceOf(config.test.user, 2)}`)
+    console.log(`Creator  Token 1 User Balance   : ${await mini1155.balanceOf(config.test.user, 1)}`)
   }
   console.log('Mini1155 maxSupply 0    : ', (await mini1155.maxSupply(0)).toString())
   console.log('Mini1155 totalSupply 0  : ', (await mini1155.totalSupply(0)).toString())
