@@ -9,8 +9,11 @@ export default {
       initialUserLimit: ethers.utils.parseEther(process.env.MINIWALLET_INIITIAL_USER_LIMIT || '1000000'),
       initialAuthLimit: ethers.utils.parseEther(process.env.MINIWALLET_INIITIAL_AUTH_LIMIT || '100000')
     },
+    miniID: {
+      baseUri: process.env.MINIID_BASE_URI || 'ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID'
+    },
     mini721: {
-      salesIsActive: process.env.MINI721_DEPLOY_SALES_IS_ACTIVE || false,
+      saleIsActive: process.env.MINI721_DEPLOY_SALES_IS_ACTIVE || false,
       metadataFrozen: process.env.MINI721_DEPLOY_METADATA_FROZEN || false,
       provenanceFrozen: process.env.MINI721_DEPLOY_PROVENANCE_FROZEN || false,
       max721Tokens: process.env.MINI721_DEPLOY_MAX721_TOKENS || 1000000000000,
@@ -50,14 +53,21 @@ export default {
   },
 
   test: {
+    operator: JSON.parse(process.env.TEST_MINIWALLET_INITIAL_OPERATORS || '[]')[0] || '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+
+    user: process.env.TEST_USER || '0xEf4634BdBc6F6528EacB49278d7E17BCB9e2689A',
+    creator: process.env.TEST_CREATOR || '0x1cf6490889A92371fdBC610C4A862061F28BaFfA',
     miniWallet: {
       initialOperatorThreshold: process.env.TEST_MINIWALLET_INITIAL_OPERATOR_THRESHOLD,
       initialOperators: JSON.parse(process.env.TEST_MINIWALLET_INITIAL_OPERATORS || '[]'),
       initialUserLimit: ethers.utils.parseEther(process.env.TEST_MINIWALLET_INIITIAL_USER_LIMIT || '1000'),
       initialAuthLimit: ethers.utils.parseEther(process.env.TEST_MINIWALLET_INIITIAL_AUTH_LIMIT || '100')
     },
+    miniID: {
+      baseUri: process.env.TEST_MINIID_BASE_URI || 'ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID'
+    },
     mini721: {
-      salesIsActive: process.env.TEST_MINI721_DEPLOY_SALES_IS_ACTIVE || false,
+      saleIsActive: process.env.TEST_MINI721_DEPLOY_SALES_IS_ACTIVE || false,
       metadataFrozen: process.env.TEST_MINI721_DEPLOY_METADATA_FROZEN || false,
       provenanceFrozen: process.env.TEST_MINI721_DEPLOY_PROVENANCE_FROZEN || false,
       max721Tokens: process.env.TEST_MINI721_DEPLOY_MAX721_TOKENS || 1000000000000,

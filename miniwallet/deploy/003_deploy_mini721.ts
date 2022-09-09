@@ -8,10 +8,10 @@ const deployFunction: DeployFunction = async function (
 ) {
   const { deployments, getNamedAccounts, getChainId } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, operatorA } = await getNamedAccounts()
   const chainId = await getChainId()
   let mini721DeployArgs = {}
-  let salesIsActive
+  let saleIsActive
   let metadataFrozen
   let provenanceFrozen
   let max721Tokens
@@ -24,7 +24,7 @@ const deployFunction: DeployFunction = async function (
   if (chainId === '1666600000,') {
     console.log('Harmony Mainnet Deploy')
     console.log(`Min721 Deployment Info: ${JSON.stringify(config.mainnet.mini721)}`)
-    salesIsActive = config.mainnet.mini721.salesIsActive
+    saleIsActive = config.mainnet.mini721.saleIsActive
     metadataFrozen = config.mainnet.mini721.metadataFrozen
     provenanceFrozen = config.mainnet.mini721.provenanceFrozen
     max721Tokens = config.mainnet.mini721.max721Tokens
@@ -36,7 +36,7 @@ const deployFunction: DeployFunction = async function (
     console.log(`Test Deploy on chainId: ${chainId}`)
     console.log(`Min721 Deployment Info: ${JSON.stringify(config.test.mini721)}`)
     mini721DeployArgs = config.test.mini721
-    salesIsActive = config.test.mini721.salesIsActive
+    saleIsActive = config.test.mini721.saleIsActive
     metadataFrozen = config.test.mini721.metadataFrozen
     provenanceFrozen = config.test.mini721.provenanceFrozen
     max721Tokens = config.test.mini721.max721Tokens
@@ -51,7 +51,7 @@ const deployFunction: DeployFunction = async function (
     from: deployer,
     gasLimit: 4000000,
     args: [
-      salesIsActive, // false,
+      saleIsActive, // false,
       metadataFrozen, // false,
       provenanceFrozen, //  false
       max721Tokens, // 1000000000000
@@ -68,6 +68,18 @@ const deployFunction: DeployFunction = async function (
   console.log('Mini721 deployed to  :', mini721.address)
   console.log('Mini721 Name         : ', await mini721.name())
   console.log('Mini721 Symbol       : ', await mini721.symbol())
+
+  // Mint test tokens
+  if (chainId !== '1666600000,') {
+    console.log(`operatorA           : ${operatorA}`)
+    console.log(`config.test.operator: ${config.test.operator}`)
+    await mini721.mintForCommunity(config.test.operator, 1)
+    await mini721.mintForCommunity(config.test.user, 1)
+    await mini721.mintForCommunity(config.test.creator, 1)
+    console.log(`Token 0 Owner: ${await mini721.ownerOf(0)}`)
+    console.log(`Token 1 Owner: ${await mini721.ownerOf(1)}`)
+    console.log(`Token 2 Owner: ${await mini721.ownerOf(2)}`)
+  }
   console.log('Mini721 maxMiniTokens: ', (await mini721.maxMiniTokens()).toString())
   console.log('Mini721 totalSupply  : ', (await mini721.totalSupply()).toString())
   console.log('Mini721 mintPrice    : ', (await mini721.mintPrice()).toString())

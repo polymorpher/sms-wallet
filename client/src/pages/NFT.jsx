@@ -13,6 +13,7 @@ import { TailSpin } from 'react-loading-icons'
 import PhoneInput from 'react-phone-number-input'
 import { walletActions } from '../state/modules/wallet'
 import { balanceActions } from '../state/modules/balance'
+import { TokenType } from '../../../shared/constants'
 
 export const MetadataURITransformer = (url) => {
   const IPFSIO = /https:\/\/ipfs\.io\/ipfs\/(.+)/
@@ -31,9 +32,12 @@ export const useMetadata = ({
   uri, ipfsGateway = '',
   contentTypeOverride = null, animationUrlContentTypeOverride = null
 } = {}) => {
+  console.log('in useMetadata')
   uri = NFTUtils.replaceIPFSLink(MetadataURITransformer(uri), ipfsGateway)
+  console.log(`uri: ${uri}`)
   const [metadata, setMetadata] = useState()
   const [contentType, setContentType] = useState(contentTypeOverride)
+  console.log(`contentType: ${contentType}`)
   const [resolvedImageUrl, setResolvedImageUrl] = useState(contentTypeOverride)
   const [resolvedAnimationUrl, setResolvedAnimationUrl] = useState(contentTypeOverride)
   const [animationUrlContentType, setAnimationUrlContentType] = useState(animationUrlContentTypeOverride)
@@ -65,10 +69,14 @@ export const useMetadata = ({
     }
     f()
   }, [uri])
+  //   console.log(`metadata: ${JSON.stringify(metadata)}`)
+  //   const resolvedImageUrlPassed = metadata.image
+  //   return { metadata, resolvedImageUrl: resolvedImageUrlPassed, resolvedAnimationUrl, contentType, animationUrlContentType }
   return { metadata, resolvedImageUrl, resolvedAnimationUrl, contentType, animationUrlContentType }
 }
 
 export const loadNFTData = ({ contractAddress, tokenId, tokenType }) => {
+  console.log('in loadNFTData')
   const [state, setState] = useState({ contractName: null, contractSymbol: null, uri: null })
   useEffect(() => {
     if (!contractAddress || !tokenId || !tokenType) {
@@ -77,6 +85,7 @@ export const loadNFTData = ({ contractAddress, tokenId, tokenType }) => {
     async function f () {
       try {
         const { name: contractName, symbol: contractSymbol, uri } = await apis.blockchain.getTokenMetadata({ contractAddress, tokenId, tokenType })
+        console.log(`${contractAddress}, ${tokenId}, ${tokenType}, ${contractName}, ${contractSymbol}, ${uri}`)
         setState({ contractName, contractSymbol, uri })
       } catch (ex) {
         console.error(ex)
@@ -261,10 +270,14 @@ const TechnicalText = styled(BaseText)`
 `
 
 export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect }) => {
+  console.log('in NFTItem')
   const { contractName, uri } = loadNFTData({ contractAddress, tokenId, tokenType })
   const balance = loadNFTBalance({ contractAddress, tokenId, tokenType, address })
   // eslint-disable-next-line no-unused-vars
   const { metadata, resolvedImageUrl, contentType, resolvedAnimationUrl, animationUrlContentType } = useMetadata({ uri, contractAddress, tokenType })
+  console.log(`metadata: ${JSON.stringify(metadata)}`)
+  console.log(`resolvedImageURL: ${resolvedImageUrl}`)
+  //   resolvedImageUrl = 'https://1wallet.mypinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/1.png'
   const isImage = contentType?.startsWith('image')
   const isVideo = contentType?.startsWith('video')
   // const isAnimationUrlImage = animationUrlContentType?.startsWith('image')
@@ -278,6 +291,7 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect
       <NFTItemContainer onClick={() => onSelect && onSelect({ resolvedImageUrl, contractAddress, isImage, isVideo, metadata, contractName, tokenId, tokenType })}>
         {!contentType && <Loading><TailSpin /> </Loading>}
         {isImage && <NFTImage src={resolvedImageUrl} />}
+        {/* <NFTImage src='https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/1.png' /> */}
         {isVideo && <NFTVideo src={resolvedImageUrl} loop muted autoplay />}
         <Row>
           <FlexColumn style={{ flex: 1 }}>
@@ -293,22 +307,31 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect
 
 // eslint-disable-next-line no-unused-vars
 const DUMMY_NFTS = [{
-  contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
+  contractAddress: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
   tokenId: '1',
   tokenType: 'ERC721',
 }, {
-  contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
-  tokenId: '2',
-  tokenType: 'ERC721',
-}, {
-  contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
+  contractAddress: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
   tokenId: '1',
-  tokenType: 'ERC1155',
-}, {
-  contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
-  tokenId: '2',
-  tokenType: 'ERC1155',
+  tokenType: 'ERC721',
 }]
+// const DUMMY_NFTS = [{
+//     contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
+//     tokenId: '1',
+//     tokenType: 'ERC721',
+//   }, {
+//     contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
+//     tokenId: '2',
+//     tokenType: 'ERC721',
+//   }, {
+//     contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
+//     tokenId: '1',
+//     tokenType: 'ERC1155',
+//   }, {
+//     contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
+//     tokenId: '2',
+//     tokenType: 'ERC1155',
+//   }]
 
 const loadNFTs = ({ address }) => {
   const dispatch = useDispatch()
@@ -665,6 +688,8 @@ const NFTShowcase = ({ address }) => {
             <Desc $color='white' style={{ padding: '0 24px' }}>
               {nfts.map((e, i) => {
                 const { contractAddress, tokenId, tokenType } = e
+                // console.log(`${tokenId}, ${tokenType}`)
+                // console.log(`e: ${JSON.stringify(e)}`)
                 return <NFTItem key={`nft-${i}`} address={address} contractAddress={contractAddress} tokenType={tokenType} tokenId={tokenId} onSelect={setSelected} />
               })}
               {nfts.length === 0 &&

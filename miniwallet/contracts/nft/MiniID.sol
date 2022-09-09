@@ -57,8 +57,7 @@ contract MiniID is
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return
-            "https://gateway.pinata.cloud/ipfs/QmdijwkAi5Tc1Nvez3BHdoYPbdqR5hcMr626J9biBfku5X";
+        return "ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID/";
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {

@@ -22,6 +22,144 @@ When registering the server calls the miniserver endpoint apicreate with the pho
 ## Airdrop Flow
 All registered users are read from the datastore. There addresses are collected. Metadata and Images are persisted for each address. A multicall `CommunityMint` is called to iterate through the users minting tokens.
 
+
+
+# Phase 1 Implementation and Data 
+
+## Actors
+
+We model three actors
+
+**Operator**(+1 737 232 7333): The SMS Operator has multiple operator accounts for test purposes. However it’s unique identifier in the system is it’s phone number and the registered address associated with it. 
+
+**Creator**(+1 650 547 3175): The Creator has one account and requests authorizations from users via the miniwallet and asks operators to make payments
+
+**Community Member**(+1 415 840 1410): Community Member authorizes 
+
+## Tokens
+
+**MiniID**: [Soulbound](https://vitalik.ca/general/2022/01/26/soulbound.html) Token (assigned to Phone Number, can not be transferred) 1 per phone number. QR Code (TokenId, Phone, Address, Country)
+
+**Mini721**: These are NFT collections airdropped by Operators to each Registered User. For Initial Phase we will use [Minion Images](https://pngimg.com/images/heroes/minions). Attributes (TokenId, Phone, Address, Country)
+
+**Mini1155**: Minted by MiniID Holders to friends/fans 1 to 1 correlation between MiniID TokenId and Mini1155 TokenId (can issue many 1155s to Addresses). Think of it as a friends list. Could also be event based an issued and burned by the Owner before and after an event. Attributes (IssuerTokenId, IssuerPhone, IssuerAddress, IssuerCountry)
+
+**Mini721C**: These are NFT collections created by Creators (could have it’s own factory) For Initial Phase we will use [Minion Images](https://pngimg.com/images/heroes/minions)
+
+**Mini1155C**: These are NFT Access Passes Given by Creators (could have it’s own factory)
+
+## [Attestations](https://ethereum.org/en/decentralized-identity/#what-are-attestations)
+
+Each MiniId is effectively an [on-chain attestation](https://ethereum.org/en/decentralized-identity/#onchain-attestations) by the operator that this token is owned by this phone number. 
+
+Each Mini1155 is effectively an on-chain attestation that the Mini1155 holder is a friend/fan of the MiniID owner.
+
+Additional [off-chain attestations](https://ethereum.org/en/decentralized-identity/#offchain-attestations-with-persistent-access) can be developed as the ecosystem evolves.
+
+## **Local Test Data**
+
+**Operator**(+1 737 232 7333) 0
+
+**Community Member**(+1 415 840 1410) 1 (johnwhitton)
+
+**Creator**(+1 650 547 3175) 2 (john.a.whitton)
+
+[Minions Images](https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx) : [https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx](https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx)
+
+## Sample Metadata
+
+[MinID](https://gateway.pinata.cloud/ipfs/QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID) (Image URL to be replaced with QR Code)
+ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID
+
+```
+{
+    "description": "MiniID +1 737 232 7333 (Soulbound)",
+    "external_url": "https://sms-wallet.xyz/miniID/0",
+    "image": "https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/0.png",
+    "name": "MiniID +1 737 232 7333",
+    "attributes": [
+        {
+            "trait_type": "TokenId",
+            "value": "0"
+        },
+        {
+            "trait_type": "Phone",
+            "value": "+1 737 232 7333 "
+        }
+        {
+            "trait_type": "Address",
+            "value": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+        }
+        {
+            "trait_type": "Country",
+            "value": "US"
+        }
+    ]
+}
+```
+
+[Min721](https://gateway.pinata.cloud/ipfs/QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini721) 
+
+ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini721
+
+```
+{
+    "description": "Collectible +1 737 232 7333",
+    "external_url": "https://sms-wallet.xyz/mini721/0",
+    "image": "https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/0.png",
+    "name": "Collectible +1 737 232 7333",
+    "attributes": [
+        {
+            "trait_type": "TokenId",
+            "value": "0"
+        },
+        {
+            "trait_type": "Phone",
+            "value": "+1 737 232 7333 "
+        }
+        {
+            "trait_type": "Address",
+            "value": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+        }
+        {
+            "trait_type": "Country",
+            "value": "US"
+        }
+    ]
+}
+```
+
+[Mini1155](https://gateway.pinata.cloud/ipfs/QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini1155) (Image URL to be replaced with QR Code)
+
+[https://gateway.pinata.cloud/ipfs/QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini1155](https://gateway.pinata.cloud/ipfs/QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini1155)
+
+```
+{
+    "description": "MiniID +1 737 232 7333 (Soulbound)",
+    "external_url": "https://sms-wallet.xyz/miniID/0",
+    "image": "https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/0.png",
+    "name": "MiniID +1 737 232 7333",
+    "attributes": [
+        {
+            "trait_type": "TokenId",
+            "value": "0"
+        },
+        {
+            "trait_type": "Phone",
+            "value": "+1 737 232 7333 "
+        }
+        {
+            "trait_type": "Address",
+            "value": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+        }
+        {
+            "trait_type": "Country",
+            "value": "US"
+        }
+    ]
+}
+```
+
 ## Technical Components
 
 ### Frontend
@@ -53,15 +191,6 @@ TEST_MINI721_DEPLOY_BASE_URI=ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49Dv
 TEST_MINI721_DEPLOY_CONTRACT_URI=ipfs://Qmezo5wDKz7kHwAPRUSJby96rnCfvhqgVqDD7Zorx9rqy8
 ```
 
-### Metadata [structure](https://docs.opensea.io/docs/metadata-standards)
-  * Country 
-  * Region
-
-### Image/Avatar 
-(Options to generate images include)
-* Creation of a QR Code with their address
-* Avatar is generated using an [npm module](https://www.google.com/search?q=npm+module+to+generate+avatar)
-
 ### Persistence
 * [Pintata API](https://docs.pinata.cloud/pinata-api)
 * [Pinata Pin File or Directory](https://docs.pinata.cloud/pinata-api/pinning/pin-file-or-directory)
@@ -78,7 +207,6 @@ TEST_MINI721_DEPLOY_CONTRACT_URI=ipfs://Qmezo5wDKz7kHwAPRUSJby96rnCfvhqgVqDD7Zor
   * [OpenSea Metadata Standards](https://docs.opensea.io/docs/metadata-standards)
   * [Chainlink NFT Tutorial](https://blog.chain.link/build-deploy-and-sell-your-own-dynamic-nft/)
   * [Sample NFT Generation CodeBase](https://github.com/PatrickAlphaC/dungeons-and-dragons-nft)
- 
 
 
 
