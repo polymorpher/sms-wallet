@@ -10,7 +10,7 @@ export default {
       initialAuthLimit: ethers.utils.parseEther(process.env.MINIWALLET_INIITIAL_AUTH_LIMIT || '100000')
     },
     miniID: {
-      baseUri: process.env.MINIID_BASE_URI || 'ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID'
+      baseUri: process.env.MINIID_BASE_URI || 'ipfs://QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/MiniID'
     },
     mini721: {
       saleIsActive: process.env.MINI721_DEPLOY_SALES_IS_ACTIVE || false,
@@ -64,7 +64,7 @@ export default {
       initialAuthLimit: ethers.utils.parseEther(process.env.TEST_MINIWALLET_INIITIAL_AUTH_LIMIT || '100')
     },
     miniID: {
-      baseUri: process.env.TEST_MINIID_BASE_URI || 'ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID'
+      baseUri: process.env.TEST_MINIID_BASE_URI || 'ipfs://QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/MiniID'
     },
     mini721: {
       saleIsActive: process.env.TEST_MINI721_DEPLOY_SALES_IS_ACTIVE || false,

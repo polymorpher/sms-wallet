@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
+// import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "./rarible/royalties/contracts/impl/RoyaltiesV2Impl.sol";
 import "./rarible/royalties/contracts/LibPart.sol";
@@ -94,6 +95,7 @@ contract Mini1155 is
         salt = _salt;
         contractURI = _contractUri;
         baseUri = _baseUri;
+        setURI(_contractUri);
     }
 
     function setURI(string memory newuri) public onlyOwner {
@@ -216,7 +218,8 @@ contract Mini1155 is
 
     function uri(uint256 id) public view override returns (string memory) {
         if (bytes(metadataUris[id]).length == 0) {
-            return string(abi.encodePacked(baseUri, uint2str(id), ".json"));
+            // return string(abi.encodePacked(baseUri, uint2str(id), ".json"));
+            return string(abi.encodePacked(baseUri, uint2str(id)));
         }
         return metadataUris[id];
     }

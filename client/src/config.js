@@ -1,3 +1,37 @@
+// require('dotenv-webpack').config()
+
+const NFTS = [{
+  contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
+  tokenId: '1',
+  tokenType: 'ERC721',
+}, {
+  contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
+  tokenId: '2',
+  tokenType: 'ERC721',
+}, {
+  contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
+  tokenId: '1',
+  tokenType: 'ERC1155',
+}, {
+  contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
+  tokenId: '2',
+  tokenType: 'ERC1155',
+}]
+
+const TEST_NFTS = [{
+  contractAddress: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
+  tokenId: '1',
+  tokenType: 'ERC721'
+}, {
+  contractAddress: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
+  tokenId: '1',
+  tokenType: 'ERC721'
+}, {
+  contractAddress: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
+  tokenId: '2',
+  tokenType: 'ERC1155'
+}]
+
 const config = {
   priceRefreshInterval: 60 * 1000,
   appId: 'sms-wallet',
@@ -46,6 +80,12 @@ const config = {
   },
   scanDelay: 250,
   defaultSignatureValidDuration: 1000 * 60 * 15,
+  mainnet: {
+    nfts: JSON.parse(process.env.NFTS || JSON.stringify(NFTS))
+  },
+  test: {
+    nfts: JSON.parse(process.env.TEST_NFTS || JSON.stringify(TEST_NFTS))
+  }
 }
 
 export default config

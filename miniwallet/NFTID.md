@@ -68,8 +68,8 @@ Additional [off-chain attestations](https://ethereum.org/en/decentralized-identi
 
 ## Sample Metadata
 
-[MinID](https://gateway.pinata.cloud/ipfs/QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID) (Image URL to be replaced with QR Code)
-ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID
+[MinID](https://gateway.pinata.cloud/ipfs/QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/MiniID) (Image URL to be replaced with QR Code)
+ipfs://QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/MiniID
 
 ```
 {
@@ -98,9 +98,9 @@ ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID
 }
 ```
 
-[Min721](https://gateway.pinata.cloud/ipfs/QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini721) 
+[Min721](https://gateway.pinata.cloud/ipfs/QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini721) 
 
-ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini721
+ipfs://QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini721
 
 ```
 {
@@ -129,9 +129,9 @@ ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini721
 }
 ```
 
-[Mini1155](https://gateway.pinata.cloud/ipfs/QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini1155) (Image URL to be replaced with QR Code)
+[Mini1155](https://gateway.pinata.cloud/ipfs/QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini1155) (Image URL to be replaced with QR Code)
 
-[https://gateway.pinata.cloud/ipfs/QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini1155](https://gateway.pinata.cloud/ipfs/QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/Mini1155)
+[https://gateway.pinata.cloud/ipfs/QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini1155](https://gateway.pinata.cloud/ipfs/QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/Mini1155)
 
 ```
 {

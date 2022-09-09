@@ -38,9 +38,9 @@ const deployFunction: DeployFunction = async function (
   if (chainId !== '1666600000,') {
     miniID.connect(operatorA)
     // TODO republish metadata without .json suffix and replace 'n.json' with ''
-    await miniID.safeMint(config.test.operator, config.test.miniID.baseUri + '0.json')
-    await miniID.safeMint(config.test.user, '1.json')
-    await miniID.safeMint(config.test.creator, '2.json')
+    await miniID.safeMint(config.test.operator, '')
+    await miniID.safeMint(config.test.user, '')
+    await miniID.safeMint(config.test.creator, '')
     console.log(`Token 0 Owner: ${await miniID.ownerOf(0)}`)
     console.log(`Token 1 Owner: ${await miniID.ownerOf(1)}`)
     console.log(`Token 2 Owner: ${await miniID.ownerOf(2)}`)

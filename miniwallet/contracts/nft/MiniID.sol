@@ -57,7 +57,7 @@ contract MiniID is
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return "ipfs://QmZ1iHDogTnoEVSFPo1yYYYuPzLhTWuA9pd77C9b5h6cot/MiniID/";
+        return "ipfs://QmcD2PPaiHyK7Z4n6JJTCnosSwrrPKKzERAvWJc4imEDju/MiniID/";
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {
