@@ -70,30 +70,47 @@ Additional [off-chain attestations](https://ethereum.org/en/decentralized-identi
 
 [Minions Images](https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx) : [https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx](https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx)
 
+**Notes on Test Data**
+For our user (+14158401410 address 0x864966c7483155C090BB07AB3Fb130c159c18daf) we have issued the following Tokens
+1. MiniID: There Soulbound Identity
+2. Mini721: A collectible issued to them (Minion Image)
+3. Mini1155: A friends or fans token issued from the operator
+4. Mini1155: A friends or fans token issued by the creator
+
+The sms-wallet UI looks as follows (on a phone it shows the first image and then you can scroll up and down)
+
+![Screenshot 2022-09-10 at 11 51 05 AM](https://user-images.githubusercontent.com/1572027/189497841-7b218e3f-8286-4dcb-854e-7f19ba52722e.png)
+
+For our creator (+16505473175 address 0x7A78C8A0F61a9015440ac970D390f596836C9872) we have issued the following Tokens
+1. MiniID: There Soulbound Identity
+2. Mini721: A collectible issued to them (Minion Image)
+3. Mini1155: A friends or fans token issued from the operator
+
+<img width="337" alt="Screenshot 2022-09-10 at 12 04 45 PM" src="https://user-images.githubusercontent.com/1572027/189498200-571c7baf-6488-40b2-b477-6cc5475833d1.png">
 ## Sample Metadata
 
-[MinID](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/MiniID) (Image URL to be replaced with QR Code)
-ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/MiniID
+[MinID](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/MiniID/2) (Image URL to be replaced with QR Code)
+https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/MiniID
 
 ```
 {
-    "description": "MiniID +1 737 232 7333 (Soulbound)",
-    "external_url": "https://sms-wallet.xyz/miniID/0",
-    "image": "https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/0.png",
-    "name": "MiniID +1 737 232 7333",
+    "description": "MiniID +1 415 840 1410 (Soulbound)",
+    "external_url": "https://sms-wallet.xyz/miniID/2",
+    "image": "https://1wallet.mypinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/2.png",
+    "name": "MiniID +1 415 840 1410",
     "attributes": [
         {
             "trait_type": "TokenId",
-            "value": "0"
+            "value": "2"
         },
         {
             "trait_type": "Phone",
-            "value": "+1 737 232 7333 "
-        }
+            "value": "+1 415 840 1410"
+        },
         {
             "trait_type": "Address",
-            "value": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-        }
+            "value": "0x864966c7483155C090BB07AB3Fb130c159c18daf"
+        },
         {
             "trait_type": "Country",
             "value": "US"
@@ -102,16 +119,16 @@ ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/MiniID
 }
 ```
 
-[Min721](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini721) 
+[Min721](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini721/2) 
 
-ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini721
+https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini721
 
 ```
 {
-    "description": "Collectible +1 737 232 7333",
-    "external_url": "https://sms-wallet.xyz/mini721/0",
-    "image": "https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/0.png",
-    "name": "Collectible +1 737 232 7333",
+    "description": "Collectible +1 415 840 1410",
+    "external_url": "https://sms-wallet.xyz/mini721/2",
+    "image": "https://1wallet.mypinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/2.png",
+    "name": "Collectible +1 450 840 1410",
     "attributes": [
         {
             "trait_type": "TokenId",
@@ -119,12 +136,12 @@ ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini721
         },
         {
             "trait_type": "Phone",
-            "value": "+1 737 232 7333 "
-        }
+            "value": "+1 415 840 1410"
+        },
         {
             "trait_type": "Address",
-            "value": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-        }
+            "value": "0x864966c7483155C090BB07AB3Fb130c159c18daf"
+        },
         {
             "trait_type": "Country",
             "value": "US"
@@ -133,29 +150,29 @@ ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini721
 }
 ```
 
-[Mini1155](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155) (Image URL to be replaced with QR Code)
+[Mini1155](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/2) (Image URL to be replaced with QR Code)
 
-[https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155](https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155)
+https://gateway.pinata.cloud/ipfs/Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155
 
 ```
 {
-    "description": "MiniID +1 737 232 7333 (Soulbound)",
-    "external_url": "https://sms-wallet.xyz/miniID/0",
-    "image": "https://gateway.pinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/0.png",
-    "name": "MiniID +1 737 232 7333",
+    "description": "Friend of  +1 415 840 1410(Transferable)",
+    "external_url": "https://sms-wallet.xyz/mini1155/2",
+    "image": "https://1wallet.mypinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/2.png",
+    "name": "Friend of +1 415 840 1410",
     "attributes": [
         {
             "trait_type": "TokenId",
-            "value": "0"
+            "value": "2"
         },
         {
             "trait_type": "Phone",
-            "value": "+1 737 232 7333 "
-        }
+            "value": "+1 415 840 1410"
+        },
         {
             "trait_type": "Address",
-            "value": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-        }
+            "value": "0x864966c7483155C090BB07AB3Fb130c159c18daf"
+        },
         {
             "trait_type": "Country",
             "value": "US"

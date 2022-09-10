@@ -18,19 +18,20 @@ const NFTS = [{
   tokenType: 'ERC1155',
 }]
 
-const TEST_NFTS = [{
-  contractAddress: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
-  tokenId: '1',
-  tokenType: 'ERC721'
-}, {
-  contractAddress: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
-  tokenId: '1',
-  tokenType: 'ERC721'
-}, {
-  contractAddress: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
-  tokenId: '2',
-  tokenType: 'ERC1155'
-}]
+const TEST_NFTS = []
+// const TEST_NFTS = [{
+//   contractAddress: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
+//   tokenId: '1',
+//   tokenType: 'ERC721'
+// }, {
+//   contractAddress: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
+//   tokenId: '1',
+//   tokenType: 'ERC721'
+// }, {
+//   contractAddress: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
+//   tokenId: '1',
+//   tokenType: 'ERC1155'
+// }]
 
 const config = {
   priceRefreshInterval: 60 * 1000,
