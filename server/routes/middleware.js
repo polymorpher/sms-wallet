@@ -65,18 +65,19 @@ const validateID = async (req, res, next) => {
   let u
   if (unvalidatedID.substr(0, 2) === '0x') {
     if (!ethers.utils.isAddress(unvalidatedID)) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: `invalid Address: ${unvalididatedID}` })
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: `invalid Address: ${unvalidatedID}` })
     } else {
       // find by address
-      u = await User.findByAddress({ unvalidatedID })
+      u = await User.findByAddress({ address: unvalidatedID })
       if (!u?.id) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: `address does not exists: ${unvalidatedID}` })
       }
     }
   } else {
+    //   const u = await User.findByAddress({ address })
     u = await User.findByPhone({ phone: unvalidatedID })
     if (!u?.id) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: `invalid Address: ${unvalididatedID}` })
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: `invalid Address: ${unvalidatedID}` })
     }
   }
   req.processedBody = { ...req.processedBody, phone: u.phone, address: u.address.toLowerCase() }
