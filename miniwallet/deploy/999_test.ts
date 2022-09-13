@@ -1,16 +1,14 @@
 import config from '../config'
+import { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
-import { ethers } from 'hardhat'
+// import { parseEther } from 'ethers/lib/utils'
 
-const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
-
-const deployFunction: DeployFunction = async function (
-  hre: HardhatRuntimeEnvironment
-) {
+const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, getChainId } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
+
   const chainId = await getChainId()
   let initialOperatorThreshold
   let initialOperators
@@ -24,16 +22,18 @@ const deployFunction: DeployFunction = async function (
     initialOperators = config.mainnet.miniWallet.initialOperators
     initialUserLimit = config.mainnet.miniWallet.initialUserLimit
     initialAuthLimit = config.mainnet.miniWallet.initialAuthLimit
+    console.log(`Min721 Deployment Info: ${JSON.stringify(config.mainnet.mini721)}`)
   } else {
     console.log(`Test Deploy on chainId: ${chainId}`)
     initialOperatorThreshold = config.test.miniWallet.initialOperatorThreshold
     initialOperators = config.test.miniWallet.initialOperators
     initialUserLimit = config.test.miniWallet.initialUserLimit
     initialAuthLimit = config.test.miniWallet.initialAuthLimit
+    console.log(`Min721 Deployment Info: ${JSON.stringify(config.test.mini721)}`)
   }
 
   console.log('operators:', JSON.stringify(initialOperators))
-  const deployedContract = await deploy('MiniWallet', {
+  await deploy('MiniWallet', {
     contract: 'MiniWallet',
     from: deployer,
     proxy: {
@@ -54,33 +54,46 @@ const deployFunction: DeployFunction = async function (
     },
     log: true
   })
-  const miniWallet = await hre.ethers.getContractAt('MiniWallet', deployedContract.address)
 
-  console.log('MiniWallet deployed to:', miniWallet.address)
-  console.log(
-    'MiniWallet Operator Threshold:',
-    await miniWallet.operatorThreshold()
-  )
+  await deploy('MiniID', {
+    contract: 'MiniID',
+    from: deployer,
+    args: [],
+    proxy: {
+      proxyContract: 'ERC1967Proxy',
+      proxyArgs: ['{implementation}', '{data}'],
+      execute: {
+        init: {
+          methodName: 'initialize',
+          args: []
+        }
+      }
+    },
+    log: true
+  })
 
-  const operatorCount = await miniWallet.getRoleMemberCount(OPERATOR_ROLE)
-  console.log(`operatorCount : ${operatorCount}`)
-  for (let i = 0; i < operatorCount; ++i) {
-    console.log(`Operator [${i}]: ${await miniWallet.getRoleMember(OPERATOR_ROLE, i)}`)
-  }
+  await deploy('MiniWallet', {
+    contract: 'MiniWallet_v2',
+    from: deployer,
+    args: [],
+    proxy: {
+      proxyContract: 'ERC1967Proxy',
+      proxyArgs: ['{implementation}', '{data}']
+    },
+    log: true
+  })
 
-  const globalUserLimit = await miniWallet.globalUserLimit()
-  console.log(
-    'MiniWallet Global User Limit:',
-    ethers.utils.formatUnits(globalUserLimit.toString())
-  )
-
-  const globalUserAuthLimit = await miniWallet.globalUserAuthLimit()
-  console.log(
-    'MiniWallet Global User Auth Limit:',
-    ethers.utils.formatUnits(globalUserAuthLimit.toString())
-  )
+  await deploy('MiniID', {
+    contract: 'MiniID_v2',
+    from: deployer,
+    args: [],
+    proxy: {
+      proxyContract: 'ERC1967Proxy',
+      proxyArgs: ['{implementation}', '{data}']
+    },
+    log: true
+  })
 }
 
-deployFunction.dependencies = []
-deployFunction.tags = ['MiniWallet', '001', 'deploy', 'MiniWalletDeploy']
-export default deployFunction
+export default func
+func.tags = ['Test999']

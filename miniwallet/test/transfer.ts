@@ -33,10 +33,10 @@ describe('MiniWallet', function () {
         'miniWallet',
         this.MiniWallet,
         [
-          config.test.initialOperatorThreshold,
-          config.test.initialOperators,
-          config.test.initialUserLimit,
-          config.test.initialAuthLimit
+          config.test.miniWallet.initialOperatorThreshold,
+          config.test.miniWallet.initialOperators,
+          config.test.miniWallet.initialUserLimit,
+          config.test.miniWallet.initialAuthLimit
         ]
       ]
     ])

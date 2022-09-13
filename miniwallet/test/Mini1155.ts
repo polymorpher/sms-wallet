@@ -96,7 +96,7 @@ describe('Mini1155', function () {
       expect(await this.mini1155.supportsInterface(Constants.InterfaceId.ERC2981_NFT_ROYALTY_STANDARD)).to.equal(true)
       expect(await this.mini1155.symbol()).to.equal(deploymentConfig.symbol)
       expect(await this.mini1155.totalSupply(deploymentConfig.s.tokenId)).to.equal(0)
-      expect(await this.mini1155.uri(deploymentConfig.s.tokenId)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/1.json')
+      expect(await this.mini1155.uri(deploymentConfig.s.tokenId)).to.equal('ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/1')
     })
 
     it('Mini1155-2 Configuration Validation', async function () {
@@ -113,11 +113,11 @@ describe('Mini1155', function () {
       expect(await this.mini1155.standardTokenId()).to.equal(c1.s.tokenId)
       expect(await this.mini1155.maxSupply(c1.s.tokenId)).to.equal(c1.s.maxSupply)
       expect(await this.mini1155.maxPersonalCap(c1.s.tokenId)).to.equal(c1.s.personalCap)
-      expect(await this.mini1155.uri(c1.s.tokenId)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/1.json')
+      expect(await this.mini1155.uri(c1.s.tokenId)).to.equal('ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/1')
       expect(await this.mini1155.rareTokenId()).to.equal(c1.r.tokenId)
       expect(await this.mini1155.maxSupply(c1.r.tokenId)).to.equal(c1.r.maxSupply)
       expect(await this.mini1155.maxPersonalCap(c1.r.tokenId)).to.equal(c1.r.personalCap)
-      expect(await this.mini1155.uri(2)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/2.json')
+      expect(await this.mini1155.uri(2)).to.equal('ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/2')
       // Although configured tokens don't exist till minted
       expect(await this.mini1155.exists(c1.s.tokenId)).to.equal(false)
       expect(await this.mini1155.exists(c1.r.tokenId)).to.equal(false)
@@ -126,8 +126,8 @@ describe('Mini1155', function () {
       // const tid = 1
       expect(await this.mini1155.balanceOf(owner, c1.s.tokenId)).to.equal(0)
       expect((await this.mini1155.balanceOfBatch([owner, owner], [1, 2])).map(x => x.toString())).to.deep.equal(['0', '0'])
-      expect(await this.mini1155.baseUri()).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/')
-      expect(await this.mini1155.contractURI()).to.equal('ipfs://QmdKB6d1zT7R8dNmEQzc6N1m5p2LDJZ66Hzu8F4fGhdVrq')
+      expect(await this.mini1155.baseUri()).to.equal('ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/')
+      expect(await this.mini1155.contractURI()).to.equal('ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/contract.json')
       expect(await this.mini1155.exchangeRatio()).to.equal(0)
       expect(await this.mini1155.exists(c1.s.tokenId)).to.equal(false)
       expect(await this.mini1155.getRaribleV2Royalties(c1.s.tokenId)).to.deep.equal([])
@@ -151,7 +151,7 @@ describe('Mini1155', function () {
       expect(await this.mini1155.standardTokenId()).to.equal(c1.s.tokenId)
       expect(await this.mini1155.supportsInterface(Constants.InterfaceId.ERC2981_NFT_ROYALTY_STANDARD)).to.equal(true)
       expect(await this.mini1155.totalSupply(c1.s.tokenId)).to.equal(0)
-      expect(await this.mini1155.uri(1)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/1.json')
+      expect(await this.mini1155.uri(1)).to.equal('ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/1')
     })
 
     it('Mini1155-3 Sale Validation', async function () {
@@ -190,8 +190,8 @@ describe('Mini1155', function () {
       // const tid = 1
       expect(await this.mini1155.balanceOf(owner, c1.s.tokenId)).to.equal(0)
       expect((await this.mini1155.balanceOfBatch([owner, owner], [1, 2])).map(x => x.toString())).to.deep.equal(['0', '0'])
-      expect(await this.mini1155.baseUri()).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/')
-      expect(await this.mini1155.contractURI()).to.equal('ipfs://QmdKB6d1zT7R8dNmEQzc6N1m5p2LDJZ66Hzu8F4fGhdVrq')
+      expect(await this.mini1155.baseUri()).to.equal('ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/')
+      expect(await this.mini1155.contractURI()).to.equal('ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/contract.json')
       expect(await this.mini1155.exchangeRatio()).to.equal(0)
       expect(await this.mini1155.exists(c1.s.tokenId)).to.equal(true)
       expect(await this.mini1155.getRaribleV2Royalties(c1.s.tokenId)).to.deep.equal([])
@@ -213,12 +213,12 @@ describe('Mini1155', function () {
       expect(await this.mini1155.standardTokenId()).to.equal(c1.s.tokenId)
       expect(await this.mini1155.supportsInterface(Constants.InterfaceId.ERC2981_NFT_ROYALTY_STANDARD)).to.equal(true)
       expect(await this.mini1155.totalSupply(c1.s.tokenId)).to.equal(1)
-      expect(await this.mini1155.uri(1)).to.equal('ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/1.json')
+      expect(await this.mini1155.uri(1)).to.equal('ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/1')
     })
 
     it('Mini1155-4 Owner Validation', async function () {
-      const standardURI = 'ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/3.json'
-      const rareURI = 'ipfs://QmPcY4yVQu4J2z3ztHWziWkoUEugpzdfftbGH8xD49DvRx/4.json'
+      const standardURI = 'ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/3.json'
+      const rareURI = 'ipfs://Qmc8DVEthq7cZMTMyZ2NQ8dHkG99n549DMBwNzAypQgXe1/Mini1155/4.json'
       const royaltyPercentage = 10
       await mini1155configure({ mini1155: this.mini1155, collectionConfig: c1 })
       let numTokens = 1

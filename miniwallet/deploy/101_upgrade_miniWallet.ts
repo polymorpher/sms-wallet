@@ -19,7 +19,8 @@ const deployFunction: DeployFunction = async function (
     from: deployer,
     proxy: {
       owner: deployer,
-      proxyContract: 'EIP173Proxy'
+      proxyContract: 'ERC1967Proxy',
+      proxyArgs: ['{implementation}', '{data}']
     },
     log: true
   })
