@@ -9,7 +9,6 @@ const deployFunction: DeployFunction = async function (
   const { deploy } = deployments
   const { deployer, operatorA } = await getNamedAccounts()
   // Get the deployment configuration
-  console.log(`Deploying to network: ${hre.network.name}`)
   // TODO Update miniID contract to parameterize constructor
   //   const config = await getConfig(hre.network.name, 'miniID')
   const userConfig = await getConfig(hre.network.name, 'users')

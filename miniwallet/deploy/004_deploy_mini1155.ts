@@ -9,7 +9,6 @@ const deployFunction: DeployFunction = async function (
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
   // Get the deployment configuration
-  console.log(`Deploying to network: ${hre.network.name}`)
   const config = await getConfig(hre.network.name, 'miniNFTs')
   const userConfig = await getConfig(hre.network.name, 'users')
 

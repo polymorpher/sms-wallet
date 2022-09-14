@@ -10,7 +10,6 @@ const deployFunction: DeployFunction = async function (
   const { deployer } = await getNamedAccounts()
 
   // Get the deployment configuration
-  console.log(`Deploying to network: ${hre.network.name}`)
   const config = await getConfig(hre.network.name, 'miniNFTs')
   const userConfig = await getConfig(hre.network.name, 'users')
 
@@ -18,7 +17,6 @@ const deployFunction: DeployFunction = async function (
 
   const deployedMini721 = await deploy('Mini721', {
     from: deployer,
-    gasLimit: 4000000,
     args: [
       config.mini721.saleIsActive, // false,
       config.mini721.metadataFrozen, // false,

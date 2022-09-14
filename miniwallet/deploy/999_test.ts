@@ -8,7 +8,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts()
 
   // Get the deployment configuration
-  console.log(`Deploying to network: ${hre.network.name}`)
   const config = await getConfig(hre.network.name, 'miniWallet')
   await deploy('MiniWallet', {
     contract: 'MiniWallet',
