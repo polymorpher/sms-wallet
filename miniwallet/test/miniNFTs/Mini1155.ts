@@ -1,16 +1,17 @@
+import config from '../../config/miniNFTs'
 import { expect } from 'chai'
 import { ethers, network } from 'hardhat'
-import config from '../config'
-import Constants from './utilities/constants'
+import Constants from '../utilities/constants'
 
-import { mini1155configure } from './utilities'
+import { mini1155configure } from '../utilities'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 
 // Deployment configuration
-const deploymentConfig = config.test.mini1155.deploy
-const c1 = config.test.mini1155.collection1
-const c2 = config.test.mini1155.collection2
+const deploymentConfig = config.mini1155.deploy
+const c1 = config.mini1155.collection1
+console.log(`Initial c1: ${JSON.stringify(c1)}`)
+const c2 = config.mini1155.collection2
 
 describe('Mini1155', function () {
   before(async function (this) {
@@ -102,7 +103,10 @@ describe('Mini1155', function () {
     it('Mini1155-2 Configuration Validation', async function () {
       // Set Standard and Rare Tokens
       // await mini1155configure({ mini1155: this.mini1155, revenueAccount: await this.mini1155.owner() })
+      console.log('Mini1155-2 about to mini1155configure')
+      console.log(`c1: ${JSON.stringify(c1)}`)
       await mini1155configure({ mini1155: this.mini1155, collectionConfig: c1 })
+      console.log('Mini1155-2 Have completed mini1155configure')
       // Check all readOnlyFunctions
       expect(this.mini1155.address).to.equal(
         '0x5FbDB2315678afecb367f032d93F642f64180aa3'

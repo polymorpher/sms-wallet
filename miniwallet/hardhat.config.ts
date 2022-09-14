@@ -1,4 +1,4 @@
-import 'dotenv/config'
+// import 'dotenv/config'
 import { HardhatUserConfig, task } from 'hardhat/config'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
@@ -13,6 +13,8 @@ import '@atixlabs/hardhat-time-n-mine'
 import 'hardhat-spdx-license-identifier'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-contract-sizer'
+import * as dotenv from 'dotenv'
+dotenv.config({ path: './env/networks.env' })
 
 const normalizeHex = (s) => s && s.startsWith('0x') ? s : `0x${s}`
 

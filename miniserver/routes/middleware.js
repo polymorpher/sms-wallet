@@ -93,23 +93,23 @@ const parseSMS = async (req, res, next) => {
 }
 
 const validateID = async (req, res, next) => {
-  const { id: unvalidatedID } = req.body
+  const { phoneNumber, address } = req.processedBody
   let u
-  if (unvalidatedID.substr(0, 2) === '0x') {
-    if (!ethers.utils.isAddress(unvalidatedID)) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: `invalid Address: ${unvalidatedID}` })
+  if (address) {
+    if (!ethers.utils.isAddress(address)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: `invalid Address: ${address}` })
     } else {
       // find by address
-      u = await User.findByAddress({ address: unvalidatedID })
+      u = await User.findByAddress({ address })
       if (!u?.id) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: `address does not exists: ${unvalidatedID}` })
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: `address does not exists: ${address}` })
       }
     }
   } else {
     //   const u = await User.findByAddress({ address })
-    u = await User.findByPhone({ phone: unvalidatedID })
+    u = await User.findByPhone({ phone: phoneNumber })
     if (!u?.id) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: `phone number not registered: ${unvalidatedID}` })
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: `phone number not registered: ${phoneNumber}` })
     }
   }
   console.log(`u: ${JSON.stringify(u)}`)

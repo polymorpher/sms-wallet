@@ -6,7 +6,7 @@ const { backOff } = require('exponential-backoff')
 const { rpc } = require('./rpc')
 const MiniWallet = require('../miniwallet/build/contracts/MiniWallet.sol/MiniWallet.json')
 const MiniID = require('../miniwallet/build/contracts/nft/MiniID.sol/MiniID.json')
-const constants = require('../server/constants')
+const constants = require('./constants')
 let networkConfig = {}
 let provider
 let miniWallet

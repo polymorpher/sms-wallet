@@ -1,17 +1,18 @@
-import config from '../config'
+import { getConfig } from '../config/getConfig'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
-// import { ethers } from 'hardhat'
 
 const deployFunction: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
-  const { deployments, getNamedAccounts, getChainId } = hre
+  const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
   const { deployer, operatorA } = await getNamedAccounts()
-  const chainId = await getChainId()
-
-  console.log(`chainId: ${chainId}`)
+  // Get the deployment configuration
+  console.log(`Deploying to network: ${hre.network.name}`)
+  // TODO Update miniID contract to parameterize constructor
+  //   const config = await getConfig(hre.network.name, 'miniID')
+  const userConfig = await getConfig(hre.network.name, 'users')
 
   const deployedMiniID = await deploy('MiniID', {
     contract: 'MiniID',
@@ -34,13 +35,13 @@ const deployFunction: DeployFunction = async function (
   console.log('MiniID deployed to  :', miniID.address)
   console.log('MiniID Name         : ', await miniID.name())
   console.log('MiniID Symbol       : ', await miniID.symbol())
-  // Mint test tokens
-  if (chainId !== '1666600000,') {
+  // Mint test tokens on networks hardhat and ethLocal
+  console.log(`hre.network.name : ${hre.network.name}`)
+  if (hre.network.name === 'hardhat' || hre.network.name === 'ethLocal') {
     miniID.connect(operatorA)
-    // TODO republish metadata without .json suffix and replace 'n.json' with ''
-    await miniID.safeMint(config.test.operator, '')
-    await miniID.safeMint(config.test.creator, '')
-    await miniID.safeMint(config.test.user, '')
+    await miniID.safeMint(userConfig.users.operator, '')
+    await miniID.safeMint(userConfig.users.creator, '')
+    await miniID.safeMint(userConfig.users.user, '')
     console.log(`Token 0 Owner: ${await miniID.ownerOf(0)}`)
     console.log(`Token 1 Owner: ${await miniID.ownerOf(1)}`)
     console.log(`Token 2 Owner: ${await miniID.ownerOf(2)}`)

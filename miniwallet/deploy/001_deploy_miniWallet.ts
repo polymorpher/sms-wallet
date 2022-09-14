@@ -1,4 +1,4 @@
-import config from '../config'
+import { getConfig } from '../config/getConfig'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
@@ -8,31 +8,14 @@ const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 const deployFunction: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
-  const { deployments, getNamedAccounts, getChainId } = hre
+  const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
-  const chainId = await getChainId()
-  let initialOperatorThreshold
-  let initialOperators
-  let initialUserLimit
-  let initialAuthLimit
 
-  console.log(`chainId: ${chainId}`)
-  if (chainId === '1666600000,') {
-    console.log('Harmony Mainnet Deploy')
-    initialOperatorThreshold = config.mainnet.miniWallet.initialOperatorThreshold
-    initialOperators = config.mainnet.miniWallet.initialOperators
-    initialUserLimit = config.mainnet.miniWallet.initialUserLimit
-    initialAuthLimit = config.mainnet.miniWallet.initialAuthLimit
-  } else {
-    console.log(`Test Deploy on chainId: ${chainId}`)
-    initialOperatorThreshold = config.test.miniWallet.initialOperatorThreshold
-    initialOperators = config.test.miniWallet.initialOperators
-    initialUserLimit = config.test.miniWallet.initialUserLimit
-    initialAuthLimit = config.test.miniWallet.initialAuthLimit
-  }
+  // Get the deployment configuration
+  console.log(`Deploying to network: ${hre.network.name}`)
+  const config = await getConfig(hre.network.name, 'miniWallet')
 
-  console.log('operators:', JSON.stringify(initialOperators))
   const deployedContract = await deploy('MiniWallet', {
     contract: 'MiniWallet',
     from: deployer,
@@ -44,10 +27,10 @@ const deployFunction: DeployFunction = async function (
         init: {
           methodName: 'initialize',
           args: [
-            initialOperatorThreshold,
-            initialOperators,
-            initialUserLimit,
-            initialAuthLimit
+            config.miniWallet.initialOperatorThreshold,
+            config.miniWallet.initialOperators,
+            config.miniWallet.initialUserLimit,
+            config.miniWallet.initialAuthLimit
           ]
         }
       }

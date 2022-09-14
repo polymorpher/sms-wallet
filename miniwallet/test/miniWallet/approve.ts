@@ -5,8 +5,8 @@ import {
   deployUpgradeable,
   checkBalance,
   getTxCost
-} from './utilities'
-import config from '../config'
+} from '../utilities'
+import config from '../../config/miniWallet'
 
 const ZERO_ETH = ethers.utils.parseEther('0')
 const ONE_ETH = ethers.utils.parseEther('1')
@@ -28,10 +28,10 @@ describe('MiniWallet', function () {
         'miniWallet',
         this.MiniWallet,
         [
-          config.test.miniWallet.initialOperatorThreshold,
-          config.test.miniWallet.initialOperators,
-          config.test.miniWallet.initialUserLimit,
-          config.test.miniWallet.initialAuthLimit
+          config.miniWallet.initialOperatorThreshold,
+          config.miniWallet.initialOperators,
+          config.miniWallet.initialUserLimit,
+          config.miniWallet.initialAuthLimit
         ]
       ]
     ])
@@ -118,10 +118,10 @@ describe('MiniWallet', function () {
       ).to.equal(ONE_ETH)
     })
 
-    it('MW-approve-2: Negative approve test depoist amount greater global user limit', async function () {
+    it('MW-approve-2: Negative approve test deposit amount greater global user limit', async function () {
       await checkBalance(this.alice, '10000')
       const aliceBalance = await this.alice.getBalance()
-      const depositAmount = config.test.miniWallet.initialUserLimit.add(ONE_ETH)
+      const depositAmount = config.miniWallet.initialUserLimit.add(ONE_ETH)
       await expect(
         this.miniWallet
           .connect(this.alice)

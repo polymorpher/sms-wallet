@@ -1,8 +1,8 @@
-import config from '../../config'
+import config from '../../config/miniNFTs'
 
 export async function mini1155configure ({
   mini1155,
-  collectionConfig = config.test.mini1155.collection1
+  collectionConfig = config.mini1155.collection1
 }) {
   // set the revenue account
   await mini1155.setRevenueAccount(collectionConfig.revenueAccount)

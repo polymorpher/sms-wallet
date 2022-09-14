@@ -5,12 +5,12 @@ import {
   deploy,
   deployUpgradeable,
   getBigNumber
-} from './utilities'
+} from '../utilities'
 import { range } from 'lodash'
-import config from '../config'
 import { BigNumber } from 'ethers'
 
-import Constants from './utilities/constants'
+import config from '../../config/miniWallet'
+import Constants from '../utilities/constants'
 
 const DUMMY_HEX = '0x'
 
@@ -33,10 +33,10 @@ describe('MiniWallet', function () {
         'miniWallet',
         this.MiniWallet,
         [
-          config.test.miniWallet.initialOperatorThreshold,
-          config.test.miniWallet.initialOperators,
-          config.test.miniWallet.initialUserLimit,
-          config.test.miniWallet.initialAuthLimit
+          config.miniWallet.initialOperatorThreshold,
+          config.miniWallet.initialOperators,
+          config.miniWallet.initialUserLimit,
+          config.miniWallet.initialAuthLimit
         ]
       ]
     ])

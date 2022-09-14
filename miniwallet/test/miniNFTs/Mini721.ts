@@ -1,8 +1,8 @@
 import { expect } from 'chai'
 import { ethers, network } from 'hardhat'
-import { ADDRESS_ZERO, prepare721, userMint721, communityMint721 } from './utilities'
+import { ADDRESS_ZERO, prepare721, userMint721, communityMint721 } from '../utilities'
 import { BigNumber } from 'ethers'
-import Constants from './utilities/constants'
+import Constants from '../utilities/constants'
 
 // let snapshotId: string;
 

@@ -1,78 +1,37 @@
-import config from '../config'
+import { getConfig } from '../config/getConfig'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
-import { ethers } from 'hardhat'
 
 const deployFunction: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
-  const { deployments, getNamedAccounts, getChainId } = hre
+  const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
-  const { deployer, operatorA } = await getNamedAccounts()
-  const chainId = await getChainId()
-  const mini1155DeployArgs = {}
-  let saleIsActive
-  let metadataFrozen
-  let mintPrice
-  let maxPerMint
-  let standardTokenId
-  let rareTokenId
-  let exchangeRatio
-  let rareProbabilityPercentage
-  let salt
-  let baseUri
-  let contractUri
-
-  console.log(`chainId: ${chainId}`)
-  if (chainId === '1666600000,') {
-    console.log('Harmony Mainnet Deploy')
-    console.log(`Min1155 Deployment Info: ${JSON.stringify(config.mainnet.mini1155.deploy)}`)
-    saleIsActive = config.mainnet.mini1155.deploy.saleIsActive
-    metadataFrozen = config.mainnet.mini1155.deploy.metadataFrozen
-    mintPrice = config.mainnet.mini1155.deploy.mintPrice
-    maxPerMint = config.mainnet.mini1155.deploy.maxPerMint
-    standardTokenId = config.mainnet.mini1155.deploy.s.tokenId
-    rareTokenId = config.mainnet.mini1155.deploy.s.tokenId
-    exchangeRatio = config.mainnet.mini1155.deploy.exchangeRatio
-    rareProbabilityPercentage = config.mainnet.mini1155.deploy.rareProbabilityPercentage
-    salt = config.mainnet.mini1155.deploy.salt
-    baseUri = config.mainnet.mini1155.deploy.baseUri
-    contractUri = config.mainnet.mini1155.deploy.contractUri
-  } else {
-    console.log(`Test Deploy on chainId: ${chainId}`)
-    console.log(`Min1155 Deployment Info: ${JSON.stringify(config.test.mini1155.deploy)}`)
-    saleIsActive = config.test.mini1155.deploy.saleIsActive
-    metadataFrozen = config.test.mini1155.deploy.metadataFrozen
-    mintPrice = config.test.mini1155.deploy.mintPrice
-    maxPerMint = config.test.mini1155.deploy.maxPerMint
-    standardTokenId = config.test.mini1155.deploy.s.tokenId
-    rareTokenId = config.test.mini1155.deploy.s.tokenId
-    exchangeRatio = config.test.mini1155.deploy.exchangeRatio
-    rareProbabilityPercentage = config.test.mini1155.deploy.rareProbabilityPercentage
-    salt = config.test.mini1155.deploy.salt
-    baseUri = config.test.mini1155.deploy.baseUri
-    contractUri = config.test.mini1155.deploy.contractUri
-  }
-  console.log('mini1155DeployArgs:', JSON.stringify(mini1155DeployArgs))
+  const { deployer } = await getNamedAccounts()
+  // Get the deployment configuration
+  console.log(`Deploying to network: ${hre.network.name}`)
+  const config = await getConfig(hre.network.name, 'miniNFTs')
+  const userConfig = await getConfig(hre.network.name, 'users')
 
   const deployedMini1155 = await deploy('Mini1155', {
     from: deployer,
     gasLimit: 4000000,
     args: [
-      saleIsActive,
-      metadataFrozen,
-      mintPrice,
-      maxPerMint,
-      standardTokenId,
-      rareTokenId,
-      exchangeRatio,
-      rareProbabilityPercentage,
-      salt,
-      baseUri,
-      contractUri
+      config.mini1155.deploy.saleIsActive,
+      config.mini1155.deploy.metadataFrozen,
+      config.mini1155.deploy.mintPrice,
+      config.mini1155.deploy.maxPerMint,
+      config.mini1155.deploy.s.tokenId,
+      config.mini1155.deploy.r.tokenId,
+      config.mini1155.deploy.exchangeRatio,
+      config.mini1155.deploy.rareProbabilityPercentage,
+      config.mini1155.deploy.salt,
+      config.mini1155.deploy.baseUri,
+      config.mini1155.deploy.contractUri
     ],
     log: true
   })
+  console.log('Deployed Mini1155')
 
   const mini1155 = await hre.ethers.getContractAt('Mini1155', deployedMini1155.address)
 
@@ -80,17 +39,15 @@ const deployFunction: DeployFunction = async function (
   console.log('Mini1155 Name         : ', await mini1155.name())
   console.log('Mini1155 Symbol       : ', await mini1155.symbol())
 
-  // Mint test tokens
-  if (chainId !== '1666600000,') {
-    console.log(`operatorA           : ${operatorA}`)
-    console.log(`config.test.operator: ${config.test.operator}`)
-    await mini1155.mintAsOwner(config.test.creator, 0, 1) // Operator Friend Token to creator
-    await mini1155.mintAsOwner(config.test.user, 0, 1) // Operator Friend Token to User
-    await mini1155.mintAsOwner(config.test.user, 1, 1) // Creator Friend Token to User
+  // Mint test tokens on networks hardhat and ethLocal
+  if (hre.network.name === 'hardhat' || hre.network.name === 'ethLocal') {
+    await mini1155.mintAsOwner(userConfig.users.creator, 0, 1) // Operator Friend Token to creator
+    await mini1155.mintAsOwner(userConfig.users.user, 0, 1) // Operator Friend Token to User
+    await mini1155.mintAsOwner(userConfig.users.user, 1, 1) // Creator Friend Token to User
 
-    console.log(`Operator Token 0 User Balance   : ${await mini1155.balanceOf(config.test.user, 0)}`)
-    console.log(`Operator Token 0 Creator Balance: ${await mini1155.balanceOf(config.test.creator, 0)}`)
-    console.log(`Creator  Token 1 User Balance   : ${await mini1155.balanceOf(config.test.user, 1)}`)
+    console.log(`Operator Token 0 User Balance   : ${await mini1155.balanceOf(userConfig.users.user, 0)}`)
+    console.log(`Operator Token 0 Creator Balance: ${await mini1155.balanceOf(userConfig.users.creator, 0)}`)
+    console.log(`Creator  Token 1 User Balance   : ${await mini1155.balanceOf(userConfig.users.user, 1)}`)
   }
   console.log('Mini1155 maxSupply 0    : ', (await mini1155.maxSupply(0)).toString())
   console.log('Mini1155 totalSupply 0  : ', (await mini1155.totalSupply(0)).toString())
