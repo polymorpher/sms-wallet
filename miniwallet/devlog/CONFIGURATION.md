@@ -37,7 +37,8 @@ If no network specific configuration is needed then by default we will use the s
 Currently to deploy to a new environment two files must be created.
 `./config/<<identifier>>_<<networkName>>.ts`
 `./env/<<identifier>>_<<networkName>>.env`
-The deploy scripts leverage `getConfig.ts` which takes as input parameters the <<identifier>> and networkName
+
+The deploy scripts leverage `getConfig.ts` which takes as input parameters the `identifier` and `networkName`.
 
 For example when deploying the miniWallet on Harmony mainnet, the following files would be created
 `./config/miniWallet_mainnet.ts`
