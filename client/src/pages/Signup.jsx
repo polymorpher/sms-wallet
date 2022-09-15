@@ -15,6 +15,7 @@ import SaveQR from './SaveQR'
 import MainContainer from '../components/Container'
 import { globalActions } from '../state/modules/global'
 import phoneValidator from 'phone'
+import { Redirect } from 'react-router-dom'
 const randomSeed = () => {
   const otpSeedBuffer = new Uint8Array(32)
   return window.crypto.getRandomValues(otpSeedBuffer)
@@ -35,6 +36,14 @@ const Signup = () => {
   const [qrCodeData, setQrCodeData] = useState('')
   const next = useSelector(state => state.global.next || {})
   const prefilledPhone = useSelector(state => state.global.prefilledPhone)
+  const wallet = useSelector(state => state.wallet || {})
+
+  const existingAddress = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
+  if (existingAddress) {
+    console.log('redirecting because wallet exists:', existingAddress)
+    return <Redirect to={paths.wallet} />
+  }
+
   useEffect(() => {
     if (prefilledPhone) {
       const { phoneNumber, isValid } = phoneValidator(prefilledPhone)

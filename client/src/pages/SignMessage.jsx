@@ -16,7 +16,7 @@ const SignMessage = () => {
   const dispatch = useDispatch()
   const history = useHistory()
   const wallet = useSelector(state => state.wallet || {})
-  const address = Object.keys(wallet)[0]
+  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
   const qs = querystring.parse(location.search)
   const callback = utils.safeURL(qs.callback && Buffer.from(decodeURIComponent(qs.callback), 'base64').toString())
   const { caller, message, comment, phone } = qs
