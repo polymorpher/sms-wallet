@@ -8,8 +8,8 @@ import "./libraries/Enums.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+// import "../deployments/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -28,8 +28,7 @@ contract MiniWallet is
     Initializable,
     PausableUpgradeable,
     AccessControlEnumerableUpgradeable,
-    UUPSUpgradeable,
-    EIP712Upgradeable
+    UUPSUpgradeable
 {
     using SafeCast for *;
     using SafeMathUpgradeable for uint256;
