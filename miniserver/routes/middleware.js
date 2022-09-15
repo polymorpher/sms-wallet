@@ -112,7 +112,6 @@ const validateID = async (req, res, next) => {
       return res.status(StatusCodes.BAD_REQUEST).json({ error: `phone number not registered: ${phoneNumber}` })
     }
   }
-  console.log(`u: ${JSON.stringify(u)}`)
   req.processedBody = { ...req.processedBody, phone: u.phone, address: u.address.toLowerCase() }
   next()
 }

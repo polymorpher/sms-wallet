@@ -91,48 +91,52 @@ Next steps is to review whether the
 Need to determinine whether this is an issue with UUPSProxy which we need to modify or if we can workaround this by using other deployment tools.
 
 **References**
-  - [EIP173: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/blob/master/solc_0.8/proxy/EIP173Proxy.sol): The default proxy
-  - [ERC1967: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/tree/master/solc_0.8/openzeppelin/proxy/ERC1967): UUPS Proxy
-  - [ERC1697: Open Zeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol): This abstract contract provides getters and event emitting update functions for [EIP1967](https://eips.ethereum.org/EIPS/eip-1967) slots.
-  - [UUPSUpgradeable: Open Zeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol)
-  - [ProxyAdmin: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/blob/master/solc_0.8/openzeppelin/proxy/transparent/ProxyAdmin.sol): This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}.
-  - [draft-IERC822Upgradeable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/interfaces/draft-IERC1822Upgradeable.sol#L19)
+
+- [Open Zeppelin: Proxies Docs](https://docs.openzeppelin.com/contracts/4.x/api/proxy)
+- [EIP173: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/blob/master/solc_0.8/proxy/EIP173Proxy.sol): The default proxy
+- [ERC1967: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/tree/master/solc_0.8/openzeppelin/proxy/ERC1967): UUPS Proxy
+ - [ERC1697: Open Zeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol): This abstract contract provides getters and event emitting update functions for [EIP1967](https://eips.ethereum.org/EIPS/eip-1967) slots.
+- [UUPSUpgradeable: Open Zeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol)
+- [ProxyAdmin: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/blob/master/solc_0.8/openzeppelin/proxy/transparent/ProxyAdmin.sol): This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}.
+- [draft-IERC822Upgradeable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/interfaces/draft-IERC1822Upgradeable.sol#L19)
+- [Open Zeppelin: Storage Gaps](https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps)
+
+**Ethereum Improvement Proposals**
+
+- [EIP-173: Contract Ownership Standard](https://eips.ethereum.org/EIPS/eip-173)
+- [EIP-1014: Skinny CREATE2](https://eips.ethereum.org/EIPS/eip-1014)
+- [EIP-1967: Standard Proxy Storage Slots](https://eips.ethereum.org/EIPS/eip-1967)
+- [EIP-1822: Universal Upgradeable Proxy Standard (UUPS)](https://eips.ethereum.org/EIPS/eip-1822)
+- [EIP-2535: Diamonds, Multi-Facet Proxy](https://eips.ethereum.org/EIPS/eip-2535)
 
 
+## Deterministic Deployment
+
+**References**
+
+- [EIP-1014: Skinny CREATE2](https://eips.ethereum.org/EIPS/eip-1014)
+- [Hardhat Deploy specifing a deployment factory](https://github.com/wighawag/hardhat-deploy#4-deterministicdeployment-ability-to-specify-a-deployment-factory)
+- [OpenZepplin Deploying Smart Contracts Using CREATE2](https://docs.openzeppelin.com/cli/2.8/deploying-with-create2)
+- [0xsequence create3](https://github.com/0xsequence/create3)
+- [Zoltu Deterministic Deploy Proxy](https://github.com/Zoltu/deterministic-deployment-proxy)
+
+## Deployment Scripts (Contract Interaction)
+
+**References**
+- [Open Zeppelin: Upgrades Plugins Docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/)
+
+- [hardhat-deploy UUPS Proxy Support issue](https://github.com/wighawag/hardhat-deploy/issues/146)
+- [hardhat-deploy UUPS Deploy Example](https://github.com/wighawag/template-ethereum-contracts/blob/examples/openzeppelin-proxies/deploy/005_deploy_erc20_via_openzeppelin_uups.ts)
+- Code
+  - [hardhat-deploy](https://github.com/wighawag/hardhat-deploy/blob/master/src/index.ts)
+  - [hardhat-deploy: utils code](https://github.com/wighawag/hardhat-deploy/blob/master/src/utils.ts#L544)
+  - [open-zeppelin-upgrades](https://github.com/OpenZeppelin/openzeppelin-upgrades)
+  - [one-wallet: loader.js](https://github.com/polymorpher/one-wallet/blob/master/code/extensions/loader.js)
+  - [one-wallet: flattened](https://github.com/polymorpher/one-wallet/tree/master/code/flattened)
 
 
-## References
+## Persistence of Deployment Artifacts.
 
-- [Proxy Overview by Open Zeppelin](https://docs.openzeppelin.com/contracts/4.x/api/proxy)
-- [Hardhat Deploy: Deploying and Upgrading Proxies](https://github.com/wighawag/hardhat-deploy#deploying-and-upgrading-proxies)
-- [Hardhat Deploy: Examples of Deploying Open Zeppelin Proxies](https://github.com/wighawag/template-ethereum-contracts/tree/examples/openzeppelin-proxies/deploy)
-
-### Proxy Logic within Contracts
-- [Open Zeppelin Contracts Wizard](https://docs.openzeppelin.com/contracts/4.x/wizard)
-- [UUPSUpgradeable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol)
-- [Initializable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/Initializable.sol)
-- [Writing Upgradeable Contracts](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable)
-- [Proxy Upgradeable Pattern](https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies)
-
-### 2. Proxy Contracts Source Code
-  - [EIP173: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/blob/master/solc_0.8/proxy/EIP173Proxy.sol): The default proxy
-  - [ERC1967: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/tree/master/solc_0.8/openzeppelin/proxy/ERC1967): UUPS Proxy
-  - [ERC1697: Open Zeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol): This abstract contract provides getters and event emitting update functions for [EIP1967](https://eips.ethereum.org/EIPS/eip-1967) slots.
-  - [UUPSUpgradeable: Open Zeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol)
-  - [ProxyAdmin: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/blob/master/solc_0.8/openzeppelin/proxy/transparent/ProxyAdmin.sol): This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}.
-
-### 3. Deterministic Deploy (not based of deployer)
-  - [EIP-1014: Skinny CREATE2](https://eips.ethereum.org/EIPS/eip-1014)
-  - [Hardhat Deploy specifing a deployment factory](https://github.com/wighawag/hardhat-deploy#4-deterministicdeployment-ability-to-specify-a-deployment-factory)
-  - [OpenZepplin Deploying Smart Contracts Using CREATE2](https://docs.openzeppelin.com/cli/2.8/deploying-with-create2)
-  - [0xsequence create3](https://github.com/0xsequence/create3)
-  - [Zoltu Deterministic Deploy Proxy](https://github.com/Zoltu/deterministic-deployment-proxy)
-
-### Ethereum Improvement Proposals
-  - [EIP-173: Contract Ownership Standard](https://eips.ethereum.org/EIPS/eip-173)
-  - [EIP-1014: Skinny CREATE2](https://eips.ethereum.org/EIPS/eip-1014)
-  - [EIP-1967: Standard Proxy Storage Slots](https://eips.ethereum.org/EIPS/eip-1967)
-  - [EIP-1822: Universal Upgradeable Proxy Standard (UUPS)](https://eips.ethereum.org/EIPS/eip-1822)
-  - [EIP-2535: Diamonds, Multi-Facet Proxy](https://eips.ethereum.org/EIPS/eip-2535)
+**References**
 
 

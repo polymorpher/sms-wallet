@@ -1,4 +1,4 @@
-import { getConfig } from '../config/getConfig'
+import { getConfig } from '../../config/getConfig'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 
@@ -53,5 +53,5 @@ const deployFunction: DeployFunction = async function (
 }
 
 deployFunction.dependencies = []
-deployFunction.tags = ['Mini721', 'deploy', 'Mini721Deploy']
+deployFunction.tags = ['Mini721V0', 'deployVO']
 export default deployFunction

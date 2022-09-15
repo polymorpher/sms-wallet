@@ -20,7 +20,7 @@
         "deploy-mini-wallet": "npx hardhat deploy --tags MiniWalletDeploy",
         "deploy-mini-721": "npx hardhat deploy --tags Mini721",
         "deploy-mini-1155": "npx hardhat deploy --tags Mini1155",
-        "deploy-mini-ID": "npx hardhat deploy --tags MiniID",
+        "deploy-mini-ID": "npx hardhat deploy --tags MiniIDDeploy",
         "deploy-upgrade": "npx hardhat deploy --tags upgrade",
         "deploy-test": "npx hardhat deploy --tags Test999",
         "hardhat-local": "npx hardhat node --no-deploy",

@@ -2,7 +2,9 @@ import { getConfig } from '../config/getConfig'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
-
+const ContractPath = '../build/contracts/miniWallet/miniWallet.sol/MiniWallet.json'
+const ContractJSON = require(ContractPath)
+const { abi } = ContractJSON
 const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 
 const deployFunction: DeployFunction = async function (
@@ -16,29 +18,35 @@ const deployFunction: DeployFunction = async function (
   console.log(`Deploying to network: ${hre.network.name}`)
   const config = await getConfig(hre.network.name, 'miniWallet')
 
-  const deployedContract = await deploy('MiniWallet', {
-    contract: 'MiniWallet',
+  const deployedMiniWalletImplementation = await deploy('MiniWallet', {
     from: deployer,
-    proxy: {
-      owner: deployer,
-      proxyContract: 'ERC1967Proxy',
-      proxyArgs: ['{implementation}', '{data}'],
-      execute: {
-        init: {
-          methodName: 'initialize',
-          args: [
-            config.miniWallet.initialOperatorThreshold,
-            config.miniWallet.initialOperators,
-            config.miniWallet.initialUserLimit,
-            config.miniWallet.initialAuthLimit
-          ]
-        }
-      }
-    },
+    args: [],
     log: true
   })
-  const miniWallet = await hre.ethers.getContractAt('MiniWallet', deployedContract.address)
 
+  const miniWalletImplementation = await hre.ethers.getContractAt('MiniWallet', deployedMiniWalletImplementation.address)
+  console.log('MiniWallet Implementation deployed to  :', miniWalletImplementation.address)
+
+  // Construct calldata for Initialize
+  const iface = new ethers.utils.Interface(abi)
+  const calldata = iface.encodeFunctionData('initialize', [
+    config.miniWallet.initialOperatorThreshold,
+    config.miniWallet.initialOperators,
+    config.miniWallet.initialUserLimit,
+    config.miniWallet.initialAuthLimit])
+  console.log(`calldata: ${calldata}`)
+
+  const deployedMiniWalletProxy = await deploy('ERC1967Proxy', {
+    from: deployer,
+    args: [miniWalletImplementation.address, calldata],
+    log: true
+  })
+
+  const miniWalletProxy = await hre.ethers.getContractAt('ERC1967Proxy', deployedMiniWalletProxy.address)
+  console.log('MiniWalletProxy deployed to  :', miniWalletProxy.address)
+
+  const MiniWallet = await ethers.getContractFactory('MiniWallet')
+  const miniWallet = MiniWallet.attach(miniWalletProxy.address)
   console.log('MiniWallet deployed to:', miniWallet.address)
   console.log(
     'MiniWallet Operator Threshold:',
@@ -65,5 +73,5 @@ const deployFunction: DeployFunction = async function (
 }
 
 deployFunction.dependencies = []
-deployFunction.tags = ['MiniWallet', '001', 'deploy', 'MiniWalletDeploy']
+deployFunction.tags = ['MiniWallet', 'deploy', 'MiniWalletDeploy']
 export default deployFunction

@@ -4,6 +4,7 @@
 
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
 import "hardhat-deploy/solc_0.8/openzeppelin/proxy/Proxy.sol";
 import "hardhat-deploy/solc_0.8/openzeppelin/proxy/ERC1967/ERC1967Upgrade.sol";
 
@@ -21,6 +22,11 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
      * function call, and allows initializating the storage of the proxy like a Solidity constructor.
      */
     constructor(address _logic, bytes memory _data) payable {
+        console.log("In ERC1967Proxy constuctor");
+        console.log("In ERC1967Proxy constuctor _logic: ");
+        console.logAddress(_logic);
+        console.log("In ERC1967Proxy constuctor _data: ");
+        console.logBytes(_data);
         assert(
             _IMPLEMENTATION_SLOT ==
                 bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1)
@@ -38,6 +44,7 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
         override
         returns (address impl)
     {
+        console.log("In ERC1967Proxy _implementation");
         return ERC1967Upgrade._getImplementation();
     }
 }
