@@ -11,7 +11,7 @@ module.exports = {
     if (!server) {
       server = spawn('gcloud', dsArgs)
       const f = data => {
-        // console.log(data.toString());
+        console.log(data.toString())
         if (data.includes('Dev App Server is now running')) {
           console.log('Mock DS started!')
         }
@@ -39,13 +39,16 @@ module.exports = {
       return client
     }
     const clientConf = {
-      projectId: config.datastore.cred['project_id'],
+      projectId: config.datastore.cred.project_id,
+      //   projectId: config.datastore.cred.project_id,
       credentials: config.datastore.cred,
       namespace: config.datastore.namespace
     }
 
     if (config.datastore.mock) {
+      console.log('creating mock')
       this.mock()
+      console.log('mock created')
       clientConf.apiEndpoint = `127.0.0.1:${config.datastore.mockPort}`
       clientConf.projectId = 'mock'
     }

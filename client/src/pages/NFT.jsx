@@ -13,6 +13,8 @@ import { TailSpin } from 'react-loading-icons'
 import PhoneInput from 'react-phone-number-input'
 import { walletActions } from '../state/modules/wallet'
 import { balanceActions } from '../state/modules/balance'
+import { TokenType } from '../../../shared/constants'
+import config from '../config'
 
 export const MetadataURITransformer = (url) => {
   const IPFSIO = /https:\/\/ipfs\.io\/ipfs\/(.+)/
@@ -48,6 +50,17 @@ export const useMetadata = ({
         setMetadata(metadata)
         if (metadata.image && (metadata.image.length - metadata.image.lastIndexOf('.')) > 5 && !contentTypeOverride) {
           const resolvedImageUrl = NFTUtils.replaceIPFSLink(metadata.image, ipfsGateway)
+          const { headers: { 'content-type': contentType } } = await axios.head(resolvedImageUrl)
+          setResolvedImageUrl(resolvedImageUrl)
+          setContentType(contentType)
+          if (metadata.animation_url) {
+            const animationUrl = NFTUtils.replaceIPFSLink(metadata?.animation_url || metadata?.properties?.animation_url, ipfsGateway)
+            const { headers: { 'content-type': animationUrlContentType } } = await axios.head(animationUrl)
+            setResolvedAnimationUrl(animationUrl)
+            setAnimationUrlContentType(animationUrlContentType)
+          }
+        } else {
+          const resolvedImageUrl = metadata.image
           const { headers: { 'content-type': contentType } } = await axios.head(resolvedImageUrl)
           setResolvedImageUrl(resolvedImageUrl)
           setContentType(contentType)
@@ -278,6 +291,7 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect
       <NFTItemContainer onClick={() => onSelect && onSelect({ resolvedImageUrl, contractAddress, isImage, isVideo, metadata, contractName, tokenId, tokenType })}>
         {!contentType && <Loading><TailSpin /> </Loading>}
         {isImage && <NFTImage src={resolvedImageUrl} />}
+        {/* <NFTImage src='https://1wallet.mypinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/1.png' /> */}
         {isVideo && <NFTVideo src={resolvedImageUrl} loop muted autoplay />}
         <Row>
           <FlexColumn style={{ flex: 1 }}>
@@ -292,23 +306,12 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect
 }
 
 // eslint-disable-next-line no-unused-vars
-const DUMMY_NFTS = [{
-  contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
-  tokenId: '1',
-  tokenType: 'ERC721',
-}, {
-  contractAddress: '0x426dD435EE83dEdb5af8eDa2729a9064C415777B',
-  tokenId: '2',
-  tokenType: 'ERC721',
-}, {
-  contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
-  tokenId: '1',
-  tokenType: 'ERC1155',
-}, {
-  contractAddress: '0x6b2d0691dfF5eb5Baa039b9aD9597B9169cA44d0',
-  tokenId: '2',
-  tokenType: 'ERC1155',
-}]
+let DUMMY_NFTS
+if (config.chainId === 1666600000) {
+  DUMMY_NFTS = config.mainnet.nfts
+} else {
+  DUMMY_NFTS = config.test.nfts
+}
 
 const loadNFTs = ({ address }) => {
   const dispatch = useDispatch()

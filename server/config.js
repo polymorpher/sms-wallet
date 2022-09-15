@@ -3,7 +3,6 @@ const BN = require('bn.js')
 const DEBUG = process.env.RELAYER_DEBUG === 'true' || process.env.RELAYER_DEBUG === '1'
 const config = {
   debug: DEBUG,
-  relayerId: process.env.RELAYER_ID || 'unknown',
   nullAddress: '0x0000000000000000000000000000000000000000',
   verbose: process.env.VERBOSE === 'true' || process.env.VERBOSE === '1',
   https: {
@@ -14,7 +13,7 @@ const config = {
   corsOrigins: process.env.CORS,
   secret: process.env.SECRET,
   safeNonce: process.env.SAFE_NONCE === '1' || process.env.SAFE_NONCE === 'true',
-  pollingInterval: parseInt(process.env.pollingInterval || 1000),
+  pollingInterval: parseInt(process.env.POLLING_INTERVAL || 1000),
   defaultNetwork: process.env.DEFAULT_NETWORK || 'harmony-mainnet',
   networks: {
     'harmony-testnet': {
@@ -58,7 +57,7 @@ const config = {
     cred: !process.env.GCP_CRED_PATH ? {} : require(process.env.GCP_CRED_PATH),
     mock: !process.env.GCP_CRED_PATH,
     mockPort: 9000,
-    namespace: 'sms-wallet-server'
+    namespace: process.env.GCP_NAMESPACE || 'sms-wallet-server'
   },
 
   twilio: {

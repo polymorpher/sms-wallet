@@ -3,6 +3,9 @@ const sharedUtils = require('../shared/utils')
 
 const { keccak, hexView, hexString } = sharedUtils
 
+const { StatusCodes } = require('http-status-codes')
+const { values, mapValues } = require('lodash')
+
 const utils = {
   keccak,
   hexView,
@@ -45,7 +48,8 @@ const utils = {
     const otps = utils.genOTP({ seed, interval, counter, n })
     const nums = new Array(n).fill(0).map((a, i) => new Uint8Array(otps.slice(i * 4, (i + 1) * 4))).map(utils.decodeOtp)
     return nums.map(i => i.toString().padStart(6, '0'))
-  },
+  }
+
 }
 
 module.exports = utils

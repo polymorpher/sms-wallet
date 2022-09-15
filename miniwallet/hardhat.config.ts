@@ -1,7 +1,8 @@
-import 'dotenv/config'
+// import 'dotenv/config'
 import { HardhatUserConfig, task } from 'hardhat/config'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
+import '@nomiclabs/hardhat-ethers'
 import '@typechain/hardhat'
 import 'hardhat-gas-reporter'
 import 'hardhat-deploy'
@@ -12,6 +13,8 @@ import '@atixlabs/hardhat-time-n-mine'
 import 'hardhat-spdx-license-identifier'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-contract-sizer'
+import * as dotenv from 'dotenv'
+dotenv.config({ path: './env/networks.env' })
 
 const normalizeHex = (s) => s && s.startsWith('0x') ? s : `0x${s}`
 
@@ -52,14 +55,20 @@ const hardhatUserconfig: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
+      accounts: {
+        count: 200
+      },
       mining: {
         auto: true
       }
     },
-    hardhatNode: {
-      url: process.env.HARDHAT_URL,
+    ethLocal: {
+      url: process.env.ETH_LOCAL_URL,
       gasPrice: 20000000000,
-      gas: 6000000
+      gas: 6000000,
+      live: false,
+      saveDeployments: true,
+      tags: ['local']
     },
     localnet: {
       url: process.env.LOCALNET_URL,
@@ -91,7 +100,8 @@ const hardhatUserconfig: HardhatUserConfig = {
     },
     mainnet: {
       url: process.env.MAINNET_URL,
-      accounts: [normalizeHex(process.env.PRIVATE_KEY)]
+      accounts: [normalizeHex(process.env.PRIVATE_KEY)],
+      chainId: 1666600000
     },
     localgeth: {
       url: process.env.LOCALGETH_URL,
@@ -167,7 +177,7 @@ const hardhatUserconfig: HardhatUserConfig = {
     disambiguatePaths: false,
     runOnCompile: true,
     strict: true,
-    only: [':AssetManager$']
+    only: [':MiniWallet$']
   }
 }
 
