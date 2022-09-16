@@ -32,13 +32,13 @@ const deployFunction: DeployFunction = async function (
   const calldata = iface.encodeFunctionData('initialize', [])
   console.log(`calldata: ${calldata}`)
 
-  const deployedMiniIDProxy = await deploy('ERC1967Proxy', {
+  const deployedMiniIDProxy = await deploy('MiniProxy', {
     from: deployer,
     args: [miniIDImplementation.address, calldata],
     log: true
   })
 
-  const miniIDProxy = await hre.ethers.getContractAt('ERC1967Proxy', deployedMiniIDProxy.address)
+  const miniIDProxy = await hre.ethers.getContractAt('MiniProxy', deployedMiniIDProxy.address)
   console.log('MiniIDProxy deployed to  :', miniIDProxy.address)
 
   const MiniID = await ethers.getContractFactory('MiniID')

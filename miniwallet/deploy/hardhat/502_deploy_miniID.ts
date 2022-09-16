@@ -17,7 +17,7 @@ const deployFunction: DeployFunction = async function (
     contract: 'MiniID',
     from: deployer,
     proxy: {
-      proxyContract: 'ERC1967Proxy',
+      proxyContract: 'MiniProxy',
       proxyArgs: ['{implementation}', '{data}'],
       execute: {
         init: {

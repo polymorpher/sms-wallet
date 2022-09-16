@@ -14,7 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     proxy: {
       owner: deployer,
-      proxyContract: 'ERC1967Proxy',
+      proxyContract: 'MiniProxy',
       proxyArgs: ['{implementation}', '{data}'],
       execute: {
         init: {
@@ -36,7 +36,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [],
     proxy: {
-      proxyContract: 'ERC1967Proxy',
+      proxyContract: 'MiniProxy',
       proxyArgs: ['{implementation}', '{data}'],
       execute: {
         init: {
@@ -53,7 +53,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [],
     proxy: {
-      proxyContract: 'ERC1967Proxy',
+      proxyContract: 'MiniProxy',
       proxyArgs: ['{implementation}', '{data}']
     },
     log: true
@@ -64,7 +64,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [],
     proxy: {
-      proxyContract: 'ERC1967Proxy',
+      proxyContract: 'MiniProxy',
       proxyArgs: ['{implementation}', '{data}']
     },
     log: true

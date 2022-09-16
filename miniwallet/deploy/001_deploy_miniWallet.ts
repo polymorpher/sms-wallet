@@ -36,13 +36,13 @@ const deployFunction: DeployFunction = async function (
     config.miniWallet.initialAuthLimit])
   console.log(`calldata: ${calldata}`)
 
-  const deployedMiniWalletProxy = await deploy('ERC1967Proxy', {
+  const deployedMiniWalletProxy = await deploy('MiniProxy', {
     from: deployer,
     args: [miniWalletImplementation.address, calldata],
     log: true
   })
 
-  const miniWalletProxy = await hre.ethers.getContractAt('ERC1967Proxy', deployedMiniWalletProxy.address)
+  const miniWalletProxy = await hre.ethers.getContractAt('MiniProxy', deployedMiniWalletProxy.address)
   console.log('MiniWalletProxy deployed to  :', miniWalletProxy.address)
 
   const MiniWallet = await ethers.getContractFactory('MiniWallet')

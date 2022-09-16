@@ -27,13 +27,13 @@ const deployFunction: DeployFunction = async function (
   //   console.log(`receipt: ${JSON.stringify(receipt)}`)
   console.log('MiniID Implementation Name         : ', await miniIDImplementation.name())
 
-  const deployedMinidProxy = await deploy('ERC1967Proxy', {
+  const deployedMinidProxy = await deploy('MiniProxy', {
     from: deployer,
     args: [miniIDImplementation.address, '0x8129fc1c'],
     log: true
   })
 
-  const miniIDProxy = await hre.ethers.getContractAt('ERC1967Proxy', deployedMinidProxy.address)
+  const miniIDProxy = await hre.ethers.getContractAt('MiniProxy', deployedMinidProxy.address)
   console.log('MiniIDProxy deployed to  :', miniIDProxy.address)
   //   const miniIDProxyL = deployedMiniID.attach(miniIDProxy.address)
   //   const miniIDProxyL = miniIDLogic.attach(miniIDProxy.address)

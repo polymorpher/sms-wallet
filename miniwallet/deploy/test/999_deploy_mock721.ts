@@ -38,13 +38,13 @@ const deployFunction: DeployFunction = async function (
 
   console.log('Mock721Implementation Name         : ', await mock721Implementation.name())
 
-  const deployedMock721Proxy = await deploy('ERC1967Proxy', {
+  const deployedMock721Proxy = await deploy('MiniProxy', {
     from: deployer,
     args: [mock721Implementation.address, Mock721Initialize],
     log: true
   })
 
-  const mock721Proxy = await hre.ethers.getContractAt('ERC1967Proxy', deployedMock721Proxy.address)
+  const mock721Proxy = await hre.ethers.getContractAt('MiniProxy', deployedMock721Proxy.address)
   console.log('Mock721Proxy deployed to  :', mock721Proxy.address)
   const Mock721 = await ethers.getContractFactory('Mock721')
   const mock721 = Mock721.attach(mock721Proxy.address)
