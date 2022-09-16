@@ -30,17 +30,13 @@ const deployFunction: DeployFunction = async function (
   console.log('Mock721Implementation Name         : ', await mock721Implementation.name())
 
   // ==== Deploy mock721Proxy ====
-  const deployedMock721Proxy = await deploy('MiniProxy', {
+  const deployedMock721Proxy = await deploy('MiniProxyHH', {
     from: deployer,
-    // args: [mock721Implementation.address, Mock721Initialize],
-    args: [],
+    args: [mock721Implementation.address, Mock721Initialize],
     log: true
   })
-  const mock721Proxy = await hre.ethers.getContractAt('MiniProxy', deployedMock721Proxy.address)
+  const mock721Proxy = await hre.ethers.getContractAt('MiniProxyHH', deployedMock721Proxy.address)
   console.log('Mock721Proxy deployed to  :', mock721Proxy.address)
-  let tx = mock721Proxy.initialize(mock721Implementation.address, Mock721Initialize)
-  let receipt = await tx.wait()
-  console.log(`Mock721Proxy Initialize Transaction: ${JSON.stringify(receipt)}`)
 
   // ==== Mock721 is the implementation contract attached to the Proxy
   const Mock721 = await ethers.getContractFactory('Mock721')
@@ -57,8 +53,8 @@ const deployFunction: DeployFunction = async function (
   console.log('Mock721 Implementation V2 deployed to  :', mock721ImplementationV2.address)
 
   // ==== Call Mock721 to authorize the upgrade ====
-  tx = await mock721.upgradeTo(mock721ImplementationV2.address)
-  receipt = await tx.wait()
+  const tx = await mock721.upgradeTo(mock721ImplementationV2.address)
+  const receipt = await tx.wait()
   console.log(`Mock721_v2 Upgrade Transaction: ${JSON.stringify(receipt)}`)
 
   console.log('Mock721_v2 Name         : ', await mock721.name())
@@ -80,5 +76,5 @@ const deployFunction: DeployFunction = async function (
 }
 
 deployFunction.dependencies = []
-deployFunction.tags = ['Mock721Test']
+deployFunction.tags = ['Mock721TestHH']
 export default deployFunction

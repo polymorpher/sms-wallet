@@ -17,7 +17,7 @@ const deployFunction: DeployFunction = async function (
     contract: 'Mock721',
     from: deployer,
     proxy: {
-      proxyContract: 'MiniProxy',
+      proxyContract: 'MiniProxyHH',
       proxyArgs: ['{implementation}', '{data}'],
       execute: {
         init: {
@@ -53,7 +53,7 @@ const deployFunction: DeployFunction = async function (
     from: deployer,
     args: [],
     proxy: {
-      proxyContract: 'MiniProxy',
+      proxyContract: 'MiniProxyHH',
       proxyArgs: ['{implementation}', '{data}']
     },
     log: true
@@ -61,5 +61,5 @@ const deployFunction: DeployFunction = async function (
 }
 
 deployFunction.dependencies = []
-deployFunction.tags = ['Mock721TestProxy']
+deployFunction.tags = ['Mock721TestProxyHH']
 export default deployFunction
