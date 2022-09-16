@@ -5,6 +5,7 @@ Miniwallet has three streams of smart contract development, they are miniWallet,
 Two types of directory structures were considered.
 1. Independent high level folders for each stream similar to projects such as [sushiswap](https://github.com/sushiswap/sushiswap/tree/master/protocols)
 2. Sub Folders under both contracts and testing similar to projects such as [aave](https://github.com/aave/aave-v3-core/tree/master/contracts)
+3. Seperate Repositories like [Uniswap](https://github.com/uniswap) with [v3-core](https://github.com/Uniswap/v3-core) and [v3-periphery](https://github.com/Uniswap/v3-periphery)
 
 Initially it was felt that the individual streams being developed closely together so we chose option 2. This may be revisited as further development in each stream is progressed.
 

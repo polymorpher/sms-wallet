@@ -48,6 +48,16 @@ const deployFunction: DeployFunction = async function (
     console.log(`Token 1 URI  : ${await mock721.tokenURI(1)}`)
     console.log(`Token 2 URI  : ${await mock721.tokenURI(2)}`)
   }
+  await deploy('Mock721', {
+    contract: 'Mock721_v2',
+    from: deployer,
+    args: [],
+    proxy: {
+      proxyContract: 'MiniProxy',
+      proxyArgs: ['{implementation}', '{data}']
+    },
+    log: true
+  })
 }
 
 deployFunction.dependencies = []

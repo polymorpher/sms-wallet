@@ -27,36 +27,52 @@ We include two Open Zeppelin Contrct Libraries in each contract `UUPSUpgradeable
 * _authorizeUpgrade : allows the authorization of a new implementation by the owner.
 
 ```
-/ SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: Apache-2.0
+
 pragma solidity ^0.8.4;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract MyToken is Initializable, ERC721Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
+contract Mock721 is
+    Initializable,
+    ERC721Upgradeable,
+    OwnableUpgradeable,
+    UUPSUpgradeable
+{
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
+        console.log("In Mock721 constructor");
         _disableInitializers();
     }
 
-    function initialize() initializer public {
-        __ERC721_init("MyToken", "MTK");
+    function initialize() public initializer {
+        console.log("In Mock721 initialize");
+        __ERC721_init("Mock721", "MOK");
         __Ownable_init();
         __UUPSUpgradeable_init();
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return "https://test.johnwhitton.com";
+        return "https://mock.modulo.so/";
+    }
+
+    function safeMint(address to, uint256 tokenId) public onlyOwner {
+        _safeMint(to, tokenId);
     }
 
     function _authorizeUpgrade(address newImplementation)
         internal
-        onlyOwner
         override
-    {}
+        onlyOwner
+    {
+        console.log("In Mock721 _authorizeUpgrade");
+    }
 }
+
 ```
 **References**
 - [Open Zeppelin Contracts Wizard](https://docs.openzeppelin.com/contracts/4.x/wizard)
@@ -85,7 +101,6 @@ We produce this by running `npx hardhat deploy --tags 'MiniIDTest'
 The issue is raised by [hardhat-deploy mergeABIs function](https://github.com/wighawag/hardhat-deploy/blob/master/src/utils.ts#L544)
 
 UUPSProxy.sol overrides this function from [draft-IERC822Upgradeable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/interfaces/draft-IERC1822Upgradeable.sol#L19) 
-Next steps is to review whether the 
 
 **Next Steps**
 Need to determinine whether this is an issue with UUPSProxy which we need to modify or if we can workaround this by using other deployment tools.
@@ -121,6 +136,93 @@ Need to determinine whether this is an issue with UUPSProxy which we need to mod
 - [Zoltu Deterministic Deploy Proxy](https://github.com/Zoltu/deterministic-deployment-proxy)
 
 ## Deployment Scripts (Contract Interaction)
+The high level flow for deploying a contract is
+1. Deploy the Implementation Contract
+2. Deploy the Proxy Contract passing the callData for the Implementations Initialize Function
+3. Connect the Implementation Contract to the Proxy
+4. Execute any other deployment tasks
+
+**Sample Code**
+
+```
+import { getConfig } from '../config/getConfig'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { DeployFunction } from 'hardhat-deploy/types'
+import { ethers } from 'hardhat'
+const ContractPath = '../build/contracts/miniWallet/miniWallet.sol/MiniWallet.json'
+const ContractJSON = require(ContractPath)
+const { abi } = ContractJSON
+const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
+
+const deployFunction: DeployFunction = async function (
+  hre: HardhatRuntimeEnvironment
+) {
+  const { deployments, getNamedAccounts } = hre
+  const { deploy } = deployments
+  const { deployer } = await getNamedAccounts()
+
+  // Get the deployment configuration
+  console.log(`Deploying to network: ${hre.network.name}`)
+  const config = await getConfig(hre.network.name, 'miniWallet')
+
+  const deployedMiniWalletImplementation = await deploy('MiniWallet', {
+    from: deployer,
+    args: [],
+    log: true
+  })
+
+  const miniWalletImplementation = await hre.ethers.getContractAt('MiniWallet', deployedMiniWalletImplementation.address)
+  console.log('MiniWallet Implementation deployed to  :', miniWalletImplementation.address)
+
+  // Construct calldata for Initialize
+  const iface = new ethers.utils.Interface(abi)
+  const calldata = iface.encodeFunctionData('initialize', [
+    config.miniWallet.initialOperatorThreshold,
+    config.miniWallet.initialOperators,
+    config.miniWallet.initialUserLimit,
+    config.miniWallet.initialAuthLimit])
+  console.log(`calldata: ${calldata}`)
+
+  const deployedMiniWalletProxy = await deploy('MiniProxy', {
+    from: deployer,
+    args: [miniWalletImplementation.address, calldata],
+    log: true
+  })
+
+  const miniWalletProxy = await hre.ethers.getContractAt('MiniProxy', deployedMiniWalletProxy.address)
+  console.log('MiniWalletProxy deployed to  :', miniWalletProxy.address)
+
+  const MiniWallet = await ethers.getContractFactory('MiniWallet')
+  const miniWallet = MiniWallet.attach(miniWalletProxy.address)
+  console.log('MiniWallet deployed to:', miniWallet.address)
+  console.log(
+    'MiniWallet Operator Threshold:',
+    await miniWallet.operatorThreshold()
+  )
+
+  const operatorCount = await miniWallet.getRoleMemberCount(OPERATOR_ROLE)
+  console.log(`operatorCount : ${operatorCount}`)
+  for (let i = 0; i < operatorCount; ++i) {
+    console.log(`Operator [${i}]: ${await miniWallet.getRoleMember(OPERATOR_ROLE, i)}`)
+  }
+
+  const globalUserLimit = await miniWallet.globalUserLimit()
+  console.log(
+    'MiniWallet Global User Limit:',
+    ethers.utils.formatUnits(globalUserLimit.toString())
+  )
+
+  const globalUserAuthLimit = await miniWallet.globalUserAuthLimit()
+  console.log(
+    'MiniWallet Global User Auth Limit:',
+    ethers.utils.formatUnits(globalUserAuthLimit.toString())
+  )
+}
+
+deployFunction.dependencies = []
+deployFunction.tags = ['MiniWallet', 'deploy', 'MiniWalletDeploy']
+export default deployFunction
+```
 
 **References**
 - [Open Zeppelin: Upgrades Plugins Docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/)
