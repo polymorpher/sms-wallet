@@ -111,6 +111,7 @@ Need to determinine whether this is an issue with UUPSProxy which we need to mod
 - [EIP173: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/blob/master/solc_0.8/proxy/EIP173Proxy.sol): The default proxy
 - [ERC1967: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/tree/master/solc_0.8/openzeppelin/proxy/ERC1967): UUPS Proxy
  - [ERC1697: Open Zeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol): This abstract contract provides getters and event emitting update functions for [EIP1967](https://eips.ethereum.org/EIPS/eip-1967) slots.
+- [UUPSUpgradeableMockUpgradeable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/mocks/UUPS/UUPSUpgradeableMockUpgradeable.sol) Open Zeppelin Mock Implementation of UUPSProxy
 - [UUPSUpgradeable: Open Zeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol)
 - [ProxyAdmin: Hardhat Deploy](https://github.com/wighawag/hardhat-deploy/blob/master/solc_0.8/openzeppelin/proxy/transparent/ProxyAdmin.sol): This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}.
 - [draft-IERC822Upgradeable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/interfaces/draft-IERC1822Upgradeable.sol#L19)
