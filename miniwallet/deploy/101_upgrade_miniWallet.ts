@@ -1,4 +1,3 @@
-import config from '../config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
@@ -17,9 +16,10 @@ const deployFunction: DeployFunction = async function (
   const deployedContract = await deploy('MiniWallet', {
     contract: 'MiniWallet_v2',
     from: deployer,
+    args: [],
     proxy: {
-      owner: deployer,
-      proxyContract: 'EIP173Proxy'
+      proxyContract: 'MiniProxy',
+      proxyArgs: ['{implementation}', '{data}']
     },
     log: true
   })
@@ -53,5 +53,5 @@ const deployFunction: DeployFunction = async function (
 }
 
 deployFunction.dependencies = []
-deployFunction.tags = ['MiniWallet_v2', '002', 'upgrade', 'MiniWalletUpgrade']
+deployFunction.tags = ['MiniWallet_v2', 'upgrade', 'MiniWallet_v2Upgrade']
 export default deployFunction

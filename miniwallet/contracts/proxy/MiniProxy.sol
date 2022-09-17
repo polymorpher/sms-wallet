@@ -13,7 +13,7 @@ import "hardhat-deploy/solc_0.8/openzeppelin/proxy/ERC1967/ERC1967Upgrade.sol";
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
  * implementation behind the proxy.
  */
-contract ERC1967Proxy is Proxy, ERC1967Upgrade {
+contract MiniProxy is Proxy, ERC1967Upgrade {
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
      *

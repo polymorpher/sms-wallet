@@ -3,15 +3,16 @@
 pragma solidity ^0.8.9;
 
 // import "hardhat/console.sol";
-import "./lib/SafeCast.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "../libraries/SafeCast.sol";
+import "../libraries/Enums.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "./Enums.sol";
 
 /**
   @title An asset management contract for low value tokens and assets.
@@ -25,7 +26,8 @@ import "./Enums.sol";
 contract MiniWallet is
     Initializable,
     PausableUpgradeable,
-    AccessControlEnumerableUpgradeable
+    AccessControlEnumerableUpgradeable,
+    UUPSUpgradeable
 {
     using SafeCast for *;
     using SafeMathUpgradeable for uint256;
@@ -221,6 +223,7 @@ contract MiniWallet is
      * @dev `OPERATOR_ROLE` is the role assigned to operators
      */
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
+    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
     /**
      * @dev `onlyAdmin` modifier is used on functions which only administrators can run
@@ -368,7 +371,16 @@ contract MiniWallet is
         uint256 globalUserLimit_,
         uint256 globalUserAuthLimit_
     ) external initializer {
+        address owner = msg.sender;
+        // solhint-disable-next-line security/no-inline-assembly
+        assembly {
+            sstore(
+                0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103,
+                owner
+            )
+        }
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(UPGRADER_ROLE, msg.sender);
         operatorThreshold = initialOperatorThreshold;
         for (uint256 i; i < initialOperators.length; i++) {
             grantRole(OPERATOR_ROLE, initialOperators[i]);
@@ -612,4 +624,10 @@ contract MiniWallet is
             );
         }
     }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        override
+        onlyRole(UPGRADER_ROLE)
+    {}
 }

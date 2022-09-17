@@ -33,9 +33,9 @@ Below is an approach for review and discussion
 These are ready for merge
 
 **Key Features**
-- MiniWallet Contract
-- MiniWallet Server
-- MiniWallet Tests
+- MiniWallet Contract: Allows users to deposit, withdraw and approve native tokens for creators. Creators can request operators to send approved funds and transfer approved nfts from users.
+- MiniWallet Server: Allows users and creators to check their balances. Allows creators to request operators to send approved funds from users.
+- MiniWallet Tests: Coverage of all MiniWallet features.
 
 **Branch and commits**
 - Branch is [ws-miniwallet-v0](https://github.com/polymorpher/sms-wallet/tree/ws-miniwallet-v0)
@@ -43,15 +43,20 @@ These are ready for merge
   - Starting Baseline [commit 7f3c01b](https://github.com/polymorpher/sms-wallet/pull/14/commits/7f3c01bef26b9ba484ed47d1cc4704425d95443b)
   - Copying of devlog [commit 6b246cb](https://github.com/polymorpher/sms-wallet/commit/6b246cb6fb09ff4d088e0f955a0cb1430dcf100a)
   - ignore deployments folder [commit 6da449f](https://github.com/polymorpher/sms-wallet/commit/6da449f3e90797e473b9131f7a7870fd2c779892)
-  - Pruning of MiniId and MiniNFTs [commit]
-  - Adding in Proxy Changes [commit]
-  - Additional cleanup [commit]
+  - Pruning of MiniId and MiniNFTs [commit 959ae0f](https://github.com/polymorpher/sms-wallet/commit/959ae0f650014cfc014e9db72403da0241fa6e19)
+  - Adding in Proxy Changes [commit]()
+  - Additional cleanup [commit]()
 
 **Outstanding Items**
+* Replace Deployment with [native deployment](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/deploy/001_deploy_miniWallet.ts) will allow us to remove the unnecessary population of [ADMIN_SLOT](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/contracts/miniWallet/MiniWallet.sol#L377)
+* Review MiniProxy.sol to ensure that we are happy with this UUPS compliant Proxy. If we decide to change the Proxy at a later point we will need to update contract addresses in miniserver and potentially other deployments.
 
 **Future Work**
+* mulit-call functionality for support of multiple transactions such as authorizations.
+* [PROXY Enhancements](https://github.com/polymorpher/sms-wallet/blob/ws-miniwallet-v0/miniwallet/devlog/PROXY.md): Including Deterministic Deployments and Persistence of artifacts.
+* Update Contract Testing to test administrative functions and what happens under different scenarios such as miniWallet paused.
 
-**Refactor Log**
+**Refactor Notes**
 ```
 # Create Initial Branch
 git checkout -b ws-miniwallet-v0 7f3c01b
@@ -60,14 +65,6 @@ rm -rf miniwallet/deployments/ethLocal/solcInputs/a0b2c6f4b5ebb656f9859f4e71546f
 rm -rf miniwallet/env/
 gs
 git push --set-upstream origin ws-miniwallet-v0
-
-# Copy over devlog
-cd miniwallet/
-cp -rf ../../merge/sms-wallet/miniwallet/devlog .
-
-# Validate Baseline using testing approach below
-
-
 ```
 
 ### mini-wallet deployment and upgrade scripts
