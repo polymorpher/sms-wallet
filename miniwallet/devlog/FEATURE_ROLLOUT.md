@@ -41,7 +41,7 @@ These are ready for merge
 - Branch is [ws-miniwallet-v0](https://github.com/polymorpher/sms-wallet/tree/ws-miniwallet-v0)
 - Commits
   - Starting Baseline [commit 7f3c01b](https://github.com/polymorpher/sms-wallet/pull/14/commits/7f3c01bef26b9ba484ed47d1cc4704425d95443b)
-  - Copying of devlog [commit]
+  - Copying of devlog [commit 6b246cb](https://github.com/polymorpher/sms-wallet/commit/6b246cb6fb09ff4d088e0f955a0cb1430dcf100a)
   - Pruning of MiniId and MiniNFTs [commit]
   - Adding in Proxy Changes [commit]
   - Additional cleanup [commit]
@@ -52,11 +52,19 @@ These are ready for merge
 
 **Refactor Log**
 ```
+# Create Initial Branch
 git checkout -b ws-miniwallet-v0 7f3c01b
 rm -rf miniwallet/contracts/deployments/
 rm -rf miniwallet/deployments/ethLocal/solcInputs/a0b2c6f4b5ebb656f9859f4e71546fc4.json
 rm -rf miniwallet/env/
 gs
+git push --set-upstream origin ws-miniwallet-v0
+
+# Copy over devlog
+cd miniwallet/
+cp -rf ../../merge/sms-wallet/miniwallet/devlog .
+
+# Validate Baseline using testing approach below
 
 
 ```
@@ -108,7 +116,7 @@ For Local Testing you can register for the following accounts
 * [Google Cloud Datastore](https://console.cloud.google.com/datastore/entities;kind=nft_dev;ns=sms-wallet/query/kind?project=sms-wallet-00)
 
 Typically when testing locally you can use the following UI's
-* [Metamask](chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html) : Used to fund the sms-wallets from the admin account deployed with Ganache `0x8875fc2A47E35ACD1784bB5f58f563dFE86A8451`
+* [Metamask](chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html) : Used to fund the sms-wallets from the admin account deployed with Ganache `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`
 * [sms-wallet](https://localhost:3100/): Used for user and creator frontend testing
 * [sms-demo](https://localhost:3099/): used to create miniwallet approvals and funding requests
 
@@ -214,7 +222,7 @@ cd /Applications
 ### twilio connect incoming messages to local server
 ```
 cd /Applications
-twilio phone-numbers:update +17372327333 --sms-url https://c802-2601-647-4701-35c0-00-4c88.ngrok.io/sms
+twilio phone-numbers:update +17372327333 --sms-url https://04ac-2601-647-4701-35c0-00-4c88.ngrok.io/sms
 ```
 
 ## Testing
@@ -232,9 +240,10 @@ Following is an overview of the tests usually done
 **End to End Testing**
 - `yarn deploy ethLocal` : Deploy all the contracts and mint test NFT's 
 - Reset metamask funding account
-- Transfer 20 ETH to sms-wallet user
-- Transfer 20 ETH to sms-wallet creator
-- sms-user approves and funds miniwallet
+- Transfer 20 ETH from admin to sms-wallet user `0x143A933E79931006b3Eb89cBc938587546faF159`
+- Transfer 20 ETH admin to sms-wallet creator `0x58bB8c7D2c90dF970fb01a5cD29c4075C41d3FFB`
+- Transfer 5 ETH fROM user to creator
+- [user deposits 10 ETH and approves 1 ETH for creator](https://localhost:3100/call?amount=10&callback=aHR0cHM6Ly9sb2NhbGhvc3Q6MzA5OS9jYWxsYmFjaw%3D%3D&calldata=eyJtZXRob2QiOiJhcHByb3ZlKGFkZHJlc3MsdWludDI1NikiLCJwYXJhbWV0ZXJzIjpbeyJuYW1lIjoic3BlbmRlciIsInR5cGUiOiJhZGRyZXNzIiwidmFsdWUiOiIweDU4YkI4YzdEMmM5MGRGOTcwZmIwMWE1Y0QyOWM0MDc1QzQxZDNGRkIifSx7Im5hbWUiOiJhbW91bnQiLCJ0eXBlIjoidWludDI1NiIsInZhbHVlIjoiMTAwMDAwMDAwMDAwMDAwMDAwMCJ9XX0%3D&caller=Token%20Warrior&comment=Fund%20MiniWallet%2010%20ETH%20and%20approve%201%20ETH%20for%20creator%200x58bB8c7D2c90dF970fb01a5cD29c4075C41d3FFB&dest=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512) 
 - `tmb` checks users balance, responses can be viewed in the [twilio monitoring console](https://console.twilio.com/us1/monitor/logs/sms?frameUrl=%2Fconsole%2Fsms%2Flogs%3Fx-target-region%3Dus1&currentFrameUrl=%2Fconsole%2Fsms%2Flogs%3F__override_layout__%3Dembed%26bifrost%3Dtrue%26x-target-region%3Dus1)
 - `tmp` creator requests user to fund them,, responses can be viewed in the [twilio monitoring console](https://console.twilio.com/us1/monitor/logs/sms?frameUrl=%2Fconsole%2Fsms%2Flogs%3Fx-target-region%3Dus1&currentFrameUrl=%2Fconsole%2Fsms%2Flogs%3F__override_layout__%3Dembed%26bifrost%3Dtrue%26x-target-region%3Dus1)
 - Add the miniID, mini721 and mini1155 tokens to both the user and creator UI (note: you can use google chrome with separate windows and profiles one for the user another for the creator) 
