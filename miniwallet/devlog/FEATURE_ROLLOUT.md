@@ -41,6 +41,10 @@ These are ready for merge
 - Branch is [ws-miniwallet-v0]
 - Commits
   - Starting Baseline [commit 7f3c01b](https://github.com/polymorpher/sms-wallet/pull/14/commits/7f3c01bef26b9ba484ed47d1cc4704425d95443b)
+  - Copying of devlog [commit]
+  - Pruning of MiniId and MiniNFTs [commit]
+  - Adding in Proxy Changes [commit]
+  - Additional cleanup [commit]
 
 **Outstanding Items**
 
