@@ -28,10 +28,10 @@ describe('MiniWallet', function () {
         'miniWallet',
         this.MiniWallet,
         [
-          config.test.initialOperatorThreshold,
-          config.test.initialOperators,
-          config.test.initialUserLimit,
-          config.test.initialAuthLimit
+          config.test.miniWallet.initialOperatorThreshold,
+          config.test.miniWallet.initialOperators,
+          config.test.miniWallet.initialUserLimit,
+          config.test.miniWallet.initialAuthLimit
         ]
       ]
     ])
@@ -121,7 +121,7 @@ describe('MiniWallet', function () {
     it('MW-approve-2: Negative approve test depoist amount greater global user limit', async function () {
       await checkBalance(this.alice, '10000')
       const aliceBalance = await this.alice.getBalance()
-      const depositAmount = config.test.initialUserLimit.add(ONE_ETH)
+      const depositAmount = config.test.miniWallet.initialUserLimit.add(ONE_ETH)
       await expect(
         this.miniWallet
           .connect(this.alice)

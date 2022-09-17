@@ -67,6 +67,3 @@ export async function checkContractBalance (
 export function getBigNumber (amount: string, decimals = 18) {
   return BigNumber.from(amount).mul(BigNumber.from(BASE_TEN).pow(decimals))
 }
-
-export * from './Mini721Util'
-export * from './Mini1155Util'

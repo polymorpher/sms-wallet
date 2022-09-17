@@ -5,12 +5,10 @@ const cloneDeep = require('lodash/fp/cloneDeep')
 const { backOff } = require('exponential-backoff')
 const { rpc } = require('./rpc')
 const MiniWallet = require('../miniwallet/build/contracts/MiniWallet.sol/MiniWallet.json')
-const MiniID = require('../miniwallet/build/contracts/nft/MiniID.sol/MiniID.json')
 const constants = require('../server/constants')
 let networkConfig = {}
 let provider
 let miniWallet
-let miniID
 const pendingNonces = {}
 const signers = []
 
@@ -22,7 +20,6 @@ const init = async () => {
     Logger.log(`network: ${JSON.stringify(networkConfig)}`)
     provider = ethers.getDefaultProvider(networkConfig.url)
     miniWallet = new ethers.Contract(networkConfig.miniWalletAddress, MiniWallet.abi, provider)
-    miniID = new ethers.Contract(networkConfig.miniIDAddress, MiniID.abi, provider)
     provider.pollingInterval = config.pollingInterval
     if (networkConfig.mnemonic) {
       for (let i = 0; i < networkConfig.numAccounts; i += 1) {
@@ -36,7 +33,6 @@ const init = async () => {
     }
     Logger.log(`networkConfig.miniWalletAddress: ${networkConfig.miniWalletAddress}`)
     Logger.log(`miniWallet.address             : ${miniWallet.address}`)
-    Logger.log(`miniID.address                 : ${miniID.address}`)
   } catch (ex) {
     console.error(ex)
     console.trace(ex)
@@ -122,6 +118,5 @@ module.exports = {
   getProvider: () => provider,
   getSigners: () => signers,
   getMiniWallet: () => miniWallet,
-  getMiniID: () => miniID,
   prepareExecute
 }

@@ -42,6 +42,7 @@ These are ready for merge
 - Commits
   - Starting Baseline [commit 7f3c01b](https://github.com/polymorpher/sms-wallet/pull/14/commits/7f3c01bef26b9ba484ed47d1cc4704425d95443b)
   - Copying of devlog [commit 6b246cb](https://github.com/polymorpher/sms-wallet/commit/6b246cb6fb09ff4d088e0f955a0cb1430dcf100a)
+  - ignore deployments folder [commit 6da449f](https://github.com/polymorpher/sms-wallet/commit/6da449f3e90797e473b9131f7a7870fd2c779892)
   - Pruning of MiniId and MiniNFTs [commit]
   - Adding in Proxy Changes [commit]
   - Additional cleanup [commit]

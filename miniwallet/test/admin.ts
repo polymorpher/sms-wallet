@@ -27,10 +27,10 @@ describe('MiniWallet Admin', function () {
         'miniWallet',
         this.MiniWallet,
         [
-          config.test.initialOperatorThreshold,
-          config.test.initialOperators,
-          config.test.initialUserLimit,
-          config.test.initialAuthLimit
+          config.test.miniWallet.initialOperatorThreshold,
+          config.test.miniWallet.initialOperators,
+          config.test.miniWallet.initialUserLimit,
+          config.test.miniWallet.initialAuthLimit
         ]
       ]
     ])
@@ -59,7 +59,7 @@ describe('MiniWallet Admin', function () {
       expect(await this.miniWallet.getRoleMember(DEFAULT_ADMIN_ROLE, 0)).to.equal(this.deployer.address)
       const operatorCount = await this.miniWallet.getRoleMemberCount(OPERATOR_ROLE)
       for (let i = 0; i < operatorCount; ++i) {
-        expect(await this.miniWallet.getRoleMember(OPERATOR_ROLE, i)).to.equal(config.test.initialOperators[i])
+        expect(await this.miniWallet.getRoleMember(OPERATOR_ROLE, i)).to.equal(config.test.miniWallet.initialOperators[i])
       }
     })
   })
@@ -89,7 +89,7 @@ describe('MiniWallet Admin', function () {
       expect(await this.miniWallet.getRoleMemberCount(OPERATOR_ROLE)).to.equal(3)
       const operatorCount = await this.miniWallet.getRoleMemberCount(OPERATOR_ROLE)
       for (let i = 0; i < operatorCount; ++i) {
-        expect(await this.miniWallet.getRoleMember(OPERATOR_ROLE, i)).to.equal(config.test.initialOperators[i])
+        expect(await this.miniWallet.getRoleMember(OPERATOR_ROLE, i)).to.equal(config.test.miniWallet.initialOperators[i])
       }
     })
     it('MW-revokeRole-1: revert if attempting to revoke operator from non admin account', async function () {
@@ -157,7 +157,7 @@ describe('MiniWallet Admin', function () {
 
   describe('Administrator: OperatorThreshold management', function () {
     it('MW-operatorThreshold-0: check the operatorThreshold', async function () {
-      expect((await this.miniWallet.operatorThreshold()).toString()).to.equal((config.test.initialOperatorThreshold))
+      expect((await this.miniWallet.operatorThreshold()).toString()).to.equal((config.test.miniWallet.initialOperatorThreshold))
     })
     it('MW-getRoleMemberCount-1: check operator count', async function () {
       expect(await this.miniWallet.getRoleMemberCount(OPERATOR_ROLE)).to.equal(3)
@@ -165,7 +165,7 @@ describe('MiniWallet Admin', function () {
     it('MW-getRoleMember-1: check the administrator is deployer and operators are correct', async function () {
       const operatorCount = await this.miniWallet.getRoleMemberCount(OPERATOR_ROLE)
       for (let i = 0; i < operatorCount; ++i) {
-        expect(await this.miniWallet.getRoleMember(OPERATOR_ROLE, i)).to.equal(config.test.initialOperators[i])
+        expect(await this.miniWallet.getRoleMember(OPERATOR_ROLE, i)).to.equal(config.test.miniWallet.initialOperators[i])
       }
     })
     it('MW-adminChangeOperatorThreshold-0: update OperatorThreshold', async function () {
@@ -181,7 +181,7 @@ describe('MiniWallet Admin', function () {
   })
   describe('Administrator: user limit management', function () {
     it('MW-globalUserLimit-0: check the globalUserLimit', async function () {
-      expect(await this.miniWallet.globalUserLimit()).to.equal(config.test.initialUserLimit)
+      expect(await this.miniWallet.globalUserLimit()).to.equal(config.test.miniWallet.initialUserLimit)
     })
     it('MW-adminChangeGlobalUserLimit-0: update globalUserLimit', async function () {
       await expect(await this.miniWallet.adminChangeGlobalUserLimit(10000))
@@ -197,7 +197,7 @@ describe('MiniWallet Admin', function () {
 
   describe('Administrator: user auth limit management', function () {
     it('MW-globalUserAuthLimit-0: check the globalUserAuthLimit', async function () {
-      expect(await this.miniWallet.globalUserAuthLimit()).to.equal(config.test.initialAuthLimit)
+      expect(await this.miniWallet.globalUserAuthLimit()).to.equal(config.test.miniWallet.initialAuthLimit)
     })
     it('MW-adminChangeGlobalUserAuthLimit-0: update globalUserAuthLimit', async function () {
       await expect(await this.miniWallet.adminChangeGlobalUserAuthLimit(1000))
