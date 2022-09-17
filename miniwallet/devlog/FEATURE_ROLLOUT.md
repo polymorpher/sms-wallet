@@ -13,7 +13,7 @@ This section gives an overview of the features and github branches and pull requ
 **Pull Requests**
 - Miniv0 [#14](https://github.com/polymorpher/sms-wallet/pull/14): Contains the latest reviewed code. The latest complete review was performed by @polymorpher on Septebmer 12th. It is thought that this 
 **Branches**
-- [MiniV0](https://github.com/polymorpher/sms-wallet/tree/miniV0): This branch has the latest reviewed code. It can be reverted to a specific commit and then pruned for miniwallet only functionality. It is though that [commit 7f3c01b](https://github.com/polymorpher/sms-wallet/pull/14/commits/7f3c01bef26b9ba484ed47d1cc4704425d95443b) which is the latest commit before the full review on September 12th is a good starting Baseline.
+- [miniV0](https://github.com/polymorpher/sms-wallet/tree/miniV0): This branch has the latest reviewed code. It can be reverted to a specific commit and then pruned for miniwallet only functionality. It is though that [commit 7f3c01b](https://github.com/polymorpher/sms-wallet/pull/14/commits/7f3c01bef26b9ba484ed47d1cc4704425d95443b) which is the latest commit before the full review on September 12th is a good starting Baseline.
 - [jw-proxy-tmp](https://github.com/polymorpher/sms-wallet/tree/jw-proxy-tmp): This holds the latest code, including work from all streams. It can be used to `cherry-pick` commits or manually merge code for each of the workstreams into their own branches.
 
 
