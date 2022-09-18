@@ -13,7 +13,6 @@ import { TailSpin } from 'react-loading-icons'
 import PhoneInput from 'react-phone-number-input'
 import { walletActions } from '../state/modules/wallet'
 import { balanceActions } from '../state/modules/balance'
-import { TokenType } from '../../../shared/constants'
 import config from '../config'
 
 export const MetadataURITransformer = (url) => {
@@ -48,28 +47,21 @@ export const useMetadata = ({
       try {
         const { data: metadata } = await axios.get(uri)
         setMetadata(metadata)
-        if (metadata.image && (metadata.image.length - metadata.image.lastIndexOf('.')) > 5 && !contentTypeOverride) {
-          const resolvedImageUrl = NFTUtils.replaceIPFSLink(metadata.image, ipfsGateway)
+        if (!metadata.image) {
+          return
+        }
+        const resolvedImageUrl = NFTUtils.replaceIPFSLink(metadata.image, ipfsGateway)
+        if (!contentType) {
           const { headers: { 'content-type': contentType } } = await axios.head(resolvedImageUrl)
-          setResolvedImageUrl(resolvedImageUrl)
           setContentType(contentType)
-          if (metadata.animation_url) {
-            const animationUrl = NFTUtils.replaceIPFSLink(metadata?.animation_url || metadata?.properties?.animation_url, ipfsGateway)
-            const { headers: { 'content-type': animationUrlContentType } } = await axios.head(animationUrl)
-            setResolvedAnimationUrl(animationUrl)
-            setAnimationUrlContentType(animationUrlContentType)
-          }
-        } else {
-          const resolvedImageUrl = metadata.image
-          const { headers: { 'content-type': contentType } } = await axios.head(resolvedImageUrl)
-          setResolvedImageUrl(resolvedImageUrl)
-          setContentType(contentType)
-          if (metadata.animation_url) {
-            const animationUrl = NFTUtils.replaceIPFSLink(metadata?.animation_url || metadata?.properties?.animation_url, ipfsGateway)
-            const { headers: { 'content-type': animationUrlContentType } } = await axios.head(animationUrl)
-            setResolvedAnimationUrl(animationUrl)
-            setAnimationUrlContentType(animationUrlContentType)
-          }
+        }
+        setResolvedImageUrl(resolvedImageUrl)
+        setContentType(contentType)
+        if (metadata.animation_url) {
+          const animationUrl = NFTUtils.replaceIPFSLink(metadata?.animation_url || metadata?.properties?.animation_url, ipfsGateway)
+          const { headers: { 'content-type': animationUrlContentType } } = await axios.head(animationUrl)
+          setResolvedAnimationUrl(animationUrl)
+          setAnimationUrlContentType(animationUrlContentType)
         }
       } catch (ex) {
         console.error(ex)

@@ -174,7 +174,6 @@ export const getTextFromFile = file =>
 
 export const NFTUtils = {
   replaceIPFSLink: (link, ipfsGateway) => {
-    console.log(`replacing link: ${link}`)
     if (!link) {
       return link
     }
