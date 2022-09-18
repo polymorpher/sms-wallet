@@ -2,14 +2,16 @@
 
 ## Overview
 
-We wish to deploy upgradeable contracts for MiniWallet and MiniID and optionally MiniNFTS.
-This deployment should enable fine granularity of artifacts stored at time of deployment to facilitate auditablity and readabilty. We also wish to have control over the proxies so that we can maintain and have clear visibility to any potential security risks. Finally control over the deployment scripts is also a requirement.
+We wish to deploy upgradeable contracts for MiniWallet, MiniID, and optionally MiniNFTS.
 
-The high level flow is that the deployment scripts interact natively with both the Proxy and the Implementation contracts persisting the deployment artifiacts.
+This deployment should enable granular control over contracts and addresses created during deployment, so to facilitate auditablity and readabilty. We need control over the proxies so that we will have clear visibility to any potential security risks. To achieve that, control over the deployment scripts is also required.
+
+The high level flow is that the deployment scripts interact natively with both the proxy and the implementation contracts, and persist the necessary information (e.g. version, time, deployer, contract address) needed to understand the deployment, and to maintain and operate these contracts in the future.
 
 ## Design
 
-We break this down into four major components below we list those components and reference implementatons are listed below,
+We break this down into four major components. Below, we list those components and reference implementatons:
+
 1. Proxy Logic within Contracts
 2. Proxy Contract
 3. Deterministic Deployment
@@ -22,7 +24,8 @@ Following is an overview of how we implement Proxy Functionality
 
 ### Proxy Logic With Contracts
 
-We include two Open Zeppelin Contrct Libraries in each contract `UUPSUpgradeable.sol` and `Initializable.sol`. Below is a simple contract generated from the Oppen Zeppelin Contract Wizard. The key components are
+We include two Open Zeppelin Contrct Libraries in each contract `UUPSUpgradeable.sol` and `Initializable.sol`. Below is a simple contract generated from the Oppen Zeppelin Contract Wizard. The key components are:
+
 * initialize: Uses `__UUPSUpgradeable_init();`
 * _authorizeUpgrade : allows the authorization of a new implementation by the owner.
 
@@ -74,7 +77,9 @@ contract Mock721 is
 }
 
 ```
+
 **References**
+
 - [Open Zeppelin Contracts Wizard](https://docs.openzeppelin.com/contracts/4.x/wizard)
 - [UUPSUpgradeable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol)
 - [Initializable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/Initializable.sol)
@@ -86,10 +91,12 @@ contract Mock721 is
 Initially we have used a copy of the ERC1967 Contract from Hardhat Deploy and have deployed an upgraded both MiniWallet and MiniID using this proxy and the hardhat deploy functionality as of [this commit](https://github.com/polymorpher/sms-wallet/tree/38a01cb97e48bc6ebe33d51bca88bcb797daf48c/miniwallet).
 
 However this has two limitations
+
 1. Needed to populate admin slot unnecessarily in MiniWallet and MiniID [see here for details](https://github.com/wighawag/hardhat-deploy/issues/146#issuecomment-1244642086)
 2. This proxy is a little opaque and does not completely align with [EIP-1822: Universal Upgradeable Proxy Standard (UUPS)](https://eips.ethereum.org/EIPS/eip-1822)
 
 **TODO / Work In Progress**
+
 We are currently cloning a version of [UUPSUpgradeable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol) to our own `UUPSProxy.sol` and using this for the `proxyContract` in the deployment scripts. This has the following issues / action items.
 
 **1. Error with proxiableUUID**
@@ -104,6 +111,8 @@ UUPSProxy.sol overrides this function from [draft-IERC822Upgradeable.sol](https:
 
 **Next Steps**
 Need to determinine whether this is an issue with UUPSProxy which we need to modify or if we can workaround this by using other deployment tools.
+
+**Notes(@polymorpher)**: can you check which contract's proxiableUUID function is being shadowed? UUPSUpgradeable.sol seems fine. Is hardhat-deploy creating a custom contract on top of the supplied `proxyContract`? Perhaps it is best to just use vanilla `deploy` without specifying those parameters 
 
 **References**
 
@@ -129,6 +138,8 @@ Need to determinine whether this is an issue with UUPSProxy which we need to mod
 
 ## Deterministic Deployment
 
+(TODO)
+
 **References**
 
 - [EIP-1014: Skinny CREATE2](https://eips.ethereum.org/EIPS/eip-1014)
@@ -138,7 +149,9 @@ Need to determinine whether this is an issue with UUPSProxy which we need to mod
 - [Zoltu Deterministic Deploy Proxy](https://github.com/Zoltu/deterministic-deployment-proxy)
 
 ## Deployment Scripts (Contract Interaction)
+
 The high level flow for deploying a contract is
+
 1. Deploy the Implementation Contract
 2. Deploy the Proxy Contract passing the callData for the Implementations Initialize Function
 3. Connect the Implementation Contract to the Proxy
@@ -240,6 +253,8 @@ export default deployFunction
 
 
 ## Persistence of Deployment Artifacts.
+
+(TODO)
 
 **References**
 - [Hardhat Compilation Artifacts (docs)](https://hardhat.org/hardhat-runner/docs/advanced/artifacts)
