@@ -15,12 +15,13 @@ import PhoneInput from 'react-phone-number-input'
 import { TailSpin } from 'react-loading-icons'
 import MainContainer from '../components/Container'
 import NFTShowcase from './NFT'
+import { walletActions } from '../state/modules/wallet'
 
 const Wallet = () => {
   // const history = useHistory()
   const dispatch = useDispatch()
   const wallet = useSelector(state => state.wallet || {})
-  const address = Object.keys(wallet)[0]
+  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
   const balance = useSelector(state => state.balance[address]?.balance || '0')
 
   const [to, setTo] = useState('')
@@ -44,6 +45,16 @@ const Wallet = () => {
       clearInterval(h)
     }
   }, [address])
+
+  useEffect(() => {
+    const keys = Object.keys(wallet)
+    for (const k of keys) {
+      if (!apis.web3.isValidAddress(k)) {
+        console.log(`Deleting stale wallet ${k}`)
+        dispatch(walletActions.deleteWallet(k))
+      }
+    }
+  }, [])
 
   const pk = wallet[address]?.pk
 

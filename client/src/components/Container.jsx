@@ -11,7 +11,7 @@ import paths from '../pages/paths'
 const MainContainer = ({ children, withMenu }) => {
   const dispatch = useDispatch()
   const wallet = useSelector(state => state.wallet || {})
-  const address = Object.keys(wallet)[0]
+  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
 
   const [menuVisible, setMenuVisible] = useState(false)
   const [logoutModalVisible, setLogoutModalVisible] = useState(false)

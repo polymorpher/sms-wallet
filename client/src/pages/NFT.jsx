@@ -335,7 +335,7 @@ const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddr
   const [amount, setAmount] = useState('1')
   const [isSending, setIsSending] = useState(false)
   const wallet = useSelector(state => state.wallet || {})
-  const address = Object.keys(wallet)[0]
+  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
   const pk = wallet[address]?.pk
 
   const send = async () => {
@@ -470,7 +470,7 @@ const NFTViewer = ({ visible, setVisible, onClose, contractAddress, resolvedImag
   const [managementVisible, setManagementVisible] = useState(false)
   const [isTracking, setIsTracking] = useState(false)
   const wallet = useSelector(state => state.wallet || {})
-  const address = Object.keys(wallet)[0]
+  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
   const pk = wallet[address]?.pk
   const key = utils.computeTokenKey({ contractAddress, tokenId, tokenType }).string
   const balance = new BN(useSelector(state => state.balance?.[address]?.tokenBalances?.[key] || ''))
@@ -584,7 +584,7 @@ const NFTTracker = ({ visible, setVisible }) => {
   const [tokenId, setTokenId] = useState('')
   const [isTracking, setIsTracking] = useState(false)
   const wallet = useSelector(state => state.wallet || {})
-  const address = Object.keys(wallet)[0]
+  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
   const pk = wallet[address]?.pk
 
   const track = async () => {

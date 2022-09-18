@@ -16,7 +16,7 @@ const Request = () => {
   const dispatch = useDispatch()
   const history = useHistory()
   const wallet = useSelector(state => state.wallet || {})
-  const address = Object.keys(wallet)[0]
+  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
 
   const match = useRouteMatch(paths.request)
   const { id, phone } = match ? match.params : {}

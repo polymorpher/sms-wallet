@@ -25,7 +25,7 @@ export const decodeCalldata = (calldataB64Encoded) => {
 
 export const ApproveTransaction = ({ calldata, caller, callback, comment, inputAmount, dest, onComplete }) => {
   const wallet = useSelector(state => state.wallet || {})
-  const address = Object.keys(wallet)[0]
+  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
 
   const [showDetails, setShowDetails] = useState(false)
   const { balance: amount, formatted: amountFormatted } = utils.toBalance(inputAmount || 0)
@@ -145,7 +145,7 @@ const ApproveTransactionPage = () => {
   const calldata = decodeCalldata(calldataB64Encoded)
 
   const wallet = useSelector(state => state.wallet || {})
-  const address = Object.keys(wallet)[0]
+  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
   const pk = wallet[address]?.pk
 
   useEffect(() => {
