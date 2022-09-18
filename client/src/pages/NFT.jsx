@@ -56,7 +56,6 @@ export const useMetadata = ({
           setContentType(contentType)
         }
         setResolvedImageUrl(resolvedImageUrl)
-        setContentType(contentType)
         if (metadata.animation_url) {
           const animationUrl = NFTUtils.replaceIPFSLink(metadata?.animation_url || metadata?.properties?.animation_url, ipfsGateway)
           const { headers: { 'content-type': animationUrlContentType } } = await axios.head(animationUrl)

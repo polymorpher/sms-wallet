@@ -41,7 +41,7 @@ const config = {
     // gateway: process.env.IPFS_GATEWAY || 'https://dweb.link/ipfs/{{hash}}'
     // gateway: process.env.IPFS_GATEWAY || 'https://ipfs.io/ipfs/{{hash}}'
     // gateway: process.env.IPFS_GATEWAY || 'https://gateway.pinata.cloud/ipfs/{{hash}}'
-    gateway: process.env.IPFS_GATEWAY || 'https://1wallet.mypinata.cloud/ipfs/{{hash}}'
+    gateway: process.env.IPFS_GATEWAY || 'https://modulo.mypinata.cloud/ipfs/{{hash}}'
   },
   gasPrice: process.env.GAS_PRICE || 1000,
   networkId: process.env.NETWORK_ID || 1666600000,
