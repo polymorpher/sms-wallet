@@ -6,33 +6,39 @@ const { backOff } = require('exponential-backoff')
 const { rpc } = require('./rpc')
 const MiniWallet = require('../miniwallet/build/contracts/MiniWallet.sol/MiniWallet.json')
 const constants = require('../server/constants')
-let networkConfig = {}
+const networkConfig = config.networks[config.defaultNetwork]
+
 let provider
 let miniWallet
 const pendingNonces = {}
 const signers = []
 
 const init = async () => {
-  Logger.log('Initializing blockchain for server')
+  if (provider && miniWallet && signers.length > 0) {
+    throw new Error('Already initialized')
+  }
+  for (const k of Object.keys(pendingNonces)) {
+    delete pendingNonces[k]
+  }
+
   try {
-    Logger.log(`config.defaultNetwork: ${config.defaultNetwork}`)
-    networkConfig = config.networks[config.defaultNetwork]
-    Logger.log(`network: ${JSON.stringify(networkConfig)}`)
+    Logger.log('Initializing blockchain for server')
+    Logger.log(`network=${config.defaultNetwork}, ${JSON.stringify(networkConfig)}`)
     provider = ethers.getDefaultProvider(networkConfig.url)
     miniWallet = new ethers.Contract(networkConfig.miniWalletAddress, MiniWallet.abi, provider)
     provider.pollingInterval = config.pollingInterval
+    signers.splice(0, signers.length)
     if (networkConfig.mnemonic) {
       for (let i = 0; i < networkConfig.numAccounts; i += 1) {
         const path = constants.WalletPath + i.toString()
         Logger.log(`path: ${path}`)
         const signer = new ethers.Wallet.fromMnemonic(networkConfig.mnemonic, path)
-        signers[i] = signer.connect(provider)
+        signers.push(signer.connect(provider))
       }
     } else {
-      signers[0] = new ethers.Wallet(networkConfig.key, networkConfig.provider)
+      signers.push(new ethers.Wallet(networkConfig.key, networkConfig.provider))
     }
-    Logger.log(`networkConfig.miniWalletAddress: ${networkConfig.miniWalletAddress}`)
-    Logger.log(`miniWallet.address             : ${miniWallet.address}`)
+    Logger.log(`miniWallet.address: ${miniWallet.address}`)
   } catch (ex) {
     console.error(ex)
     console.trace(ex)
@@ -44,6 +50,7 @@ const init = async () => {
 }
 
 const sampleExecutionAddress = () => {
+  // TODO: add atomic lock
   const nonces = cloneDeep(pendingNonces)
   const probs = []
   let sum = 0
@@ -57,15 +64,15 @@ const sampleExecutionAddress = () => {
   for (let i = 0; i < probs.length; i++) {
     s += probs[i]
     if (s >= r) {
-      return [i]
+      return i
     }
   }
-  return [signers.length - 1]
+  return signers.length - 1
 }
 
 // basic executor used to send funds
 const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => async (method, params) => {
-  const [fromIndex] = sampleExecutionAddress()
+  const fromIndex = sampleExecutionAddress()
   const from = signers[fromIndex].address
   const miniWalletSigner = miniWallet.connect(signers[fromIndex])
   logger(`Sampled [${fromIndex}] ${from}`)
