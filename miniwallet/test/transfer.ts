@@ -79,7 +79,7 @@ describe('MiniWallet', function () {
 
     it('MW-transfer-1: positive test of ERC721 transfer', async function () {
       // Deploy 721
-      await deploy(this, [['erc721', this.TestERC721, [range(10), range(10).map((e: any) => `ipfs://test721/${e}`)]]])
+      await deploy(this, [['erc721', this.TestERC721, [10]]])
       // Transfer some Tokens for Alice
       let tx = await this.erc721.transferFrom(this.deployer.address, this.alice.address, 0)
       await tx.wait()
@@ -110,8 +110,7 @@ describe('MiniWallet', function () {
       // Deploy 1155
       await deploy(this, [['erc1155', this.TestERC1155, [
         range(10),
-        range(10).map((e: any) => 10), // mint 10 for each
-        range(10).map((e: any) => `ipfs://test1155/${e}`)
+        range(10).map((e: any) => 10) // mint 10 for each
       ]]])
       // Transfer some tokens for Alice
       let tx = await this.erc1155.safeTransferFrom(this.deployer.address, this.alice.address, 0, 7, DUMMY_HEX)

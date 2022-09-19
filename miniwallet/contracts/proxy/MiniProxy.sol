@@ -31,6 +31,13 @@ contract MiniProxy is Proxy, ERC1967Upgrade {
     /**
      * @dev Returns the current implementation address.
      */
+    function implementation() public view returns (address impl) {
+        return _implementation();
+    }
+
+    /**
+     * @dev Returns the current implementation address.
+     */
     function _implementation()
         internal
         view

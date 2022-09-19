@@ -14,10 +14,7 @@ const ONE_ETH = ethers.utils.parseEther('1')
 describe('MiniWallet', function () {
   before(async function () {
     await prepare(this, [
-      'MiniWallet',
-      'TestERC20',
-      'TestERC721',
-      'TestERC1155'
+      'MiniWallet'
     ])
   })
 
