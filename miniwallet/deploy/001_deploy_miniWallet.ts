@@ -11,9 +11,9 @@ const deployFunction: DeployFunction = async function (
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
-
+  const network = hre.network.name
   // Get the deployment configuration
-  console.log(`Deploying to network: ${hre.network.name}`)
+  console.log(`Deploying to network: ${network}`)
 
   const deployedContract = await deploy('MiniWallet', {
     contract: 'MiniWallet',
@@ -26,10 +26,10 @@ const deployFunction: DeployFunction = async function (
         init: {
           methodName: 'initialize',
           args: [
-            config.test.miniWallet.initialOperatorThreshold,
-            config.test.miniWallet.initialOperators,
-            config.test.miniWallet.initialUserLimit,
-            config.test.miniWallet.initialAuthLimit
+            config[network].miniWallet.initialOperatorThreshold,
+            config[network].miniWallet.initialOperators,
+            config[network].miniWallet.initialUserLimit,
+            config[network].miniWallet.initialAuthLimit
           ]
         }
       }
