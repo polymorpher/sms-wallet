@@ -51,15 +51,6 @@ const utils = {
     return nums.map(i => i.toString().padStart(6, '0'))
   },
 
-  parseTx: (tx) => {
-    const txId = tx?.tx
-    const success = !!(txId)
-    const stack = tx?.receipt?.stack || ''
-    const nl = stack.indexOf('\n')
-    const error = stack && (nl > 0 ? stack.slice(0, nl) : stack)
-    return { success, txId, tx, error }
-  },
-
   parseError: (ex) => {
     let error = ex.toString()
     if (error && error.indexOf(constants.ReasonGiven) > 0) {
