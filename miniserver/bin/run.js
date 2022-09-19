@@ -6,11 +6,11 @@ const httpServer = apps.httpServer
 console.log('Starting web server...')
 
 httpsServer.listen(config.httpsPort || 8443, () => {
-  const addr = httpsServer.address()
-  console.log(`HTTPS server listening on port ${addr.port} at ${addr.address}`)
+  const { port, address } = httpsServer.address()
+  console.log(`HTTPS server listening on port ${port} at ${address}`)
 })
 
 httpServer.listen(config.port || 3000, () => {
-  const addr = httpServer.address()
-  console.log(`HTTP server listening on port ${addr.port} at ${addr.address}`)
+  const { port, address } = httpServer.address()
+  console.log(`HTTP server listening on port ${port} at ${address}`)
 })
