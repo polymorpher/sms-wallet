@@ -8,5 +8,8 @@ export default {
     ERC721: 1,
     ERC1155: 2,
     NONE: 3
+  },
+  InterfaceId: {
+    ERC2981_NFT_ROYALTY_STANDARD: '0x2a55205a'
   }
 }

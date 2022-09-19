@@ -8,6 +8,7 @@ typechain
 cache
 artifacts
 build
+deployments
 
 # Additional files
 docs

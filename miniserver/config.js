@@ -1,9 +1,11 @@
 require('dotenv').config()
-const BN = require('bn.js')
-const DEBUG = process.env.RELAYER_DEBUG === 'true' || process.env.RELAYER_DEBUG === '1'
+const ethers = require('ethers')
+const DEBUG = process.env.MINISERVER_DEBUG === 'true' || process.env.MINISERVER_DEBUG === '1'
 const config = {
   debug: DEBUG,
-  nullAddress: '0x0000000000000000000000000000000000000000',
+  url: process.env.SERVER_URL || 'https://localhost',
+  port: process.env.PORT || 3000,
+  httpsPort: process.env.HTTPS_PORT || 8443,
   verbose: process.env.VERBOSE === 'true' || process.env.VERBOSE === '1',
   https: {
     only: process.env.HTTPS_ONLY === 'true' || process.env.HTTPS_ONLY === '1',
@@ -12,18 +14,18 @@ const config = {
   },
   corsOrigins: process.env.CORS,
   secret: process.env.SECRET,
-  safeNonce: process.env.SAFE_NONCE === '1' || process.env.SAFE_NONCE === 'true',
   pollingInterval: parseInt(process.env.POLLING_INTERVAL || 1000),
-  defaultNetwork: process.env.DEFAULT_NETWORK || 'harmony-mainnet',
+  defaultNetwork: process.env.DEFAULT_NETWORK || 'eth-local',
   networks: {
     'harmony-testnet': {
       key: process.env.HARMONY_TESTNET_KEY || '',
       url: process.env.TESTNET_RPC || 'https://api.s0.b.hmny.io',
       wss: process.env.TESTNET_WSS,
       mnemonic: process.env.HARMONY_TESTNET_MNEMONIC,
-      skip: process.env.SKIP_TESTNET,
+      skip: process.env.SKIP_TESTNE || true,
       numAccounts: process.env.TESTNET_NUM_ACCOUNTS || 1,
       blockTime: 2,
+      miniWalletAddress: process.env.TESTNET_MINI_WALLET,
     },
     'harmony-mainnet': {
       key: process.env.HARMONY_MAINNET_KEY || '',
@@ -31,26 +33,23 @@ const config = {
       url: process.env.MAINNET_RPC || process.env.BEACON_MAINNET_RPC || 'https://api.s0.t.hmny.io',
       wss: process.env.MAINNET_WSS || process.env.BEACON_MAINNET_WSS,
       mnemonic: process.env.HARMONY_MAINNET_MNEMONIC,
-      skip: process.env.SKIP_MAINNET,
+      skip: process.env.SKIP_MAINNET || true,
       numAccounts: process.env.MAINNET_NUM_ACCOUNTS || 1,
       blockTime: 2,
+      miniWalletAddress: process.env.MAINNET_MINI_WALLET,
     },
-    'eth-ganache': {
-      url: process.env.GANACHE_RPC || 'http://127.0.0.1:7545',
-      wss: process.env.GANACHE_WSS,
-      key: process.env.ETH_GANACHE_KEY,
-      mnemonic: process.env.ETH_GANACHE_MNEMONIC,
-      skip: process.env.SKIP_GANACHE,
-      numAccounts: process.env.GANACHE_NUM_ACCOUNTS || 1,
+    'eth-local': {
+      url: process.env.ETH_LOCAL_RPC || 'http://127.0.0.1:8545',
+      wss: process.env.ETH_LOCAL_WSS,
+      key: process.env.ETH_LOCAL_KEY,
+      mnemonic: process.env.ETH_LOCAL_MNEMONIC,
+      skip: process.env.SKIP_ETH || true,
+      numAccounts: process.env.ETH_LOCAL_NUM_ACCOUNTS || 1,
+      miniWalletAddress: process.env.ETH_LOCAL_MINI_WALLET,
     },
   },
   gasLimit: parseInt(process.env.GAS_LIMIT || '12345678'),
-  gasPrice: new BN(process.env.GAS_PRICE || '200'),
-  cache: process.env.CACHE || 'cache',
-  stats: {
-    // relevant to relayer root directory
-    path: process.env.STATS_PATH || '../data/stats.json'
-  },
+  gasPrice: ethers.BigNumber.from(process.env.GAS_PRICE || '200'),
 
   datastore: {
     gceProjectId: process.env.GCP_PROJECT,
@@ -66,11 +65,6 @@ const config = {
     from: process.env.TWILIO_FROM,
   },
 
-  otp: {
-    salt: process.env.OTP_SALT,
-    interval: parseInt(process.env.OTP_INTERVAL || 60000)
-  },
   defaultSignatureValidDuration: 1000 * 60 * 15,
-  clientRoot: process.env.CLIENT_ROOT || 'https://smswallet.xyz',
 }
 module.exports = config

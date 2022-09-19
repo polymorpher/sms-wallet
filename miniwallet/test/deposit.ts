@@ -6,15 +6,15 @@ import {
   checkBalance,
   getTxCost
 } from './utilities'
-import config from '../src/config'
+import config from '../config'
 
 const ZERO_ETH = ethers.utils.parseEther('0')
 const ONE_ETH = ethers.utils.parseEther('1')
 
-describe('AssetManager', function () {
+describe('MiniWallet', function () {
   before(async function () {
     await prepare(this, [
-      'AssetManager'
+      'MiniWallet'
     ])
   })
 
@@ -22,13 +22,13 @@ describe('AssetManager', function () {
     this.snapshotId = await waffle.provider.send('evm_snapshot', [])
     await deployUpgradeable(this, [
       [
-        'assetManager',
-        this.AssetManager,
+        'miniWallet',
+        this.MiniWallet,
         [
-          config.test.initialOperatorThreshold,
-          config.test.initialOperators,
-          config.test.initialUserLimit,
-          config.test.initialAuthLimit
+          config.test.miniWallet.initialOperatorThreshold,
+          config.test.miniWallet.initialOperators,
+          config.test.miniWallet.initialUserLimit,
+          config.test.miniWallet.initialAuthLimit
         ]
       ]
     ])
@@ -39,48 +39,48 @@ describe('AssetManager', function () {
   })
 
   describe('deposit: check deposit functionality', function () {
-    it('AM-deposit-0: Positive deposit test', async function () {
+    it('MW-deposit-0: Positive deposit test', async function () {
       const provider = waffle.provider
 
       // check Initial Balance
       await checkBalance(this.alice, '10000')
       let aliceBalance = await this.alice.getBalance()
       const bobBalance = await this.bob.getBalance()
-      let assetManagerBalance = await provider.getBalance(
-        this.assetManager.address
+      let miniWalletBalance = await provider.getBalance(
+        this.miniWallet.address
       )
-      const tx = await this.assetManager.connect(this.alice).deposit({
+      const tx = await this.miniWallet.connect(this.alice).deposit({
         value: ONE_ETH
       })
       await tx.wait()
       const gasUsed = await getTxCost(tx.hash)
       // Calculate and check new balances
       aliceBalance = aliceBalance.sub(ONE_ETH).sub(gasUsed)
-      assetManagerBalance = assetManagerBalance.add(ONE_ETH)
+      miniWalletBalance = miniWalletBalance.add(ONE_ETH)
       await expect(await this.alice.getBalance()).to.equal(aliceBalance)
       await expect(await this.bob.getBalance()).to.equal(bobBalance)
       await expect(
-        await provider.getBalance(this.assetManager.address)
-      ).to.equal(assetManagerBalance)
+        await provider.getBalance(this.miniWallet.address)
+      ).to.equal(miniWalletBalance)
       // Check events emitted
       await expect(tx)
-        .to.emit(this.assetManager, 'DepositSuccessful')
+        .to.emit(this.miniWallet, 'DepositSuccessful')
         .withArgs(this.alice.address, ONE_ETH, ONE_ETH)
-      // Check Alice's Balance and Auth on AssetManager
+      // Check Alice's Balance and Auth on MiniWallet
       await expect(
-        await this.assetManager.userBalances(this.alice.address)
+        await this.miniWallet.userBalances(this.alice.address)
       ).to.equal(ONE_ETH)
       expect(
-        await this.assetManager.allowance(this.alice.address, this.bob.address)
+        await this.miniWallet.allowance(this.alice.address, this.bob.address)
       ).to.equal(ZERO_ETH)
     })
 
-    it('AM-deposit-1: Negative deposit test amount greater global user limit', async function () {
+    it('MW-deposit-1: Negative deposit test amount greater global user limit', async function () {
       await checkBalance(this.alice, '10000')
       const aliceBalance = await this.alice.getBalance()
-      const depositAmount = config.test.initialUserLimit.add(ONE_ETH)
+      const depositAmount = config.test.miniWallet.initialUserLimit.add(ONE_ETH)
       await expect(
-        this.assetManager.connect(this.alice).deposit({
+        this.miniWallet.connect(this.alice).deposit({
           value: depositAmount
         })
       ).to.be.reverted
@@ -89,14 +89,14 @@ describe('AssetManager', function () {
       expect(aliceNewBalance).to.be.gt(aliceBalance.sub(depositAmount))
     })
 
-    it('AM-deposit-2: Negative deposit test amount two deposits greater global user limit', async function () {
-      let tx = await this.assetManager.connect(this.alice).deposit({
+    it('MW-deposit-2: Negative deposit test amount two deposits greater global user limit', async function () {
+      let tx = await this.miniWallet.connect(this.alice).deposit({
         value: ONE_ETH
       })
       await tx.wait()
       await expect(
-        (tx = this.assetManager.connect(this.alice).deposit({
-          value: config.test.initialUserLimit
+        (tx = this.miniWallet.connect(this.alice).deposit({
+          value: config.test.miniWallet.initialUserLimit
         }))
       ).to.be.reverted
     })
