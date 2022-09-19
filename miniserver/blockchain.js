@@ -4,7 +4,7 @@ const { Logger } = require('./logger')
 const cloneDeep = require('lodash/fp/cloneDeep')
 const { backOff } = require('exponential-backoff')
 const { rpc } = require('./rpc')
-const MiniWallet = require('../miniwallet/build/contracts/MiniWallet.sol/MiniWallet.json')
+const MiniWallet = require('./abi/MiniWallet.json')
 const constants = require('../server/constants')
 const networkConfig = config.networks[config.defaultNetwork]
 
