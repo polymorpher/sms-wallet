@@ -60,7 +60,7 @@ const hardhatUserconfig: HardhatUserConfig = {
         auto: true
       }
     },
-    ethLocal: {
+    ethlocal: {
       url: process.env.ETH_LOCAL_URL,
       gasPrice: 20000000000,
       gas: 6000000,

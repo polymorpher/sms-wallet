@@ -58,25 +58,25 @@ const parseSMS = async (req, res, next) => {
         return respond(`error: pay request requires a valid amount': ${smsParams[2]} example request "p +14158401999 0.1"`)
       }
       const amount = ethers.utils.parseEther(smsParams[2])
-      let toAddress
+      let funderAddress
       // Allow requesting of funds from users by address (without checking registered phone number)
       if (smsParams[1].substr(0, 2) === '0x') {
         if (!isValidAddress(smsParams[1])) {
           return respond(`error: invalid funder address ${smsParams[1]}. example request "p 0x8ba1f109551bd432803012645ac136ddd64dba72 0.1"`)
         }
-        toAddress = checkSumAddress(smsParams[1])
+        funderAddress = checkSumAddress(smsParams[1])
       } else {
         const { isValid, phoneNumber } = phone(smsParams[1], smsParams[1] === '+' ? undefined : phone(u.phone).countryIso3)
         if (!isValid) {
-          return respond(`error: invalid recipient phone number ${smsParams[1]}. example request "p +14158401999 0.1"`)
+          return respond(`error: invalid funders phone number ${smsParams[1]}. example request "p +14158401999 0.1"`)
         }
         const u2 = await User.findByPhone({ phone: phoneNumber })
         if (!u2?.address) {
           return respond(`error: funders phone number is not a registered wallet: ${smsParams[1]}. example request "p +14158401999 0.1"`)
         }
-        toAddress = u2.address
+        funderAddress = u2.address
       }
-      req.processedBody = { ...req.processedBody, command: 'pay', fromAddress: u.address, toAddress, amount }
+      req.processedBody = { ...req.processedBody, command: 'pay', fromAddress: funderAddress, toAddress: u.address, amount }
       return next()
     }
     return respond('error: invalid sms command. example payment request "p +14158401999 0.1"')

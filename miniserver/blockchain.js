@@ -72,6 +72,8 @@ const sampleExecutionAddress = () => {
 
 // basic executor used to send funds
 const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => async (method, ...params) => {
+  console.log(`method: ${method}`)
+  console.log(`params: ${JSON.stringify(params)}`)
   const fromIndex = sampleExecutionAddress()
   const from = signers[fromIndex].address
   const miniWalletSigner = miniWallet.connect(signers[fromIndex])

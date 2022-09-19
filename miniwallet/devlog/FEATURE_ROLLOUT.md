@@ -12,7 +12,7 @@ This section gives an overview of the features and github branches and pull requ
 
 **Issues**
 
-- MiniWallet - Launch Task List [#13](https://github.com/polymorpher/sms-wallet/issues/13)] has been used to track work streams open PR's and completed Items. It also has some development logs and status updates.
+- MiniWallet - Launch Task List [#13](https://github.com/polymorpher/sms-wallet/issues/13) has been used to track work streams open PR's and completed Items. It also has some development logs and status updates.
 
 **Pull Requests**
 
@@ -47,7 +47,7 @@ These are ready for merge
 - MiniWallet Server: Allows users and creators to check their balances. Allows creators to request operators to send approved funds from users.
 - MiniWallet Tests: Coverage of all MiniWallet features.
 
-**Branch and commits**
+**Branch and commits v0**
 
 - Branch is [ws-miniwallet-v0](https://github.com/polymorpher/sms-wallet/tree/ws-miniwallet-v0)
 - Commits
@@ -55,9 +55,10 @@ These are ready for merge
   - Copying of devlog [commit 6b246cb](https://github.com/polymorpher/sms-wallet/commit/6b246cb6fb09ff4d088e0f955a0cb1430dcf100a)
   - ignore deployments folder [commit 6da449f](https://github.com/polymorpher/sms-wallet/commit/6da449f3e90797e473b9131f7a7870fd2c779892)
   - Pruning of MiniId and MiniNFTs [commit 959ae0f](https://github.com/polymorpher/sms-wallet/commit/959ae0f650014cfc014e9db72403da0241fa6e19)
+
+**Branch and commits v0.1**
   - Adding in Proxy Changes [commit]()
   - Additional cleanup [commit]()
-
 **Outstanding Items**
 
 * Replace Deployment with [native deployment](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/deploy/001_deploy_miniWallet.ts) will allow us to remove the unnecessary population of [ADMIN_SLOT](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/contracts/miniWallet/MiniWallet.sol#L377)
@@ -181,7 +182,7 @@ ganachem
 #deploy miniwallet (separate window) and check settings in .env (miniserver)
 cdos
 cd miniwallet
-yarn deploy --network ethLocal
+yarn deploy --network ethlocal
 ```
 
 ### Reset metamask account and fund wallet
@@ -267,7 +268,7 @@ Following is an overview of the tests usually done
 
 **End to End Testing**
 
-- `yarn deploy ethLocal` : Deploy all the contracts and mint test NFT's 
+- `yarn deploy ethlocal` : Deploy all the contracts and mint test NFT's 
 - Reset metamask funding account
 - Transfer 20 ETH from admin to sms-wallet user `0x143A933E79931006b3Eb89cBc938587546faF159`
 - Transfer 20 ETH admin to sms-wallet creator `0x58bB8c7D2c90dF970fb01a5cD29c4075C41d3FFB`
