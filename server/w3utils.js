@@ -11,6 +11,14 @@ const utils = {
       return null
     }
   },
+  checkSumAddress: (address) => {
+    try {
+      return web3.utils.toChecksumAddress(address)
+    } catch (ex) {
+      console.error(ex)
+      return null
+    }
+  },
   isValidAddress: (address) => {
     try {
       return web3.utils.isAddress(address)
