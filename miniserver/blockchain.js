@@ -71,7 +71,7 @@ const sampleExecutionAddress = () => {
 }
 
 // basic executor used to send funds
-const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => async (method, params) => {
+const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => async (method, ...params) => {
   const fromIndex = sampleExecutionAddress()
   const from = signers[fromIndex].address
   const miniWalletSigner = miniWallet.connect(signers[fromIndex])
@@ -87,7 +87,7 @@ const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => asyn
     logger(`[pending]${printNonceStats()}`)
     let numAttempts = 0
     const tx = await backOff(
-      async () => miniWalletSigner.send(...params, {
+      async () => miniWalletSigner[method](...params, {
         nonce,
         gasPrice: ethers.BigNumber.from(config.gasPrice).mul((numAttempts || 0) + 1),
         value: 0,
