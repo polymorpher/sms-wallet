@@ -7,7 +7,7 @@ import {
   getBigNumber
 } from './utilities'
 import { range } from 'lodash'
-import config from '../config'
+import config from '../config.test'
 import { BigNumber } from 'ethers'
 
 import Constants from './utilities/constants'

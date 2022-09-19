@@ -6,7 +6,7 @@ import {
   checkBalance,
   getTxCost
 } from './utilities'
-import config from '../config'
+import config from '../config.test'
 
 const ZERO_ETH = ethers.utils.parseEther('0')
 const ONE_ETH = ethers.utils.parseEther('1')
