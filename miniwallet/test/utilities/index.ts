@@ -3,6 +3,10 @@ import { expect } from 'chai'
 import { MockProvider } from 'ethereum-waffle'
 import { Contract, BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
+// TODO Parameterize CallData
+const ContractPath = '../../build/contracts/miniWallet/miniWallet.sol/MiniWallet.json'
+const ContractJSON = require(ContractPath)
+const { abi } = ContractJSON
 
 export const BASE_TEN = 10
 
@@ -32,11 +36,13 @@ export async function deploy (context, contracts) {
 
 export async function deployUpgradeable (testEnvironment, contracts) {
   for (const contract of contracts) {
-    testEnvironment[contract[0]] = await contract[1].deploy()
-    await testEnvironment[contract[0]].deployed()
-    const tx = await testEnvironment[contract[0]].initialize(...(contract[2] || []))
-    await tx.wait()
-    // await ethers.provider.waitForTransaction(tx.hash)
+    const implementation = await contract[1].deploy()
+    await implementation.deployed()
+    const iface = new ethers.utils.Interface(abi)
+    const calldata = iface.encodeFunctionData('initialize', contract[2] || [])
+    const proxy = await testEnvironment.MiniProxy.deploy(implementation.address, calldata)
+    await proxy.deployed()
+    testEnvironment[contract[0]] = testEnvironment.MiniWallet.attach(proxy.address)
   }
 }
 

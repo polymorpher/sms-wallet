@@ -19,6 +19,7 @@ const DUMMY_HEX = '0x'
 describe('MiniWallet', function () {
   before(async function () {
     await prepare(this, [
+      'MiniProxy',
       'MiniWallet',
       'TestERC20',
       'TestERC721',

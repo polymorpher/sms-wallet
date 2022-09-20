@@ -15,10 +15,8 @@ const INITIAL_BALANCE_ETH = ethers.utils.parseEther('10000')
 describe('MiniWallet', function () {
   before(async function () {
     await prepare(this, [
-      'MiniWallet',
-      'TestERC20',
-      'TestERC721',
-      'TestERC1155'
+      'MiniProxy',
+      'MiniWallet'
     ])
   })
 

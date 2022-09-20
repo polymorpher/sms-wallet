@@ -13,6 +13,7 @@ const DEFAULT_ADMIN_ROLE = '0x00000000000000000000000000000000000000000000000000
 describe('MiniWallet Admin', function () {
   before(async function () {
     await prepare(this, [
+      'MiniProxy',
       'MiniWallet'
     ])
   })
