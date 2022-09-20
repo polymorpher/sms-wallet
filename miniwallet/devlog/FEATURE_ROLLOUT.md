@@ -57,8 +57,13 @@ These are ready for merge
   - Pruning of MiniId and MiniNFTs [commit 959ae0f](https://github.com/polymorpher/sms-wallet/commit/959ae0f650014cfc014e9db72403da0241fa6e19)
 
 **Branch and commits v0.1**
-  - Adding in Proxy Changes [commit]()
-  - Additional cleanup [commit]()
+- Branch is [ws-miniwallet-v0.1](https://github.com/polymorpher/sms-wallet/tree/ws-miniwallet-v0.1)
+- Pull Request is [ws-miniwallet-v0.1 MiniWallet Functionality](https://github.com/polymorpher/sms-wallet/pull/17) 
+- Commit Summary
+  - Ensure MiniWallet and MiniServer can be validated against ethLocal
+  - Update config so testing and deploy work on hardhat
+  - Improve Proxy based on Feedback and ensure tests use Proxies
+
 **Outstanding Items**
 
 * Replace Deployment with [native deployment](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/deploy/001_deploy_miniWallet.ts) will allow us to remove the unnecessary population of [ADMIN_SLOT](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/contracts/miniWallet/MiniWallet.sol#L377)
@@ -66,7 +71,6 @@ These are ready for merge
 
 **Future Work**
 * mulit-call functionality for support of multiple transactions such as authorizations.
-* [PROXY Enhancements](https://github.com/polymorpher/sms-wallet/blob/ws-miniwallet-v0/miniwallet/devlog/PROXY.md): Including Deterministic Deployments and Persistence of artifacts.
 * Update Contract Testing to test administrative functions and what happens under different scenarios such as miniWallet paused.
 
 **Refactor Notes**
@@ -85,10 +89,14 @@ git push --set-upstream origin ws-miniwallet-v0
 These needs some improvement on fine-control over deploy and upgrade process (most likely can't just use simple hardhat calls / plugins anymore) and storing (not just logging) the addresses of proxy, logic, and storage
 
 **Key Features**
-
+- Deterministic Deployments - For Proxy Contracts
+- LightWeight Persistence of Artifacts 
+- Multichain/MultiContract Deployment Process
 **Branch and commits**
 
 **Outstanding Items**
+* [PROXY Enhancements](https://github.com/polymorpher/sms-wallet/blob/ws-miniwallet-v0/miniwallet/devlog/PROXY.md): Including Deterministic Deployments and Persistence of artifacts.
+* [Configuration Enhancements](https://github.com/polymorpher/sms-wallet/blob/main/miniwallet/devlog/CONFIGURATION.md): ability to independently deploy (on multiple chains) and test each work stream.
 
 
 ### mini1155, 721, and related deployment scripts and tests
@@ -96,6 +104,13 @@ These needs some improvement on fine-control over deploy and upgrade process (mo
 These need some sanitization and maybe some simplification on tests. They are pretty much ready for merge
 
 **Key Features**
+* Operator NFT Collectibles Airdrop: Mini721: These are NFT collections airdropped by Operators to each Registered User. For Initial Phase we will use Minion Images. Attributes (TokenId, Phone, Address, Country)
+
+* User/Creator: Friends and Fans: Minted by MiniID Holders to friends/fans 1 to 1 correlation between MiniID TokenId and Mini1155 TokenId (one can issue multiple Mini1155 tokens of the same token ID to any address). Think of it as a friends list. It could also be event based, i.e. issued by the Owner before an event, and burned afterwards. Metadata attributes may include: IssuerTokenId, IssuerPhone, IssuerAddress, IssuerCountry
+
+* Creator NFT Collections: These are NFT collections (Mini721C) created by Creators (could have its own factory). For Initial Phase we will use Minion Images
+
+* Creator Access Passes: These are NFT Access Passes(Mini1155C) Given by Creators (could have its own factory)
 
 **Branch and commits**
 
@@ -106,10 +121,15 @@ These need some sanitization and maybe some simplification on tests. They are pr
 These are incomplete
 
 **Key Features**
+MiniID: Soulbound Token (assigned to a phone number, cannot be transferred), 1 per phone number. 
+* Displayable as a QR Code which encapsulates information including TokenId, Phone, Address, Country.
 
 **Branch and commits**
 
 **Outstanding Items**
+* [Signup Flow](https://github.com/polymorpher/sms-wallet/blob/main/miniwallet/devlog/NFTID.md#sign-up-flow)
+* [Airdrop Flow](https://github.com/polymorpher/sms-wallet/blob/main/miniwallet/devlog/NFTID.md#airdrop-flow)
+* QR Code Generation: 
 
 ### documentations (NFTID.md, PROXY.md)
 
