@@ -68,6 +68,10 @@ These are ready for merge
 
 * Replace Deployment with [native deployment](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/deploy/001_deploy_miniWallet.ts) will allow us to remove the unnecessary population of [ADMIN_SLOT](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/contracts/miniWallet/MiniWallet.sol#L377)
 * Review MiniProxy.sol to ensure that we are happy with this UUPS compliant Proxy. If we decide to change the Proxy at a later point we will need to update contract addresses in miniserver and potentially other deployments.
+* Type 2 Transactions
+* Automatic Population of ABI's for miniserver
+* Rewrite of test contracts
+* 
 
 **Future Work**
 * mulit-call functionality for support of multiple transactions such as authorizations.
@@ -97,6 +101,8 @@ These needs some improvement on fine-control over deploy and upgrade process (mo
 **Outstanding Items**
 * [PROXY Enhancements](https://github.com/polymorpher/sms-wallet/blob/ws-miniwallet-v0/miniwallet/devlog/PROXY.md): Including Deterministic Deployments and Persistence of artifacts.
 * [Configuration Enhancements](https://github.com/polymorpher/sms-wallet/blob/main/miniwallet/devlog/CONFIGURATION.md): ability to independently deploy (on multiple chains) and test each work stream.
+* Parameterizing callData for tests
+* Incorporation of one-wallet lib
 
 
 ### mini1155, 721, and related deployment scripts and tests

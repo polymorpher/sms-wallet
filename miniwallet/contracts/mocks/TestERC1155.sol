@@ -51,6 +51,16 @@ contract TestERC1155 is ERC1155, AccessControl {
         override(ERC1155, AccessControl)
         returns (bool)
     {
-        return super.supportsInterface(interfaceId);
+        return (ERC1155.supportsInterface(interfaceId) ||
+            AccessControl.supportsInterface(interfaceId));
     }
+
+    // function supportsInterface(bytes4 interfaceId)
+    //     public
+    //     view
+    //     override(ERC1155, AccessControl)
+    //     returns (bool)
+    // {
+    //     return super.supportsInterface(interfaceId);
+    // }
 }

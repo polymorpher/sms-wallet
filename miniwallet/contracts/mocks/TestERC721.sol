@@ -39,6 +39,7 @@ contract TestERC721 is ERC721, AccessControl {
         override(ERC721, AccessControl)
         returns (bool)
     {
-        return super.supportsInterface(interfaceId);
+        return (ERC721.supportsInterface(interfaceId) ||
+            AccessControl.supportsInterface(interfaceId));
     }
 }
