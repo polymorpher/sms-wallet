@@ -79,6 +79,7 @@ const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => asyn
   const miniWalletSigner = miniWallet.connect(signers[fromIndex])
   logger(`Sampled [${fromIndex}] ${from}`)
   const latestNonce = await rpc.getNonce({ address: from, network: config.defaultNetwork })
+  const gasPrice = await rpc.gasPrice({ network: config.defaultNetwork })
   const snapshotPendingNonces = pendingNonces[from]
   const nonce = latestNonce + snapshotPendingNonces
   pendingNonces[from] += 1
@@ -91,7 +92,7 @@ const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => asyn
     const tx = await backOff(
       async () => miniWalletSigner[method](...params, {
         nonce,
-        gasPrice: ethers.BigNumber.from(config.gasPrice).mul((numAttempts || 0) + 1),
+        gasPrice: ethers.BigNumber.from(gasPrice).mul((numAttempts || 0) + 1),
         value: 0,
       }), {
         retry: (ex, n) => {
