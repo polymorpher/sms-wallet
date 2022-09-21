@@ -25,7 +25,7 @@ const init = async () => {
     Logger.log('Initializing blockchain for server')
     Logger.log(`network=${config.defaultNetwork}, ${JSON.stringify(networkConfig)}`)
     provider = ethers.getDefaultProvider(networkConfig.url)
-    miniWallet = new ethers.Contract(networkConfig.miniWalletAddress, MiniWallet.abi, provider)
+    miniWallet = new ethers.Contract(networkConfig.miniWalletAddress, MiniWallet, provider)
     provider.pollingInterval = config.pollingInterval
     signers.splice(0, signers.length)
     if (networkConfig.mnemonic) {
@@ -79,7 +79,7 @@ const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => asyn
   const miniWalletSigner = miniWallet.connect(signers[fromIndex])
   logger(`Sampled [${fromIndex}] ${from}`)
   const latestNonce = await rpc.getNonce({ address: from, network: config.defaultNetwork })
-  const gasPrice = await rpc.gasPrice({ network: config.defaultNetwork })
+  const gasPrice = await provider.getGasPrice()
   const snapshotPendingNonces = pendingNonces[from]
   const nonce = latestNonce + snapshotPendingNonces
   pendingNonces[from] += 1
@@ -92,7 +92,7 @@ const prepareExecute = (logger = Logger.log, abortUnlessRPCError = true) => asyn
     const tx = await backOff(
       async () => miniWalletSigner[method](...params, {
         nonce,
-        gasPrice: ethers.BigNumber.from(gasPrice).mul((numAttempts || 0) + 1),
+        gasPrice: gasPrice.mul((numAttempts || 0) + 1),
         value: 0,
       }), {
         retry: (ex, n) => {
