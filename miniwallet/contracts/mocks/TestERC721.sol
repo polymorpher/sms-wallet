@@ -22,7 +22,7 @@ contract TestERC721 is ERC721, AccessControl {
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return "ipfs://testerc721.modulo.so/";
+        return "";
     }
 
     function safeMint(address to) public onlyRole(MINTER_ROLE) {

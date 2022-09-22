@@ -63,18 +63,18 @@ These are ready for merge
   - Ensure MiniWallet and MiniServer can be validated against ethLocal
   - Update config so testing and deploy work on hardhat
   - Improve Proxy based on Feedback and ensure tests use Proxies
+  - Feeback on PR
+    - Automatic Population of ABI's for miniserver
+    - Rewrite of test contracts
+    - Removal of dummy URL's in test contrcts
 
 **Outstanding Items**
 
 * Replace Deployment with [native deployment](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/deploy/001_deploy_miniWallet.ts) will allow us to remove the unnecessary population of [ADMIN_SLOT](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/contracts/miniWallet/MiniWallet.sol#L377)
 * Review MiniProxy.sol to ensure that we are happy with this UUPS compliant Proxy. If we decide to change the Proxy at a later point we will need to update contract addresses in miniserver and potentially other deployments.
-* Type 2 Transactions
-* Automatic Population of ABI's for miniserver
-* Rewrite of test contracts
-* 
 
 **Future Work**
-* mulit-call functionality for support of multiple transactions such as authorizations.
+* multi-call functionality for support of multiple transactions such as approvals.
 * Update Contract Testing to test administrative functions and what happens under different scenarios such as miniWallet paused.
 
 **Refactor Notes**

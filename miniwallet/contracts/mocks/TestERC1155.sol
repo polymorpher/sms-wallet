@@ -11,7 +11,7 @@ contract TestERC1155 is ERC1155, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     constructor(uint256[] memory tokenIds, uint256[] memory amounts)
-        ERC1155("ipfs://testerc1155.modulo.so/")
+        ERC1155("")
     {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(URI_SETTER_ROLE, msg.sender);
