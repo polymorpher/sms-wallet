@@ -88,31 +88,74 @@ contract Mock721 is
 
 ### Proxy Contract
 
-Initially we have used a copy of the ERC1967 Contract from Hardhat Deploy and have deployed an upgraded both MiniWallet and MiniID using this proxy and the hardhat deploy functionality as of [this commit](https://github.com/polymorpher/sms-wallet/tree/38a01cb97e48bc6ebe33d51bca88bcb797daf48c/miniwallet).
+We have created a MiniProxy which leverages two imports from Open Zeppelin.
 
-However this has two limitations
+**[Proxy.sol](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/proxy/Proxy.sol)** 
 
-1. Needed to populate admin slot unnecessarily in MiniWallet and MiniID [see here for details](https://github.com/wighawag/hardhat-deploy/issues/146#issuecomment-1244642086)
-2. This proxy is a little opaque and does not completely align with [EIP-1822: Universal Upgradeable Proxy Standard (UUPS)](https://eips.ethereum.org/EIPS/eip-1822)
+This abstract contract provides a fallback function that delegates all calls to another contract using the EVM instruction `delegatecall`. We refer to the second contract as the _implementation_ behind the proxy, and it has to be specified by overriding the virtual {_implementation} function.
 
-**TODO / Work In Progress**
+Additionally, delegation to the implementation can be triggered manually through the {_fallback} function, or to a different contract through the {_delegate} function.
+ 
+ The success and return data of the delegated call will be returned back to the caller of the proxy.
 
-We are currently cloning a version of [UUPSUpgradeable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol) to our own `UUPSProxy.sol` and using this for the `proxyContract` in the deployment scripts. This has the following issues / action items.
+**[ERC1967UpgradeUpgradeable](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol)**
 
-**1. Error with proxiableUUID**
+An abstract contract that provides getters and event emitting update functions for [EIP1967](https://eips.ethereum.org/EIPS/eip-1967)slots.
 
-`Error: function "proxiableUUID" will shadow "proxiableUUID". Please update code to avoid conflict.`
+```
+// SPDX-License-Identifier: Apache-2.0
 
-We produce this by running `npx hardhat deploy --tags 'MiniIDTest'
+// OpenZeppelin Contracts v4.4.1 (proxy/ERC1967/ERC1967Proxy.sol)
 
-The issue is raised by [hardhat-deploy mergeABIs function](https://github.com/wighawag/hardhat-deploy/blob/master/src/utils.ts#L544)
+pragma solidity ^0.8.0;
 
-UUPSProxy.sol overrides this function from [draft-IERC822Upgradeable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/interfaces/draft-IERC1822Upgradeable.sol#L19) 
+import "@openzeppelin/contracts/proxy/Proxy.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol";
 
-**Next Steps**
-Need to determinine whether this is an issue with UUPSProxy which we need to modify or if we can workaround this by using other deployment tools.
+/**
+ * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
+ * implementation address that can be changed. This address is stored in storage in the location specified by
+ * https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
+ * implementation behind the proxy.
+ */
+contract MiniProxy is Proxy, ERC1967UpgradeUpgradeable {
+    /**
+     * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
+     *
+     * If `_data` is nonempty, it's used as data in a delegate call to `_logic`. This will typically be an encoded
+     * function call, and allows initializating the storage of the proxy like a Solidity constructor.
+     */
+    constructor(address _logic, bytes memory _data) payable {
+        assert(
+            _IMPLEMENTATION_SLOT ==
+                bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1)
+        );
+        _upgradeToAndCall(_logic, _data, false);
+    }
 
-**Notes(@polymorpher)**: can you check which contract's proxiableUUID function is being shadowed? UUPSUpgradeable.sol seems fine. Is hardhat-deploy creating a custom contract on top of the supplied `proxyContract`? Perhaps it is best to just use vanilla `deploy` without specifying those parameters 
+    /**
+     * @dev Returns the current implementation address.
+     */
+    function implementation() public view returns (address impl) {
+        return _implementation();
+    }
+
+    /**
+     * @dev Returns the current implementation address.
+     */
+    function _implementation()
+        internal
+        view
+        virtual
+        override
+        returns (address impl)
+    {
+        return ERC1967UpgradeUpgradeable._getImplementation();
+    }
+}
+
+```
+
 
 **References**
 
@@ -160,14 +203,11 @@ The high level flow for deploying a contract is
 **Sample Code**
 
 ```
-import { getConfig } from '../config/getConfig'
+import config from '../config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
-const ContractPath = '../build/contracts/miniWallet/miniWallet.sol/MiniWallet.json'
-const ContractJSON = require(ContractPath)
-const { abi } = ContractJSON
-const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
+import { checkDeployed, persistDeployment } from '../lib/utils'
 
 const deployFunction: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
@@ -175,10 +215,15 @@ const deployFunction: DeployFunction = async function (
   const { deployments, getNamedAccounts } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
+  const network = hre.network.name
+  // Ensure we haven't already deployed MiniWallet on this network
+  const deployed = await checkDeployed(hre, 'MiniWallet')
+  if (deployed) { return }
+
+  const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 
   // Get the deployment configuration
   console.log(`Deploying to network: ${hre.network.name}`)
-  const config = await getConfig(hre.network.name, 'miniWallet')
 
   const deployedMiniWalletImplementation = await deploy('MiniWallet', {
     from: deployer,
@@ -190,23 +235,25 @@ const deployFunction: DeployFunction = async function (
   console.log('MiniWallet Implementation deployed to  :', miniWalletImplementation.address)
 
   // Construct calldata for Initialize
-  const iface = new ethers.utils.Interface(abi)
-  const calldata = iface.encodeFunctionData('initialize', [
-    config.miniWallet.initialOperatorThreshold,
-    config.miniWallet.initialOperators,
-    config.miniWallet.initialUserLimit,
-    config.miniWallet.initialAuthLimit])
-  console.log(`calldata: ${calldata}`)
-
+  const MiniWalletInitializeCallData = miniWalletImplementation.interface.encodeFunctionData('initialize',
+    [
+      config[network].miniWallet.initialOperatorThreshold,
+      config[network].miniWallet.initialOperators,
+      config[network].miniWallet.initialUserLimit,
+      config[network].miniWallet.initialAuthLimit
+    ])
+  console.log(`MiniWallet initialize calldata: ${MiniWalletInitializeCallData}`)
+  // Deploy MiniWalletProxy
   const deployedMiniWalletProxy = await deploy('MiniProxy', {
     from: deployer,
-    args: [miniWalletImplementation.address, calldata],
+    args: [miniWalletImplementation.address, MiniWalletInitializeCallData],
     log: true
   })
 
   const miniWalletProxy = await hre.ethers.getContractAt('MiniProxy', deployedMiniWalletProxy.address)
   console.log('MiniWalletProxy deployed to  :', miniWalletProxy.address)
 
+  // ==== MiniWallet is the implementation contract attached to the Proxy
   const MiniWallet = await ethers.getContractFactory('MiniWallet')
   const miniWallet = MiniWallet.attach(miniWalletProxy.address)
   console.log('MiniWallet deployed to:', miniWallet.address)
@@ -232,12 +279,20 @@ const deployFunction: DeployFunction = async function (
     'MiniWallet Global User Auth Limit:',
     ethers.utils.formatUnits(globalUserAuthLimit.toString())
   )
+  // Persist Contract Information
+  await persistDeployment(hre, 'MiniWallet', miniWalletImplementation.address, 'MiniProxy', miniWalletProxy.address)
 }
 
 deployFunction.dependencies = []
 deployFunction.tags = ['MiniWallet', 'deploy', 'MiniWalletDeploy']
 export default deployFunction
+
 ```
+
+This allows us to 
+
+1. Remove the populate admin slot unnecessarily in MiniWallet and MiniID [see here for details](https://github.com/wighawag/hardhat-deploy/issues/146#issuecomment-1244642086)
+
 
 **References**
 - [Open Zeppelin: Upgrades Plugins Docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/)
@@ -254,7 +309,50 @@ export default deployFunction
 
 ## Persistence of Deployment Artifacts.
 
-(TODO)
+**Initial Requirements/Feedback from @polymorpher [see here](https://github.com/polymorpher/sms-wallet/pull/12#pullrequestreview-1095436440)**
+
+It's nice to have hardhat do the proxy-deployment in a simple function call, but I am concerned we see too little detail and have too little control. The generated .json files (in deployments/) are pretty hard to read, and may be easily confused with something that can be regenerated. Yet they are unique to the deployment and critical to managing the contract / upgrades in the future.
+
+For each chain, we only need three things: proxy contract, deployed proxy address, and logic contract address. Rather than keeping a bunch of JSON files and irrelevant information in those files, I think it is better to just store these three pieces of information in a file inside a folder (similar to relayer/cache, but can be simpler, e.g. the versions can be hash of contracts instead). When we need to upgrade the contract later, we just read from that file and call relevant functions accordingly (i.e. (1) deploy a new logic contract, (2) redirect proxy to the address of the new logic contract). I have read https://github.com/wighawag/hardhat-deploy#deploying-and-upgrading-proxies and examined underlying types (ProxyOptionsBase, etc.) but I am not sure whether hardhat-deploy library supports manual selection (of logic contract address) during upgrade. It would be nice if it does, but even if it doesn't, it seems not hard to just implement on our own - should be just a few lines)
+
+### Approach
+We wanted to support a light weight persisting of artifacts when deploying and upgrading contracts.
+To do this we have written two persistence functions to date (see lib/utils.ts)
+
+* `checkDeployed` : Checks if an existing contract has been deployed. The assumption is that once deployed we should not deploy again unless we are doing an upgrade via the proxy. 
+* `persistDeployment`: Persists the contract and proxy information for a contract.
+
+**Example Deployment Artifact**
+```
+{
+    "contract": {
+        "name": "MiniWallet",
+        "network": "hardhat",
+        "implementations": [
+            {
+                "name": "MiniWallet",
+                "version": 1,
+                "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+                "hash": "0x81edd1fcec43fee408aaaa153abb72c3ecfcdd17969732de7ca32c7503ea0d22"
+            }
+        ],
+        "proxyContract": {
+            "name": "MiniProxy",
+            "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+            "hash": "0x7bb3f0d24c97a46406ffb7b6539b19d381cb548d7146bf3ecd31d1f70bddb032"
+        }
+    }
+}
+```
+
+**Configuration Notes**
+* artifacts directory is configurable in `.config` using `artifactsDirectory`
+* Persisting of artifacts for networks is configured in hardhat.config.ts Usually local networks used for development will have `saveDeployments: false` and live networks will have `saveDeployments: true`
+
+**Future Work**
+* Enhance the persistence process for upgrades and include versioning
+
+
 
 **References**
 - [Hardhat Compilation Artifacts (docs)](https://hardhat.org/hardhat-runner/docs/advanced/artifacts)

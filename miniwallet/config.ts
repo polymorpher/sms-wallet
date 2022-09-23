@@ -2,6 +2,7 @@ import { ethers } from 'ethers'
 import 'dotenv/config'
 
 export default {
+  artifactsDirectory: process.env.ARTIFACTS_DIRECTORY || './artifacts/',
   mainnet: {
     miniWallet: {
       initialOperatorThreshold: process.env.MINIWALLET_INITIAL_OPERATOR_THRESHOLD || '100',

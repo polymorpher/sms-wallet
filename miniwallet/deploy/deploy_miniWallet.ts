@@ -2,6 +2,7 @@ import config from '../config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
+import { checkDeployed, persistDeployment } from '../lib/utils'
 
 const deployFunction: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
@@ -10,6 +11,10 @@ const deployFunction: DeployFunction = async function (
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
   const network = hre.network.name
+  // Ensure we haven't already deployed MiniWallet on this network
+  const deployed = await checkDeployed(hre, 'MiniWallet')
+  if (deployed) { return }
+
   const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 
   // Get the deployment configuration
@@ -33,7 +38,6 @@ const deployFunction: DeployFunction = async function (
       config[network].miniWallet.initialAuthLimit
     ])
   console.log(`MiniWallet initialize calldata: ${MiniWalletInitializeCallData}`)
-
   // Deploy MiniWalletProxy
   const deployedMiniWalletProxy = await deploy('MiniProxy', {
     from: deployer,
@@ -70,6 +74,8 @@ const deployFunction: DeployFunction = async function (
     'MiniWallet Global User Auth Limit:',
     ethers.utils.formatUnits(globalUserAuthLimit.toString())
   )
+  // Persist Contract Information
+  await persistDeployment(hre, 'MiniWallet', miniWalletImplementation.address, 'MiniProxy', miniWalletProxy.address)
 }
 
 deployFunction.dependencies = []
