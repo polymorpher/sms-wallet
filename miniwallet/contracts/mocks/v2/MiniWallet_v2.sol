@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.9;
 
-import "../miniWallet/MiniWallet.sol";
+import "../../miniWallet/MiniWallet.sol";
 
 // Clone of MiniWallet used for testing upgrades
 // When making enhancements would code them here

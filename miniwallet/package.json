@@ -18,6 +18,7 @@
         "coverage": "npx hardhat coverage",
         "deploy": "npx hardhat deploy --tags deploy",
         "deploy-upgrade": "npx hardhat deploy --tags upgrade",
+        "deploy-test": "npx hardhat deploy --tags test",
         "hardhat-local": "npx hardhat node --no-deploy",
         "flat": "npx hardhat flatten ./contracts/MiniWallet.sol >> ./flat/MiniWallet.sol",
         "gas": "REPORT_GAS=true npx hardhat test",

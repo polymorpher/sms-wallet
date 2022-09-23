@@ -371,14 +371,6 @@ contract MiniWallet is
         uint256 globalUserLimit_,
         uint256 globalUserAuthLimit_
     ) external initializer {
-        address owner = msg.sender;
-        // solhint-disable-next-line security/no-inline-assembly
-        assembly {
-            sstore(
-                0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103,
-                owner
-            )
-        }
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
         operatorThreshold = initialOperatorThreshold;
