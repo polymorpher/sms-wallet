@@ -59,7 +59,7 @@ const hardhatUserconfig: HardhatUserConfig = {
       mining: {
         auto: true
       },
-      saveDeployments: true
+      saveDeployments: false
     },
     ethlocal: {
       url: process.env.ETH_LOCAL_URL,
