@@ -170,10 +170,8 @@ Typically when testing locally you can use the following tools with UI
 alias ganachem='ganache -m "test test test test test test test test test test test junk"'
 
 # twilio aliases
-alias tmb='twilio api:core:messages:create --from "+14158401410" --to "+17372327333" --body "b"'
-alias tmp='twilio api:core:messages:create --from "+16505473175" --to "+17372327333" --body "p 4158401410 0.1"'
-alias tmps='twilio api:core:messages:create --from "+14158401410" --to "+17372327333" --body "p 4158401410 0.1"'
-alias tmpbp='twilio api:core:messages:create --from "+14158401410" --to "+17372327333" --body "p 4158401999 0.1"'
+alias tmb='twilio api:core:messages:create --from "+14158401410" --to "+1
+alias tmp='twilio api:core:messages:create --from "+14158401410" --to "+17372327333" --body "p 6505473175 0.1"'
 
 # one-wallet aliases
 alias cdo="cd /Users/john/one-wallet; pwd"
@@ -296,12 +294,12 @@ Following is an overview of the tests usually done
 
 - `yarn deploy ethlocal` : Deploy all the contracts and mint test NFT's 
 - Reset metamask funding account
-- Transfer 20 ETH from admin to sms-wallet user `0x143A933E79931006b3Eb89cBc938587546faF159`
-- Transfer 20 ETH admin to sms-wallet creator `0x58bB8c7D2c90dF970fb01a5cD29c4075C41d3FFB`
+- Transfer 40 ETH from admin to sms-wallet user `0x143A933E79931006b3Eb89cBc938587546faF159`
 - Transfer 5 ETH fROM user to creator
 - [user deposits 10 ETH and approves 1 ETH for creator](https://localhost:3100/call?amount=10&callback=aHR0cHM6Ly9sb2NhbGhvc3Q6MzA5OS9jYWxsYmFjaw%3D%3D&calldata=eyJtZXRob2QiOiJhcHByb3ZlKGFkZHJlc3MsdWludDI1NikiLCJwYXJhbWV0ZXJzIjpbeyJuYW1lIjoic3BlbmRlciIsInR5cGUiOiJhZGRyZXNzIiwidmFsdWUiOiIweDU4YkI4YzdEMmM5MGRGOTcwZmIwMWE1Y0QyOWM0MDc1QzQxZDNGRkIifSx7Im5hbWUiOiJhbW91bnQiLCJ0eXBlIjoidWludDI1NiIsInZhbHVlIjoiMTAwMDAwMDAwMDAwMDAwMDAwMCJ9XX0%3D&caller=Token%20Warrior&comment=Fund%20MiniWallet%2010%20ETH%20and%20approve%201%20ETH%20for%20creator%200x58bB8c7D2c90dF970fb01a5cD29c4075C41d3FFB&dest=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512) 
 - `tmb` checks users balance, responses can be viewed in the [twilio monitoring console](https://console.twilio.com/us1/monitor/logs/sms?frameUrl=%2Fconsole%2Fsms%2Flogs%3Fx-target-region%3Dus1&currentFrameUrl=%2Fconsole%2Fsms%2Flogs%3F__override_layout__%3Dembed%26bifrost%3Dtrue%26x-target-region%3Dus1)
-- `tmp` creator requests the user to fund the user's mini wallet. The responses can be viewed in the [twilio monitoring console](https://console.twilio.com/us1/monitor/logs/sms?frameUrl=%2Fconsole%2Fsms%2Flogs%3Fx-target-region%3Dus1&currentFrameUrl=%2Fconsole%2Fsms%2Flogs%3F__override_layout__%3Dembed%26bifrost%3Dtrue%26x-target-region%3Dus1)
+- `tmp` user sends funds to the creator from the user's mini wallet. The responses can be viewed in the [twilio monitoring console](https://console.twilio.com/us1/monitor/logs/sms?frameUrl=%2Fconsole%2Fsms%2Flogs%3Fx-target-region%3Dus1&currentFrameUrl=%2Fconsole%2Fsms%2Flogs%3F__override_layout__%3Dembed%26bifrost%3Dtrue%26x-target-region%3Dus1)
+- Transfer 5 ETH from user to creator using the miniwallet
 - Add the miniID, mini721 and mini1155 tokens to both the user and creator UI (note: you can use the browser in separate sandboxes, one for the user, and another for the creator) 
 
 
