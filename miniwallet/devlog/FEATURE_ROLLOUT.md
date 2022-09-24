@@ -12,7 +12,7 @@ This section gives an overview of the features and github branches and pull requ
 
 **Issues**
 
-- MiniWallet - Launch Task List [#13](https://github.com/polymorpher/sms-wallet/issues/13)] has been used to track work streams open PR's and completed Items. It also has some development logs and status updates.
+- MiniWallet - Launch Task List [#13](https://github.com/polymorpher/sms-wallet/issues/13) has been used to track work streams open PR's and completed Items. It also has some development logs and status updates.
 
 **Pull Requests**
 
@@ -47,7 +47,7 @@ These are ready for merge
 - MiniWallet Server: Allows users and creators to check their balances. Allows creators to request operators to send approved funds from users.
 - MiniWallet Tests: Coverage of all MiniWallet features.
 
-**Branch and commits**
+**Branch and commits v0**
 
 - Branch is [ws-miniwallet-v0](https://github.com/polymorpher/sms-wallet/tree/ws-miniwallet-v0)
 - Commits
@@ -55,18 +55,28 @@ These are ready for merge
   - Copying of devlog [commit 6b246cb](https://github.com/polymorpher/sms-wallet/commit/6b246cb6fb09ff4d088e0f955a0cb1430dcf100a)
   - ignore deployments folder [commit 6da449f](https://github.com/polymorpher/sms-wallet/commit/6da449f3e90797e473b9131f7a7870fd2c779892)
   - Pruning of MiniId and MiniNFTs [commit 959ae0f](https://github.com/polymorpher/sms-wallet/commit/959ae0f650014cfc014e9db72403da0241fa6e19)
-  - Adding in Proxy Changes [commit]()
-  - Additional cleanup [commit]()
+
+**Branch and commits v0.1**
+- Branch is [ws-miniwallet-v0.1](https://github.com/polymorpher/sms-wallet/tree/ws-miniwallet-v0.1)
+- Pull Request is [ws-miniwallet-v0.1 MiniWallet Functionality](https://github.com/polymorpher/sms-wallet/pull/17) 
+- Commit Summary
+  - Ensure MiniWallet and MiniServer can be validated against ethLocal
+  - Update config so testing and deploy work on hardhat
+  - Improve Proxy based on Feedback and ensure tests use Proxies
+  - Feeback on PR
+    - Automatic population of contract ABIs for miniserver
+    - Rewriting test contracts
+    - Removal of dummy URL's in test contrcts
 
 **Outstanding Items**
 
 * Replace Deployment with [native deployment](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/deploy/001_deploy_miniWallet.ts) will allow us to remove the unnecessary population of [ADMIN_SLOT](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/contracts/miniWallet/MiniWallet.sol#L377)
-* Review MiniProxy.sol to ensure that we are happy with this UUPS compliant Proxy. If we decide to change the Proxy at a later point we will need to update contract addresses in miniserver and potentially other deployments.
+* Review MiniProxy.sol to ensure that we are happy with this UUPS compliant proxy. If we decide to change the proxy at a later point we will need to update contract addresses in miniserver and potentially other deployments.
 
 **Future Work**
-* mulit-call functionality for support of multiple transactions such as authorizations.
-* [PROXY Enhancements](https://github.com/polymorpher/sms-wallet/blob/ws-miniwallet-v0/miniwallet/devlog/PROXY.md): Including Deterministic Deployments and Persistence of artifacts.
-* Update Contract Testing to test administrative functions and what happens under different scenarios such as miniWallet paused.
+
+* Multi-call functionality for support of multiple transactions such as approvals.
+* Update contract testing to include administrative functions and what happens under different scenarios such as miniWallet paused.
 
 **Refactor Notes**
 
@@ -81,56 +91,77 @@ git push --set-upstream origin ws-miniwallet-v0
 ```
 
 ### mini-wallet deployment and upgrade scripts
-These needs some improvement on fine-control over deploy and upgrade process (most likely can't just use simple hardhat calls / plugins anymore) and storing (not just logging) the addresses of proxy, logic, and storage
+
+There needs to be some improvement over the level of control on the deploy and upgrade processes. Most likely, we will be unable to simply just use hardhat calls or plugins. We should also store the addresses of proxy, logic contract, and storage slots, instead of merely logging them.
 
 **Key Features**
+
+- Deterministic Deployments - For Proxy Contracts
+- LightWeight Persistence of Artifacts 
+- Multichain/MultiContract Deployment Process
 
 **Branch and commits**
 
 **Outstanding Items**
 
+* [PROXY Enhancements](https://github.com/polymorpher/sms-wallet/blob/ws-miniwallet-v0/miniwallet/devlog/PROXY.md): Including Deterministic Deployments and Persistence of artifacts.
+* [Configuration Enhancements](https://github.com/polymorpher/sms-wallet/blob/main/miniwallet/devlog/CONFIGURATION.md): ability to independently deploy (on multiple chains) and test each work stream.
+* Parameterizing callData for tests
+* Directly generating calldata using abi encoding similar to what is done in one-wallet lib
+
 
 ### mini1155, 721, and related deployment scripts and tests
 
-These need some sanitization and maybe some simplification on tests. They are pretty much ready for merge
+There needs to be some sanitization and maybe some simplification on tests. It is ready for merging.
 
 **Key Features**
 
+* Airdropping NFT Collectibles by the operators using Mini721: these are NFT collections airdropped by Operators to each registered user. For the initial phase we will use minion images, and metadata attributes including tokenId, phone numbers, addresses, and country codes.
+
+* Friends and Fans: these NFTs can be minted by MiniID NFT holders to friends and fans. There is an 1-to-1 correlation between MiniID tokenId and Mini1155 tokenId. A user may issue multiple Mini1155 tokens using the same token ID to any address. The functionality could be thought as a friends list. It may be used in events, where owners may issue these tokens ahead of the event, and burn them afterwards. The metadata attributes of these tokens could include token Id, phone numbers, addresses, and country codes.
+
+* Creator NFT Collections: these are NFT collections (Mini721C) created by creators, which could have its own smart contract factory. For the initial phase, we will use minion images as the placeholder.
+
+* Creator Access Passes: these are NFT Access Passes (Mini1155C) sent to users by creators, which could have its own smart contract factory.
+
 **Branch and commits**
+
+[TODO: this section is incomplete]
 
 **Outstanding Items**
 
 ### miniID related and other WIP stuff
 
-These are incomplete
+[TODO: this section is incomplete]
 
 **Key Features**
 
-**Branch and commits**
-
-**Outstanding Items**
-
-### documentations (NFTID.md, PROXY.md)
-
-These need further review and some revision 
-
-**Key Features**
+MiniID: Soulbound Token (assigned to a phone number, cannot be transferred), 1 per phone number. 
+* Displayable as a QR Code which encapsulates information including TokenId, Phone, Address, Country.
 
 **Branch and commits**
 
-**Outstanding Items**
+[TODO: this section is incomplete]
 
+**Outstanding Items**
+* [Signup Flow](https://github.com/polymorpher/sms-wallet/blob/main/miniwallet/devlog/NFTID.md#sign-up-flow)
+* [Airdrop Flow](https://github.com/polymorpher/sms-wallet/blob/main/miniwallet/devlog/NFTID.md#airdrop-flow)
+* QR Code Generation for displaying miniID in frontend UI
+
+### Documentations (NFTID.md, PROXY.md)
+
+[TODO: this section is incomplete]
 
 # Deployment
 
 ## Infrastructure
 
-For local testing you can use the following emulators
+For local testing, one can use the following emulators
 
 * [Twilio](https://console.twilio.com/?frameUrl=%2Fconsole%3Fx-target-region%3Dus1)
 * [Google Cloud Datastore](https://console.cloud.google.com/datastore/entities;kind=nft_dev;ns=sms-wallet/query/kind?project=sms-wallet-00)
 
-Typically when testing locally you can use the following tools with UI
+One could also use the following tools which have frontend UIs.
 
 * [Metamask](chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html) : Used to fund the sms-wallets from the admin account deployed with Ganache `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`
 * [sms-wallet](https://localhost:3100/): Used for user and creator frontend testing
@@ -143,10 +174,8 @@ Typically when testing locally you can use the following tools with UI
 alias ganachem='ganache -m "test test test test test test test test test test test junk"'
 
 # twilio aliases
-alias tmb='twilio api:core:messages:create --from "+14158401410" --to "+17372327333" --body "b"'
-alias tmp='twilio api:core:messages:create --from "+16505473175" --to "+17372327333" --body "p 4158401410 0.1"'
-alias tmps='twilio api:core:messages:create --from "+14158401410" --to "+17372327333" --body "p 4158401410 0.1"'
-alias tmpbp='twilio api:core:messages:create --from "+14158401410" --to "+17372327333" --body "p 4158401999 0.1"'
+alias tmb='twilio api:core:messages:create --from "+14158401410" --to "+1
+alias tmp='twilio api:core:messages:create --from "+14158401410" --to "+17372327333" --body "p 6505473175 0.1"'
 
 # one-wallet aliases
 alias cdo="cd /Users/john/one-wallet; pwd"
@@ -169,11 +198,11 @@ alias gmu="git checkout master; git fetch upstream; git merge upstream/master; g
 
 ```
 
-## Launching the infrastructure
+## Local deployment
 
-If running this locally on a mac you can use a tool like iterm2 with separate windows for each instance.
+Tips: tools such as iterm2 could be helpful for creating separate windows for each tool and each test process.
 
-### gancache port:8545
+### gancache, port:8545
 
 ```
 cdos
@@ -181,12 +210,14 @@ ganachem
 #deploy miniwallet (separate window) and check settings in .env (miniserver)
 cdos
 cd miniwallet
-yarn deploy --network ethLocal
+yarn deploy --network ethlocal
 ```
 
-### Reset metamask account and fund wallet
+### MetaMask
 
-### Google DataStore Locally port:9000
+You could import testing accounts to MetaMask to manage the funds
+
+### Google Datastore, port:9000
 
 ```
 # https://cloud.google.com/datastore/docs/tools/datastore-emulator#starting_the_emulator
@@ -204,7 +235,7 @@ cd /Users/john/.config/gcloud/emulators/datastore
 rm -rf WEB-INF
 ```
 
-### sms-wallet miniserver http port:3101 https port:8444
+### sms-wallet miniserver, http port:3101 https port:8444
 
 ```
 cdos
@@ -213,7 +244,7 @@ yarn debug
 ```
 
 
-### sms-wallet server http port:3000 https port:8443
+### sms-wallet server, http port:3000 https port:8443
 
 ```
 cdos
@@ -221,7 +252,7 @@ cd server
 yarn debug
 ```
 
-### sms-wallet client https port: 3100
+### sms-wallet client, https port: 3100
 
 ```
 cdos
@@ -229,7 +260,7 @@ cd client
 yarn debug
 ```
 
-### sms-wallet demo https: port 3099
+### sms-wallet demo, https: port 3099
 
 ```
 cdos
@@ -237,14 +268,14 @@ cd demo
 cd yarn debug
 ```
 
-### ngrok allows inbound requests to local sms-server
+### ngrok, allows inbound requests to local sms-server
 
 ```
 cd /Applications
 ./ngrok http 3101
 ```
 
-### twilio connect incoming messages to local server
+### twilio, connect incoming messages to local server
 
 ```
 cd /Applications
@@ -253,7 +284,7 @@ twilio phone-numbers:update +17372327333 --sms-url https://04ac-2601-647-4701-35
 
 ## Testing
 
-Following is an overview of the tests usually done
+Here is an overview of the tests usually performed during the development
 
 **Smart Contract Testing**
 
@@ -265,16 +296,16 @@ Following is an overview of the tests usually done
 
 - Deploy all the local infrastucture [see above]
 
-**End to End Testing**
+**End-to-End Testing**
 
-- `yarn deploy ethLocal` : Deploy all the contracts and mint test NFT's 
+- `yarn deploy ethlocal` : Deploy all the contracts and mint test NFT's 
 - Reset metamask funding account
-- Transfer 20 ETH from admin to sms-wallet user `0x143A933E79931006b3Eb89cBc938587546faF159`
-- Transfer 20 ETH admin to sms-wallet creator `0x58bB8c7D2c90dF970fb01a5cD29c4075C41d3FFB`
+- Transfer 40 ETH from admin to sms-wallet user `0x143A933E79931006b3Eb89cBc938587546faF159`
 - Transfer 5 ETH fROM user to creator
 - [user deposits 10 ETH and approves 1 ETH for creator](https://localhost:3100/call?amount=10&callback=aHR0cHM6Ly9sb2NhbGhvc3Q6MzA5OS9jYWxsYmFjaw%3D%3D&calldata=eyJtZXRob2QiOiJhcHByb3ZlKGFkZHJlc3MsdWludDI1NikiLCJwYXJhbWV0ZXJzIjpbeyJuYW1lIjoic3BlbmRlciIsInR5cGUiOiJhZGRyZXNzIiwidmFsdWUiOiIweDU4YkI4YzdEMmM5MGRGOTcwZmIwMWE1Y0QyOWM0MDc1QzQxZDNGRkIifSx7Im5hbWUiOiJhbW91bnQiLCJ0eXBlIjoidWludDI1NiIsInZhbHVlIjoiMTAwMDAwMDAwMDAwMDAwMDAwMCJ9XX0%3D&caller=Token%20Warrior&comment=Fund%20MiniWallet%2010%20ETH%20and%20approve%201%20ETH%20for%20creator%200x58bB8c7D2c90dF970fb01a5cD29c4075C41d3FFB&dest=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512) 
 - `tmb` checks users balance, responses can be viewed in the [twilio monitoring console](https://console.twilio.com/us1/monitor/logs/sms?frameUrl=%2Fconsole%2Fsms%2Flogs%3Fx-target-region%3Dus1&currentFrameUrl=%2Fconsole%2Fsms%2Flogs%3F__override_layout__%3Dembed%26bifrost%3Dtrue%26x-target-region%3Dus1)
-- `tmp` creator requests the user to fund the user's mini wallet. The responses can be viewed in the [twilio monitoring console](https://console.twilio.com/us1/monitor/logs/sms?frameUrl=%2Fconsole%2Fsms%2Flogs%3Fx-target-region%3Dus1&currentFrameUrl=%2Fconsole%2Fsms%2Flogs%3F__override_layout__%3Dembed%26bifrost%3Dtrue%26x-target-region%3Dus1)
+- `tmp` user sends funds to the creator from the user's mini wallet. The responses can be viewed in the [twilio monitoring console](https://console.twilio.com/us1/monitor/logs/sms?frameUrl=%2Fconsole%2Fsms%2Flogs%3Fx-target-region%3Dus1&currentFrameUrl=%2Fconsole%2Fsms%2Flogs%3F__override_layout__%3Dembed%26bifrost%3Dtrue%26x-target-region%3Dus1)
+- Transfer 5 ETH from user to creator using the miniwallet
 - Add the miniID, mini721 and mini1155 tokens to both the user and creator UI (note: you can use the browser in separate sandboxes, one for the user, and another for the creator) 
 
 

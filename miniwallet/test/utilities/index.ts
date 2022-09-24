@@ -32,11 +32,12 @@ export async function deploy (context, contracts) {
 
 export async function deployUpgradeable (testEnvironment, contracts) {
   for (const contract of contracts) {
-    testEnvironment[contract[0]] = await contract[1].deploy()
-    await testEnvironment[contract[0]].deployed()
-    const tx = await testEnvironment[contract[0]].initialize(...(contract[2] || []))
-    await tx.wait()
-    // await ethers.provider.waitForTransaction(tx.hash)
+    const implementation = await contract[1].deploy()
+    await implementation.deployed()
+    const calldata = contract[1].interface.encodeFunctionData('initialize', contract[2] || [])
+    const proxy = await testEnvironment.MiniProxy.deploy(implementation.address, calldata)
+    await proxy.deployed()
+    testEnvironment[contract[0]] = testEnvironment.MiniWallet.attach(proxy.address)
   }
 }
 

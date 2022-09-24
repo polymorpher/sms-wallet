@@ -60,7 +60,7 @@ const hardhatUserconfig: HardhatUserConfig = {
         auto: true
       }
     },
-    ethLocal: {
+    ethlocal: {
       url: process.env.ETH_LOCAL_URL,
       gasPrice: 20000000000,
       gas: 6000000,
@@ -150,12 +150,13 @@ const hardhatUserconfig: HardhatUserConfig = {
     freshOutput: true
   },
   abiExporter: {
-    path: './data/abi',
+    path: '../miniserver/abi',
     runOnCompile: true,
     clear: true,
     flat: true,
-    spacing: 2,
-    pretty: true
+    only: [':MiniWallet$', ':MiniProxy$'],
+    format: 'json',
+    spacing: 2
   },
   spdxLicenseIdentifier: {
     overwrite: true,
