@@ -39,11 +39,8 @@ const parseSMS = async (req, res, next) => {
     res.status(status).send(response.toString())
   }
   try {
-    let fromAddress
-    const u = await User.findByPhone({ phone: senderPhoneNumber })
-    if (u?.address) {
-      fromAddress = u.address
-    } else {
+    const { address: fromAddress } = (await User.findByPhone({ phone: senderPhoneNumber })) || {}
+    if (!fromAddress) {
       return respond('You are not registered. Signup at https://smswallet.xyz')
     }
     if (smsParams.length < 1) {
