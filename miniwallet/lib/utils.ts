@@ -12,14 +12,26 @@ export async function checkDeployed (hre, contract) {
   const artifactName = 'MiniWallet'
   const artifactFile = artifactsDirectory + artifactName + '.json'
   try {
-    const currentDeployment = await fs.readFile(artifactFile, { encoding: 'utf-8' })
-    console.log(`Have already deployed ${artifactName}`)
+    if (!existsSync(artifactFile)) {
+      return false
+    }
+    const contractArtifact = await hre.deployments.getExtendedArtifact(contract)
+    const currentDeployment = JSON.parse(await fs.readFile(artifactFile, { encoding: 'utf-8' }))
+    for (const implementation of currentDeployment.contract.implementations) {
+      if (implementation.bytecodeHash === ethers.utils.id(contractArtifact.bytecode)) {
+        console.log(`Have already deployed this version of ${artifactName}`)
+        console.log(`Current Deployment: ${JSON.stringify(currentDeployment)}`)
+        return true
+      }
+    }
+    console.log(`Have already deployed another version of ${artifactName}`)
     console.log(`Current Deployment: ${JSON.stringify(currentDeployment)}`)
-    return true
-  } catch (ex) {
-    // console.log(ex)
-    // If we have an exception assume the artifact hasn't been deployed
     return false
+  } catch (ex) {
+    console.error('Unexpected error reading deployment file')
+    console.error(ex)
+    // eslint-disable-next-line no-process-exit
+    process.exit(2)
   }
 }
 
@@ -42,13 +54,13 @@ export async function persistDeployment (hre, contract, contractAddress, proxy, 
           name: 'MiniWallet',
           version: 1,
           address: contractAddress,
-          hash: ethers.utils.id(contractArtifact.deployedBytecode || '')
+          bytecodeHash: ethers.utils.id(contractArtifact.bytecode || '')
         }
       ],
       proxyContract: {
         name: 'MiniProxy',
         address: proxyAddress,
-        hash: ethers.utils.id(proxyArtifact.deployedBytecode || '')
+        bytecodeHash: ethers.utils.id(proxyArtifact.bytecode || '')
       }
     }
   }

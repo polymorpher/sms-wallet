@@ -319,7 +319,11 @@ For each chain, we only need three things: proxy contract, deployed proxy addres
 We wanted to support a light weight persisting of artifacts when deploying and upgrading contracts.
 To do this we have written two persistence functions to date (see lib/utils.ts)
 
-* `checkDeployed` : Checks if an existing contract has been deployed. The assumption is that once deployed we should not deploy again unless we are doing an upgrade via the proxy. 
+* `checkDeployed` : Checks if an existing contract has been deployed. The assumption is that once deployed we should not deploy again unless we are doing an upgrade via the proxy. It handles the conditions with the following return
+  * true: If this version of the contract (verified by bytecodeHash) has been deployed
+  * false: If a different version of the contract (verified by byteCodeHash) has been deployed
+  * false: If the contract has not been deployed (no deployment file exists)
+  * exits: with any other exception when reading the deployment artifacts
 * `persistDeployment`: Persists the contract and proxy information for a contract.
 
 **Example Deployment Artifact**
@@ -333,13 +337,13 @@ To do this we have written two persistence functions to date (see lib/utils.ts)
                 "name": "MiniWallet",
                 "version": 1,
                 "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-                "hash": "0x81edd1fcec43fee408aaaa153abb72c3ecfcdd17969732de7ca32c7503ea0d22"
+                "bytecodeHash": "0x1f7f351a6d7fb20cb7ff9af9341fcd93dc4cb53a5996ed41d1a4d617ebebe5a5"
             }
         ],
         "proxyContract": {
             "name": "MiniProxy",
             "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-            "hash": "0x7bb3f0d24c97a46406ffb7b6539b19d381cb548d7146bf3ecd31d1f70bddb032"
+            "bytecodeHash": "0x9456ef0a00a146827f2250d5706d0213be0bdd1515fc0e2fc38af81013839580"
         }
     }
 }
