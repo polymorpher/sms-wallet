@@ -64,18 +64,19 @@ These are ready for merge
   - Update config so testing and deploy work on hardhat
   - Improve Proxy based on Feedback and ensure tests use Proxies
   - Feeback on PR
-    - Automatic Population of ABI's for miniserver
-    - Rewrite of test contracts
+    - Automatic population of contract ABIs for miniserver
+    - Rewriting test contracts
     - Removal of dummy URL's in test contrcts
 
 **Outstanding Items**
 
 * Replace Deployment with [native deployment](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/deploy/001_deploy_miniWallet.ts) will allow us to remove the unnecessary population of [ADMIN_SLOT](https://github.com/polymorpher/sms-wallet/blob/jw-proxy-tmp/miniwallet/contracts/miniWallet/MiniWallet.sol#L377)
-* Review MiniProxy.sol to ensure that we are happy with this UUPS compliant Proxy. If we decide to change the Proxy at a later point we will need to update contract addresses in miniserver and potentially other deployments.
+* Review MiniProxy.sol to ensure that we are happy with this UUPS compliant proxy. If we decide to change the proxy at a later point we will need to update contract addresses in miniserver and potentially other deployments.
 
 **Future Work**
-* multi-call functionality for support of multiple transactions such as approvals.
-* Update Contract Testing to test administrative functions and what happens under different scenarios such as miniWallet paused.
+
+* Multi-call functionality for support of multiple transactions such as approvals.
+* Update contract testing to include administrative functions and what happens under different scenarios such as miniWallet paused.
 
 **Refactor Notes**
 
@@ -90,74 +91,77 @@ git push --set-upstream origin ws-miniwallet-v0
 ```
 
 ### mini-wallet deployment and upgrade scripts
-These needs some improvement on fine-control over deploy and upgrade process (most likely can't just use simple hardhat calls / plugins anymore) and storing (not just logging) the addresses of proxy, logic, and storage
+
+There needs to be some improvement over the level of control on the deploy and upgrade processes. Most likely, we will be unable to simply just use hardhat calls or plugins. We should also store the addresses of proxy, logic contract, and storage slots, instead of merely logging them.
 
 **Key Features**
+
 - Deterministic Deployments - For Proxy Contracts
 - LightWeight Persistence of Artifacts 
 - Multichain/MultiContract Deployment Process
+
 **Branch and commits**
 
 **Outstanding Items**
+
 * [PROXY Enhancements](https://github.com/polymorpher/sms-wallet/blob/ws-miniwallet-v0/miniwallet/devlog/PROXY.md): Including Deterministic Deployments and Persistence of artifacts.
 * [Configuration Enhancements](https://github.com/polymorpher/sms-wallet/blob/main/miniwallet/devlog/CONFIGURATION.md): ability to independently deploy (on multiple chains) and test each work stream.
 * Parameterizing callData for tests
-* Incorporation of one-wallet lib
+* Directly generating calldata using abi encoding similar to what is done in one-wallet lib
 
 
 ### mini1155, 721, and related deployment scripts and tests
 
-These need some sanitization and maybe some simplification on tests. They are pretty much ready for merge
+There needs to be some sanitization and maybe some simplification on tests. It is ready for merging.
 
 **Key Features**
-* Operator NFT Collectibles Airdrop: Mini721: These are NFT collections airdropped by Operators to each Registered User. For Initial Phase we will use Minion Images. Attributes (TokenId, Phone, Address, Country)
 
-* User/Creator: Friends and Fans: Minted by MiniID Holders to friends/fans 1 to 1 correlation between MiniID TokenId and Mini1155 TokenId (one can issue multiple Mini1155 tokens of the same token ID to any address). Think of it as a friends list. It could also be event based, i.e. issued by the Owner before an event, and burned afterwards. Metadata attributes may include: IssuerTokenId, IssuerPhone, IssuerAddress, IssuerCountry
+* Airdropping NFT Collectibles by the operators using Mini721: these are NFT collections airdropped by Operators to each registered user. For the initial phase we will use minion images, and metadata attributes including tokenId, phone numbers, addresses, and country codes.
 
-* Creator NFT Collections: These are NFT collections (Mini721C) created by Creators (could have its own factory). For Initial Phase we will use Minion Images
+* Friends and Fans: these NFTs can be minted by MiniID NFT holders to friends and fans. There is an 1-to-1 correlation between MiniID tokenId and Mini1155 tokenId. A user may issue multiple Mini1155 tokens using the same token ID to any address. The functionality could be thought as a friends list. It may be used in events, where owners may issue these tokens ahead of the event, and burn them afterwards. The metadata attributes of these tokens could include token Id, phone numbers, addresses, and country codes.
 
-* Creator Access Passes: These are NFT Access Passes(Mini1155C) Given by Creators (could have its own factory)
+* Creator NFT Collections: these are NFT collections (Mini721C) created by creators, which could have its own smart contract factory. For the initial phase, we will use minion images as the placeholder.
+
+* Creator Access Passes: these are NFT Access Passes (Mini1155C) sent to users by creators, which could have its own smart contract factory.
 
 **Branch and commits**
+
+[TODO: this section is incomplete]
 
 **Outstanding Items**
 
 ### miniID related and other WIP stuff
 
-These are incomplete
+[TODO: this section is incomplete]
 
 **Key Features**
+
 MiniID: Soulbound Token (assigned to a phone number, cannot be transferred), 1 per phone number. 
 * Displayable as a QR Code which encapsulates information including TokenId, Phone, Address, Country.
 
 **Branch and commits**
 
+[TODO: this section is incomplete]
+
 **Outstanding Items**
 * [Signup Flow](https://github.com/polymorpher/sms-wallet/blob/main/miniwallet/devlog/NFTID.md#sign-up-flow)
 * [Airdrop Flow](https://github.com/polymorpher/sms-wallet/blob/main/miniwallet/devlog/NFTID.md#airdrop-flow)
-* QR Code Generation: 
+* QR Code Generation for displaying miniID in frontend UI
 
-### documentations (NFTID.md, PROXY.md)
+### Documentations (NFTID.md, PROXY.md)
 
-These need further review and some revision 
-
-**Key Features**
-
-**Branch and commits**
-
-**Outstanding Items**
-
+[TODO: this section is incomplete]
 
 # Deployment
 
 ## Infrastructure
 
-For local testing you can use the following emulators
+For local testing, one can use the following emulators
 
 * [Twilio](https://console.twilio.com/?frameUrl=%2Fconsole%3Fx-target-region%3Dus1)
 * [Google Cloud Datastore](https://console.cloud.google.com/datastore/entities;kind=nft_dev;ns=sms-wallet/query/kind?project=sms-wallet-00)
 
-Typically when testing locally you can use the following tools with UI
+One could also use the following tools which have frontend UIs.
 
 * [Metamask](chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html) : Used to fund the sms-wallets from the admin account deployed with Ganache `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`
 * [sms-wallet](https://localhost:3100/): Used for user and creator frontend testing
@@ -194,11 +198,11 @@ alias gmu="git checkout master; git fetch upstream; git merge upstream/master; g
 
 ```
 
-## Launching the infrastructure
+## Local deployment
 
-If running this locally on a mac you can use a tool like iterm2 with separate windows for each instance.
+Tips: tools such as iterm2 could be helpful for creating separate windows for each tool and each test process.
 
-### gancache port:8545
+### gancache, port:8545
 
 ```
 cdos
@@ -209,9 +213,11 @@ cd miniwallet
 yarn deploy --network ethlocal
 ```
 
-### Reset metamask account and fund wallet
+### MetaMask
 
-### Google DataStore Locally port:9000
+You could import testing accounts to MetaMask to manage the funds
+
+### Google Datastore, port:9000
 
 ```
 # https://cloud.google.com/datastore/docs/tools/datastore-emulator#starting_the_emulator
@@ -229,7 +235,7 @@ cd /Users/john/.config/gcloud/emulators/datastore
 rm -rf WEB-INF
 ```
 
-### sms-wallet miniserver http port:3101 https port:8444
+### sms-wallet miniserver, http port:3101 https port:8444
 
 ```
 cdos
@@ -238,7 +244,7 @@ yarn debug
 ```
 
 
-### sms-wallet server http port:3000 https port:8443
+### sms-wallet server, http port:3000 https port:8443
 
 ```
 cdos
@@ -246,7 +252,7 @@ cd server
 yarn debug
 ```
 
-### sms-wallet client https port: 3100
+### sms-wallet client, https port: 3100
 
 ```
 cdos
@@ -254,7 +260,7 @@ cd client
 yarn debug
 ```
 
-### sms-wallet demo https: port 3099
+### sms-wallet demo, https: port 3099
 
 ```
 cdos
@@ -262,14 +268,14 @@ cd demo
 cd yarn debug
 ```
 
-### ngrok allows inbound requests to local sms-server
+### ngrok, allows inbound requests to local sms-server
 
 ```
 cd /Applications
 ./ngrok http 3101
 ```
 
-### twilio connect incoming messages to local server
+### twilio, connect incoming messages to local server
 
 ```
 cd /Applications
@@ -278,7 +284,7 @@ twilio phone-numbers:update +17372327333 --sms-url https://04ac-2601-647-4701-35
 
 ## Testing
 
-Following is an overview of the tests usually done
+Here is an overview of the tests usually performed during the development
 
 **Smart Contract Testing**
 
@@ -290,7 +296,7 @@ Following is an overview of the tests usually done
 
 - Deploy all the local infrastucture [see above]
 
-**End to End Testing**
+**End-to-End Testing**
 
 - `yarn deploy ethlocal` : Deploy all the contracts and mint test NFT's 
 - Reset metamask funding account
