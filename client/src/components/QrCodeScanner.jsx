@@ -18,16 +18,19 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
   const [videoDevices, setVideoDevices] = useState([])
   const [device, setDevice] = useState()
   const [qrCodeImageUploading, setQrCodeImageUploading] = useState()
+  const [allowed, setAllowed] = useState(true)
 
   useEffect(() => {
-    const numAttempts = 0
     const f = async () => {
+      if (!allowed) {
+        return
+      }
       const d = await navigator.mediaDevices.enumerateDevices()
       const cams = d.filter(e => e.kind === 'videoinput')
       if (cams.length <= 0) {
         return toast.error('Cannot access camera. Please select your QR Code')
       }
-      if (cams.length === 1 && !cams[0].label && numAttempts < 5) {
+      if (cams.length >= 1 && !cams[0].label) {
         setTimeout(() => f(), 2500)
         console.log('got empty labels. retrying in 2.5s')
       }
@@ -41,10 +44,10 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
       }
     }
     shouldInit && videoDevices.length === 0 && f()
-  }, [shouldInit])
+  }, [shouldInit, allowed])
 
   useEffect(() => {
-    if (device && shouldInit) {
+    if (device && shouldInit && allowed) {
       ref.current.initiate()
     }
   }, [device])
@@ -55,6 +58,11 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
   }
 
   const onError = (err) => {
+    if (err?.name === 'NotAllowedError') {
+      console.log('Not allowed')
+      setAllowed(false)
+      return
+    }
     console.error(err)
     toast.error(`Failed to parse QR code. Error: ${err}`)
   }
@@ -118,7 +126,7 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
   return (
     <>
       {
-        videoDevices && device
+        videoDevices && device && allowed
           ? (
             <>
               <Row style={{ justifyContent: 'flex-end' }}>
@@ -154,6 +162,10 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
             )
           : <></>
       }
+      {!allowed &&
+        <BaseText $color='red'>
+          You disallowed SMS Wallet to use your camera.
+        </BaseText>}
       <Row style={{ marginTop: 16, justifyContent: 'center' }}>
         <Upload beforeUpload={beforeUpload}>
           <Button style={{ width: 'auto', display: 'flex', gap: 16 }}>
