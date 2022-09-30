@@ -2,7 +2,7 @@ import config from '../config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { ethers } from 'hardhat'
-import { checkDeployed, persistDeployment } from '../lib/utils'
+import { isDeployed, persistDeployment } from '../lib/utils'
 
 const deployFunction: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
@@ -12,8 +12,10 @@ const deployFunction: DeployFunction = async function (
   const { deployer } = await getNamedAccounts()
   const network = hre.network.name
   // Ensure we haven't already deployed MiniWallet on this network
-  const deployed = await checkDeployed(hre, 'MiniWallet')
-  if (deployed) { return }
+  if (await isDeployed(hre, 'MiniWallet')) {
+    console.log('Already deployed MiniWallet. Skipping deployment')
+    return
+  }
 
   const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 
