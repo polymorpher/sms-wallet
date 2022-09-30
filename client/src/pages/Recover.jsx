@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { BaseText, Desc, Heading, LinkText, Title } from '../components/Text'
-import { Main } from '../components/Layout'
+import { BaseText, Desc, LinkText, Title } from '../components/Text'
 import QrCodeScanner from '../components/QrCodeScanner'
 import qs from 'query-string'
 import { toast } from 'react-toastify'
@@ -16,6 +15,8 @@ import { useHistory } from 'react-router'
 import MainContainer from '../components/Container'
 import { globalActions } from '../state/modules/global'
 import phoneValidator from 'phone'
+import { IconImg } from '../components/Menu'
+import QrIcon from '../../assets/qr.svg'
 const processRecoverData = (d) => {
   try {
     const q = qs.parseUrl(d)
@@ -37,6 +38,13 @@ const Recover = () => {
   const [countdown, setCountdown] = useState(0)
   const next = useSelector(state => state.global.next || {})
   const prefilledPhone = useSelector(state => state.global.prefilledPhone)
+  const [password, setPassword] = useState('')
+  const [revealPassword, setRevealPassword] = useState(false)
+
+  const confirmManualPassword = () => {
+    const p = utils.hexStringToBytes(password)
+    setP(p)
+  }
 
   useEffect(() => {
     if (prefilledPhone) {
@@ -144,6 +152,23 @@ const Recover = () => {
         <Desc>
           <BaseText>Scan or select your recovery QR code</BaseText>
           <QrCodeScanner style={{ maxWidth: 288 }} onScan={onScan} shouldInit />
+          {!revealPassword &&
+            <>
+              <Button style={{ whiteSpace: 'nowrap', width: 'auto', display: 'flex', gap: '16px' }} onClick={() => setRevealPassword(true)}>
+                <IconImg style={{ width: 16, height: 16, color: 'white' }} src={QrIcon} />
+                <BaseText>Use Keychain / Password</BaseText>
+              </Button>
+            </>}
+          {revealPassword &&
+            <>
+              <Input
+                $width='288px'
+                $marginTop='36px' $marginBottom='16px'
+                type='password' placeholder='Keychain Password' autoComplete='password' value={password}
+                onChange={({ target: { value } }) => setPassword(value)}
+              />
+              <Button onClick={confirmManualPassword}>Next</Button>
+            </>}
         </Desc>}
       {p && !readyForCode &&
         <Desc>
