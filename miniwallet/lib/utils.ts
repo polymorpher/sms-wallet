@@ -55,8 +55,8 @@ export async function persistDeployment (hre, contractName, contractAddress, pro
       }
     }
   }
-  console.log(`Saving miniWalletArtifact: ${JSON.stringify(miniWalletArtifact)}`)
   if (hre.network.saveDeployments) {
+    console.log(`Saving miniWalletArtifact: ${JSON.stringify(miniWalletArtifact)}`)
     mkdirSync(artifactsDirectory, { recursive: true })
     await fs.writeFile(path.join(artifactsDirectory, `${contractName}.json`), JSON.stringify(miniWalletArtifact), { encoding: 'utf-8' })
   }
