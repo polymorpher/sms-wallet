@@ -8,8 +8,6 @@ import config from '../config.test'
 const OPERATOR_ROLE = ethers.utils.id('OPERATOR_ROLE')
 const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-// let snapshotId: string;
-
 describe('MiniWallet Admin', function () {
   before(async function () {
     await prepare(this, [

@@ -4,8 +4,8 @@
 
 pragma solidity ^0.8.0;
 
-import "hardhat-deploy/solc_0.8/openzeppelin/proxy/Proxy.sol";
-import "hardhat-deploy/solc_0.8/openzeppelin/proxy/ERC1967/ERC1967Upgrade.sol";
+import "@openzeppelin/contracts/proxy/Proxy.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol";
 
 /**
  * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
@@ -13,7 +13,7 @@ import "hardhat-deploy/solc_0.8/openzeppelin/proxy/ERC1967/ERC1967Upgrade.sol";
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
  * implementation behind the proxy.
  */
-contract MiniProxy is Proxy, ERC1967Upgrade {
+contract MiniProxy is Proxy, ERC1967UpgradeUpgradeable {
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
      *
@@ -45,6 +45,6 @@ contract MiniProxy is Proxy, ERC1967Upgrade {
         override
         returns (address impl)
     {
-        return ERC1967Upgrade._getImplementation();
+        return ERC1967UpgradeUpgradeable._getImplementation();
     }
 }
