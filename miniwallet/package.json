@@ -11,6 +11,9 @@
         "types",
         "src/config.ts"
     ],
+    "engines": {
+        "node": ">16"
+    },
     "scripts": {
         "clean": "npx hardhat clean",
         "check": "npx hardhat check",
