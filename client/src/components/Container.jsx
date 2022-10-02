@@ -7,6 +7,7 @@ import { Button } from './Controls'
 import { walletActions } from '../state/modules/wallet'
 import { useDispatch, useSelector } from 'react-redux'
 import paths from '../pages/paths'
+import apis from '../api/index'
 
 const MainContainer = ({ children, withMenu }) => {
   const dispatch = useDispatch()
@@ -16,7 +17,7 @@ const MainContainer = ({ children, withMenu }) => {
   const [menuVisible, setMenuVisible] = useState(false)
   const [logoutModalVisible, setLogoutModalVisible] = useState(false)
   const logout = () => {
-    dispatch(walletActions.deleteWallet(address))
+    dispatch(walletActions.deleteAllWallet())
     setLogoutModalVisible(false)
     setMenuVisible(false)
   }
