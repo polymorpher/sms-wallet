@@ -68,7 +68,7 @@ const Signup = () => {
       setCountdown(120)
       const h = setInterval(() => {
         const cd = Math.max(0, Math.floor((submissionTime + 120000 - Date.now()) / 1000))
-        setCountdown(cd)
+        setCountdown(e => Math.min(e, cd))
         if (cd <= 0) {
           clearInterval(h)
         }

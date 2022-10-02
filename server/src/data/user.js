@@ -35,8 +35,11 @@ const User = ({
     return UserPrototype.update(id, { resetTime: 0 })
   },
   finalizeReset: async (id) => {
-    const [u] = await UserPrototype.get(id)
-    return UserPrototype.update(id, { phone: null, oldPhone: `${u.phone}`, resetFinalizeTime: Date.now() })
+    const u = await UserPrototype.get(id)
+    if (!u) {
+      return null
+    }
+    return UserPrototype.update(id, { phone: '', oldPhone: `${u.phone}`, resetFinalizeTime: Date.now() })
   }
 })
 

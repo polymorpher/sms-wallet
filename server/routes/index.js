@@ -183,7 +183,11 @@ router.post('/archive-verify', requirePhone, async (req, res) => {
       return res.json({ archived: true, timeRemain })
     }
   }
-  const u2 = await User.startReset()
+
+  const u2 = await User.startReset(u.id)
+  if (!u2) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal error. Please contact support.' })
+  }
   return res.json({ reset: true, timeRemain: parseInt(u2.resetTime) - Date.now() })
 })
 

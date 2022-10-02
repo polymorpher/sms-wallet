@@ -10,7 +10,7 @@ const config = {
     key: DEBUG ? './certs/test.key' : './certs/privkey.pem',
     cert: DEBUG ? './certs/test.cert' : './certs/fullchain.pem'
   },
-  archiveWaitDuration: 3600 * 1000 * 24,
+  archiveWaitDuration: process.env.ARCHIVE_WAIT_DURATION || 60 * 1000 * 60 * 24,
   corsOrigins: process.env.CORS,
   secret: process.env.SECRET,
   safeNonce: process.env.SAFE_NONCE === '1' || process.env.SAFE_NONCE === 'true',
