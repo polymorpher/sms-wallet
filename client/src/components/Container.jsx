@@ -8,8 +8,10 @@ import { walletActions } from '../state/modules/wallet'
 import { useDispatch, useSelector } from 'react-redux'
 import paths from '../pages/paths'
 import apis from '../api/index'
+import { useHistory } from 'react-router'
 
 const MainContainer = ({ children, withMenu }) => {
+  const history = useHistory()
   const dispatch = useDispatch()
   const wallet = useSelector(state => state.wallet || {})
   const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
@@ -25,7 +27,12 @@ const MainContainer = ({ children, withMenu }) => {
   return (
     <Main style={{ gap: 24 }}>
       <Heading style={{ justifyContent: 'flex-end', alignItems: 'flex-start', minHeight: 56 }}>
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>SMS Wallet</div>
+        <div
+          style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', cursor: 'pointer' }}
+          onClick={() => history.push(paths.root)}
+        >
+          SMS Wallet
+        </div>
         {withMenu &&
           <MenuIconContainer $expanded={menuVisible}>
             <IconImg onClick={() => setMenuVisible(!menuVisible)} src={MenuIcon} />

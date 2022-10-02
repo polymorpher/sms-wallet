@@ -105,8 +105,7 @@ const Archive = () => {
           <>
             <BaseText>Please provide the phone number of the wallet you want to archive, so you can create another wallet with the phone number again</BaseText>
             <PhoneInput
-              autoComplete='username'
-              name='username'
+              autoComplete='off'
               margin='16px'
               inputComponent={Input}
               defaultCountry='US'

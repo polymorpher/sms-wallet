@@ -10,6 +10,7 @@ import { FlexColumn, FlexRow } from './components/Layout'
 import SignMessage from './pages/SignMessage'
 import ApproveTransactionPage from './pages/ApproveTransaction'
 import Request from './pages/Request'
+import Archive from './pages/Archive'
 const Routes = () => {
   const dispatch = useDispatch()
   const [rehydrated, setRehydrated] = useState(false)
@@ -36,6 +37,7 @@ const Routes = () => {
         <Route exact path={paths.root} render={() => <Wallet />} />
         <Route path={paths.wallet} render={() => <Wallet />} />
         <Route path={paths.signup} render={() => <Signup />} />
+        <Route path={paths.archive} render={() => <Archive />} />
         <Route path={paths.recover} render={() => <Recover />} />
         <Route path={paths.sign} render={() => <SignMessage />} />
         <Route path={paths.call} render={() => <ApproveTransactionPage />} />

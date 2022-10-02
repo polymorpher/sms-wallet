@@ -176,6 +176,9 @@ const Signup = () => {
               <LinkText onClick={() => history.push(paths.recover)}>
                 Recover an existing SMS Wallet
               </LinkText>
+              <LinkText onClick={() => history.push(paths.archive)}>
+                Reset a phone number and archive SMS Wallet
+              </LinkText>
             </>}
           {hash && !qrCodeData &&
             <>
