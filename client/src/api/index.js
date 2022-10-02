@@ -180,6 +180,16 @@ const apis = {
       const { ekey, address } = data
       return { ekey, address }
     },
+    archive: async ({ phone }) => {
+      const { data } = await apiBase.post('/archive', { phone })
+      const { success } = data
+      return success
+    },
+    archiveVerify: async ({ phone, code }) => {
+      const { data } = await apiBase.post('/archive-verify', { phone, code })
+      const { timeRemain, archived, reset } = data
+      return { timeRemain, archived, reset }
+    },
     lookup: async ({ destPhone, address, signature }) => {
       const { data } = await apiBase.post('/lookup', { destPhone, address, signature })
       const { address: destAddress } = data

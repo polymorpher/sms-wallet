@@ -28,6 +28,16 @@ const User = ({
     const [u] = await UserPrototype.find(['address', address.toLowerCase()])
     return u
   },
+  startReset: async (id) => {
+    return UserPrototype.update(id, { resetTime: Date.now() + config.archiveWaitDuration })
+  },
+  cancelReset: async (id) => {
+    return UserPrototype.update(id, { resetTime: 0 })
+  },
+  finalizeReset: async (id) => {
+    const [u] = await UserPrototype.get(id)
+    return UserPrototype.update(id, { phone: null, oldPhone: `${u.phone}`, resetFinalizeTime: Date.now() })
+  }
 })
 
 module.exports = { User }

@@ -14,14 +14,14 @@ const w3utils = require('../w3utils')
 const stringify = require('json-stable-stringify')
 const { Setting } = require('../src/data/setting')
 const { Request } = require('../src/data/request')
-const { partialReqCheck, reqCheck, checkExistence, hasUserSignedBody } = require('./middleware')
+const { partialReqCheck, reqCheck, mustNotExist, hasUserSignedBody, requirePhone } = require('./middleware')
 
 router.get('/health', async (req, res) => {
   Logger.log('[/health]', req.fingerprint)
   res.send('OK').end()
 })
 
-router.post('/signup', reqCheck, checkExistence, async (req, res) => {
+router.post('/signup', reqCheck, mustNotExist, async (req, res) => {
   const { phoneNumber, eseed, ekey, address } = req.processedBody
 
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
@@ -47,7 +47,7 @@ router.post('/signup', reqCheck, checkExistence, async (req, res) => {
   }
 })
 
-router.post('/verify', reqCheck, checkExistence, async (req, res) => {
+router.post('/verify', reqCheck, mustNotExist, async (req, res) => {
   const { phoneNumber, eseed, ekey, address } = req.processedBody
   const { code, signature } = req.body
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
@@ -132,6 +132,59 @@ router.post('/restore-verify', partialReqCheck, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'verification code incorrect' })
   }
   res.json({ ekey: u.ekey, address: u.address })
+})
+
+// TODO: rate limit on this + number of SMS dispatched to a user within a duration
+router.post('/archive', requirePhone, async (req, res) => {
+  const { phoneNumber } = req.processedBody
+  const u = await User.findByPhone({ phone: phoneNumber })
+  if (!u) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number is not registered' })
+  }
+  const seed = utils.keccak(`${config.otp.salt}${u.eseed}`)
+  const code = utils.genOTPStr({ seed, interval: config.otp.interval })[0]
+  try {
+    const message = await Twilio.messages.create({
+      body: `[Archive Wallet] SMS Wallet verification code: ${code}`,
+      to: phoneNumber,
+      from: config.twilio.from
+    })
+    console.log('[Text][Archive]', code, message)
+    res.json({ success: true })
+  } catch (ex) {
+    console.error(ex)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
+  }
+})
+
+router.post('/archive-verify', requirePhone, async (req, res) => {
+  const { phoneNumber } = req.processedBody
+  const { code } = req.body
+  const u = await User.findByPhone({ phone: phoneNumber })
+  if (!u) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number is not registered' })
+  }
+  const seed = utils.keccak(`${config.otp.salt}${u.eseed}`)
+  const codeNow = utils.genOTPStr({ seed, interval: config.otp.interval })[0]
+  const codePrev = utils.genOTPStr({
+    seed,
+    interval: config.otp.interval,
+    counter: Math.floor(Date.now() / config.otp.interval) - 1
+  })[0]
+  if (code !== codeNow && code !== codePrev) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'verification code incorrect' })
+  }
+  if (u.resetTime) {
+    const timeRemain = parseInt(u.resetTime) - Date.now()
+    if (!(timeRemain < 0)) {
+      return res.json({ timeRemain })
+    } else {
+      await User.finalizeReset(u.id)
+      return res.json({ archived: true, timeRemain })
+    }
+  }
+  const u2 = await User.startReset()
+  return res.json({ reset: true, timeRemain: parseInt(u2.resetTime) - Date.now() })
 })
 
 // allows an existing user to lookup another user's address by their phone number, iff the phone number exists and the target user does not choose to hide its phone-address mapping (under `hide` parameter in settings)
