@@ -17,6 +17,33 @@ import { globalActions } from '../state/modules/global'
 import phoneValidator from 'phone'
 import { IconImg } from '../components/Menu'
 import QrIcon from '../../assets/qr.svg'
+import styled from 'styled-components'
+
+const InvisibleInput = styled(Input)`
+  width: 0;
+  border: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+`
+
+const StyledPhoneInput = styled(PhoneInput)`
+  width: 0;
+  border: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  .PhoneInputCountry{
+    display: none;
+  }
+  .PhoneInputCountryIcon{
+    width:0;
+    height:0;
+    padding:0;
+    margin:0;
+  }
+`
+
 const processRecoverData = (d) => {
   try {
     const q = qs.parseUrl(d)
@@ -144,55 +171,67 @@ const Recover = () => {
       restoreVerify()
     }
   }, [code, verifying])
-
+  console.log(p)
   return (
     <MainContainer>
       <Title> Recover your wallet </Title>
-      {!p &&
+      <form action='#' onSubmit={(e) => e.preventDefault()}>
         <Desc>
-          <BaseText>Scan or select your recovery QR code</BaseText>
-          <QrCodeScanner style={{ maxWidth: 288 }} onScan={onScan} shouldInit />
-          {!revealPassword &&
+          {!p &&
             <>
-              <Button style={{ whiteSpace: 'nowrap', width: 'auto', display: 'flex', gap: '16px' }} onClick={() => setRevealPassword(true)}>
-                <IconImg style={{ width: 16, height: 16, color: 'white' }} src={QrIcon} />
-                <BaseText>Use Keychain / Password</BaseText>
-              </Button>
+              <BaseText>Scan or select your recovery QR code</BaseText>
+              <QrCodeScanner style={{ maxWidth: 288 }} onScan={onScan} shouldInit />
+              {!revealPassword &&
+                <>
+                  <Button style={{ whiteSpace: 'nowrap', width: 'auto', display: 'flex', gap: '16px' }} onClick={() => setRevealPassword(true)}>
+                    <IconImg style={{ width: 16, height: 16, color: 'white' }} src={QrIcon} />
+                    <BaseText>Use Keychain / Password</BaseText>
+                  </Button>
+                </>}
+              {revealPassword &&
+                <>
+                  <StyledPhoneInput
+                    autoComplete='username'
+                    name='username'
+                    inputComponent={InvisibleInput}
+                    defaultCountry='US'
+                    placeholder='Enter phone number'
+                    value={phone} onChange={setPhone}
+                  />
+                  <Input
+                    style={!p && revealPassword ? { width: 288, marginTop: 36, marginBottom: 16 } : { border: 'none', position: 'absolute', width: 0, margin: 0 }}
+                    type='password' placeholder='Keychain Password' autoComplete='password' value={password}
+                    onChange={({ target: { value } }) => setPassword(value)}
+                  />
+                  <Button onClick={confirmManualPassword}>Next</Button>
+                </>}
             </>}
-          {revealPassword &&
+          {p && !readyForCode &&
             <>
-              <Input
-                $width='288px'
-                $marginTop='36px' $marginBottom='16px'
-                type='password' placeholder='Keychain Password' autoComplete='password' value={password}
-                onChange={({ target: { value } }) => setPassword(value)}
+              <BaseText>Next, please provide the phone number you used to sign up the wallet</BaseText>
+              <PhoneInput
+                autoComplete='username'
+                name='username'
+                margin='16px'
+                inputComponent={Input}
+                defaultCountry='US'
+                placeholder='Enter phone number'
+                value={phone} onChange={setPhone}
               />
-              <Button onClick={confirmManualPassword}>Next</Button>
+              <Button onClick={restore} disabled={restoring}>Verify</Button>
             </>}
-        </Desc>}
-      {p && !readyForCode &&
-        <Desc>
-          <BaseText>Next, please provide the phone number you used to sign up the wallet</BaseText>
-          <PhoneInput
-            margin='16px'
-            inputComponent={Input}
-            defaultCountry='US'
-            placeholder='Enter phone number'
-            value={phone} onChange={setPhone}
-          />
-          <Button onClick={restore} disabled={restoring}>Verify</Button>
-        </Desc>}
-      {p && readyForCode &&
-        <Desc>
-          <BaseText>Verify your 6-digit code</BaseText>
-          <OtpBox value={code} onChange={setCode} />
-          <Button onClick={restore} disabled={verifying || !(countdown <= 0)}>Resend SMS</Button>
-          {countdown > 0 && <BaseText $color='#cccccc'>(wait {countdown}s)</BaseText>}
-          <LinkText onClick={restart}>
-            Use a different phone number
-          </LinkText>
-        </Desc>}
-
+          {p && readyForCode &&
+            <>
+              <BaseText>Verify your 6-digit code</BaseText>
+              <OtpBox value={code} onChange={setCode} />
+              <Button onClick={restore} disabled={verifying || !(countdown <= 0)}>Resend SMS</Button>
+              {countdown > 0 && <BaseText $color='#cccccc'>(wait {countdown}s)</BaseText>}
+              <LinkText onClick={restart}>
+                Use a different phone number
+              </LinkText>
+            </>}
+        </Desc>
+      </form>
     </MainContainer>
   )
 }

@@ -16,10 +16,15 @@ import MainContainer from '../components/Container'
 import { globalActions } from '../state/modules/global'
 import phoneValidator from 'phone'
 import { Redirect } from 'react-router-dom'
+import styled from 'styled-components'
 const randomSeed = () => {
   const otpSeedBuffer = new Uint8Array(32)
   return window.crypto.getRandomValues(otpSeedBuffer)
 }
+
+const InputLightMargin = styled(Input)`
+  margin: 16px auto;
+`
 
 const Signup = () => {
   const history = useHistory()
@@ -27,6 +32,7 @@ const Signup = () => {
   const [phone, setPhone] = useState('')
   const [pk] = useState(randomSeed())
   const [p] = useState(randomSeed())
+  // const [hash, setHash] = useState('123')
   const [hash, setHash] = useState('')
   const [code, setCode] = useState('')
   const [countdown, setCountdown] = useState(0)
@@ -37,12 +43,8 @@ const Signup = () => {
   const next = useSelector(state => state.global.next || {})
   const prefilledPhone = useSelector(state => state.global.prefilledPhone)
   const wallet = useSelector(state => state.wallet || {})
-
-  const existingAddress = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
-  if (existingAddress) {
-    console.log('redirecting because wallet exists:', existingAddress)
-    return <Redirect to={paths.wallet} />
-  }
+  const [triedSave, setTriedSave] = useState(false)
+  const [useQR, setUseQR] = useState(false)
 
   useEffect(() => {
     if (prefilledPhone) {
@@ -128,43 +130,89 @@ const Signup = () => {
     }
   }, [code, verifying])
 
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    history.push(history.location.pathname + '#submitted')
+    setTriedSave(true)
+    onSaveQR()
+    // onDone && onDone()
+  }
+
+  const existingAddress = !hash && Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
+  if (existingAddress) {
+    console.log('redirecting because wallet exists:', existingAddress)
+    return <Redirect to={paths.wallet} />
+  }
+
   return (
     <MainContainer>
-      {!hash &&
-        <>
-          <Title> Create a new wallet </Title>
-          <Desc>
-            <BaseText>First, we need to verify your phone number via SMS</BaseText>
-            <PhoneInput
-              margin='16px'
-              inputComponent={Input}
-              defaultCountry='US'
-              placeholder='Enter phone number'
-              value={phone} onChange={setPhone}
-            />
-            <Button onClick={signup} disabled={verifying}>Verify</Button>
-            <LinkText onClick={() => history.push(paths.recover)}>
-              Recover an existing SMS Wallet
-            </LinkText>
-          </Desc>
-        </>}
-      {hash && !qrCodeData &&
-        <>
-          <Title> Create a new wallet </Title>
-          <Desc>
-            <BaseText>Verify your 6-digit code</BaseText>
-            <OtpBox value={code} onChange={setCode} />
-            <Button onClick={signup} disabled={verifying || !(countdown <= 0)}>Resend SMS</Button>
-            {countdown > 0 && <BaseText $color='#cccccc'>(wait {countdown}s)</BaseText>}
-            <LinkText onClick={restart}>
-              Use a different phone number
-            </LinkText>
-          </Desc>
-        </>}
-      {hash && qrCodeData &&
-        <>
-          <SaveQR onSaveQR={onSaveQR} onDone={done} qrCodeData={qrCodeData} address={address} />
-        </>}
+
+      {!hash && <Title> Create a new wallet </Title>}
+
+      <form action='#' onSubmit={onSubmit}>
+        <Desc>
+          {!hash && <BaseText>First, we need to verify your phone number via SMS</BaseText>}
+          <PhoneInput
+            disabled={!!hash}
+            inputComponent={InputLightMargin}
+            defaultCountry='US'
+            placeholder='Enter phone number'
+            value={phone} onChange={setPhone}
+          />
+          <Input
+            disabled
+            $width='0px'
+            $marginTop='0px'
+            $marginBottom='0px'
+            style={{ border: 'none', position: 'absolute' }}
+            name='password'
+            type='password'
+            autoComplete='new-password' value={utils.hexView(p)}
+            readOnly
+          />
+          {!hash &&
+            <>
+              <Button onClick={signup} disabled={verifying}>Verify</Button>
+              <LinkText onClick={() => history.push(paths.recover)}>
+                Recover an existing SMS Wallet
+              </LinkText>
+            </>}
+          {hash && !qrCodeData &&
+            <>
+              <BaseText>Verify your 6-digit code</BaseText>
+              <OtpBox value={code} onChange={setCode} />
+              <Button onClick={signup} disabled={verifying || !(countdown <= 0)}>Resend SMS</Button>
+              {countdown > 0 && <BaseText $color='#cccccc'>(wait {countdown}s)</BaseText>}
+              <LinkText onClick={restart}>
+                Use a different phone number
+              </LinkText>
+            </>}
+
+          {hash && qrCodeData &&
+            <>
+              {!triedSave &&
+                <>
+                  <BaseText>Please save the recovery code to Keychain or password managers</BaseText>
+                  <Button type='submit'>AUTO SAVE</Button>
+                </>}
+              {triedSave &&
+                <>
+                  <Button onClick={done} style={{ marginBottom: 64 }}>DONE {'>>'}</Button>
+                  <BaseText>Password not saved?</BaseText>
+                </>}
+              <LinkText
+                style={{ marginTop: 16 }} onClick={() => {
+                  setUseQR(true)
+                  setTimeout(() => { window.scrollTo({ top: 384, behavior: 'smooth' }) }, 100)
+                }}
+              >
+                Save As QR Code Instead
+              </LinkText>
+              {useQR && <SaveQR onSaveQR={onSaveQR} phone={phone} onDone={done} qrCodeData={qrCodeData} address={address} />}
+            </>}
+
+        </Desc>
+      </form>
     </MainContainer>
   )
 }
