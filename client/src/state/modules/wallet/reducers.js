@@ -22,6 +22,8 @@ const reducer = handleActions({
     ...omit([action.payload], state),
   }),
 
+  [walletActions.deleteAllWallet]: () => ({}),
+
   [walletActions.trackTokens]: (state, action) => ({
     ...state,
     [action.payload.address]: {

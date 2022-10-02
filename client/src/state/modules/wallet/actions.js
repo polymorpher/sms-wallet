@@ -5,6 +5,7 @@ const fetchWalletSuccess = createAction('FETCH_WALLET_SUCCESS')
 
 const updateWallet = createAction('UPDATE_WALLET')
 const deleteWallet = createAction('DELETE_WALLET')
+const deleteAllWallet = createAction('DELETE_ALL_WALLET')
 
 const trackTokens = createAction('TRACK_TOKENS')
 const overrideTokens = createAction('OVERRIDE_TOKENS')
@@ -17,6 +18,7 @@ export default {
   fetchWalletSuccess,
   updateWallet,
   deleteWallet,
+  deleteAllWallet,
 
   overrideTokens,
   trackTokens,
