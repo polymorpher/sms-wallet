@@ -1,21 +1,22 @@
-const express = require('express')
-const config = require('../config')
-const router = express.Router()
-const { StatusCodes } = require('http-status-codes')
-const { Logger } = require('../logger')
-const NodeCache = require('node-cache')
-const Cache = new NodeCache()
-const { phone } = require('phone')
-const Twilio = require('twilio')(config.twilio.sid, config.twilio.token)
-const utils = require('../utils')
-const { User } = require('../src/data/user')
-const { isEqual, pick } = require('lodash')
-const w3utils = require('../w3utils')
-const stringify = require('json-stable-stringify')
-const { Setting } = require('../src/data/setting')
-const { Request } = require('../src/data/request')
-const { partialReqCheck, reqCheck, checkExistence, hasUserSignedBody } = require('./middleware')
+import express from 'express'
+import config from '../config.ts'
+import { StatusCodes } from 'http-status-codes'
+import { Logger } from '../logger.ts'
+import NodeCache from 'node-cache'
+import { phone } from 'phone'
+import twilio from 'twilio'
+import utils from '../utils.ts'
+import { User } from '../src/data/user.ts'
+import { isEqual, pick } from 'lodash'
+import stringify from 'json-stable-stringify'
+import { Request } from '../src/data/request.ts'
+import { Setting } from '../src/data/setting.ts'
 
+import { partialReqCheck, reqCheck, checkExistence, hasUserSignedBody } from './middleware.ts'
+
+const Twilio = twilio(config.twilio.sid, config.twilio.token)
+const Cache = new NodeCache()
+const router = express.Router()
 router.get('/health', async (req, res) => {
   Logger.log('[/health]', req.fingerprint)
   res.send('OK').end()
@@ -36,14 +37,14 @@ router.post('/signup', reqCheck, checkExistence, async (req, res) => {
   try {
     const message = await Twilio.messages.create({
       body: `SMS Wallet verification code: ${code}`,
-      to: phoneNumber,
+      to: phoneNumber ?? '',
       from: config.twilio.from
     })
     console.log('[Text]', code, message)
     res.json({ hash })
   } catch (ex) {
     console.error(ex)
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'cannot process request' })
   }
 })
 
@@ -71,7 +72,7 @@ router.post('/verify', reqCheck, checkExistence, async (req, res) => {
     console.log({ code, codeNow, codePrev })
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'verification code incorrect' })
   }
-  const recoveredAddress = w3utils.ecrecover(hash, signature)
+  const recoveredAddress = utils.ecrecover(hash, signature)
   if (!recoveredAddress) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'signature cannot be recovered to address' })
   }
@@ -100,14 +101,14 @@ router.post('/restore', partialReqCheck, async (req, res) => {
   try {
     const message = await Twilio.messages.create({
       body: `SMS Wallet verification code: ${code}`,
-      to: phoneNumber,
+      to: phoneNumber ?? '',
       from: config.twilio.from
     })
     console.log('[Text][Restore]', code, message)
     res.json({ success: true })
   } catch (ex) {
     console.error(ex)
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'cannot process request' })
   }
 })
 
@@ -140,7 +141,7 @@ router.post('/lookup', async (req, res) => {
   if (!address || !signature || !destPhone) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'require address, signature, destPhone' })
   }
-  if (!w3utils.isValidAddress(address)) {
+  if (!utils.isValidAddress(address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
   }
   const { isValid, phoneNumber } = phone(destPhone)
@@ -149,7 +150,7 @@ router.post('/lookup', async (req, res) => {
   }
   const message = `${phoneNumber} ${Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration}`
   // console.log(message, signature)
-  const expectedAddress = w3utils.ecrecover(message, signature)
+  const expectedAddress = utils.ecrecover(message, signature)
   if (expectedAddress !== address) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
@@ -181,21 +182,24 @@ router.post('/settings', hasUserSignedBody, async (req, res) => {
 
 router.post('/request', async (req, res) => {
   const { request, address: inputAddress, phone: unvalidatedPhone } = req.body
-  const { isValid, phoneNumber } = unvalidatedPhone ? phone(unvalidatedPhone) : {}
+  if (!unvalidatedPhone) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need phone' })
+  }
+  const { isValid, phoneNumber } = phone(unvalidatedPhone)
   if (!inputAddress && !isValid) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need either address or phone' })
   }
   if (inputAddress && isValid) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'cannot provide both address and phone' })
   }
-  let user = null
+  let user: any = null
   if (isValid) {
     user = await User.findByPhone({ phone: phoneNumber })
     if (!user) {
       return res.status(StatusCodes.NOT_FOUND).json({ error: 'user does not exist' })
     }
   } else {
-    if (!w3utils.isValidAddress(inputAddress)) {
+    if (!utils.isValidAddress(inputAddress)) {
       return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad address' })
     }
     user = await User.findByAddress({ address: inputAddress })
@@ -216,14 +220,14 @@ router.post('/request', async (req, res) => {
   try {
     const message = await Twilio.messages.create({
       body: `SMS Wallet: ${caller} requests you to approve a transaction${reason}. Review and approve at: ${config.clientRoot}/request/${id}`,
-      to: user.phone,
+      to: user.phone ?? '',
       from: config.twilio.from
     })
     console.log('[Request][Text]', message)
     return res.json({ id, hash })
   } catch (ex) {
     console.error(ex)
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'cannot process request' })
   }
 })
 
@@ -232,11 +236,11 @@ router.post('/request-view', async (req, res) => {
   if (!id || !signature || !address) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need id, signature, address' })
   }
-  if (!w3utils.isValidAddress(address)) {
+  if (!utils.isValidAddress(address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
   }
-  const recoveredAddress = w3utils.ecrecover(id, signature)
-  if (!w3utils.isSameAddress(recoveredAddress, address)) {
+  const recoveredAddress = utils.ecrecover(id, signature)
+  if (!utils.isSameAddress(recoveredAddress, address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
   const r = await Request.get(id)
@@ -246,7 +250,7 @@ router.post('/request-view', async (req, res) => {
   if (r.txHash) {
     return res.status(StatusCodes.NOT_FOUND).json({ error: 'transaction already completed' })
   }
-  if (!w3utils.isSameAddress(r.address, address)) {
+  if (!utils.isSameAddress(r.address, address)) {
     console.log(r.address, address)
     return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'transaction belongs to different address' })
   }
@@ -257,7 +261,7 @@ router.post('/request-view', async (req, res) => {
     return res.json({ request, hash, phone: u.phone })
   } catch (ex) {
     console.error(ex)
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'cannot process request' })
   }
 })
 
@@ -266,12 +270,12 @@ router.post('/request-complete', async (req, res) => {
   if (!id || !signature || !address) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need id, signature, address' })
   }
-  if (!w3utils.isValidAddress(address)) {
+  if (!utils.isValidAddress(address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
   }
   const message = `${id} ${txHash}`
-  const recoveredAddress = w3utils.ecrecover(message, signature)
-  if (!w3utils.isSameAddress(recoveredAddress, address)) {
+  const recoveredAddress = utils.ecrecover(message, signature)
+  if (!utils.isSameAddress(recoveredAddress, address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
   const r = await Request.get(id)
@@ -281,7 +285,7 @@ router.post('/request-complete', async (req, res) => {
   if (r.txHash) {
     return res.status(StatusCodes.NOT_FOUND).json({ error: 'transaction already completed' })
   }
-  if (!w3utils.isSameAddress(r.address, address)) {
+  if (!utils.isSameAddress(r.address, address)) {
     return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'transaction belongs to different address' })
   }
   try {
@@ -289,7 +293,7 @@ router.post('/request-complete', async (req, res) => {
     return res.json({ success: true })
   } catch (ex) {
     console.error(ex)
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ex.toString() })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'cannot process request' })
   }
 })
 

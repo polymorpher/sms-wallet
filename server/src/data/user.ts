@@ -1,8 +1,8 @@
-const { v1: uuid } = require('uuid')
-const config = require('../../config')
-const { GenericBuilder } = require('./generic')
+import { v1 as uuid } from 'uuid'
+import { GenericBuilder } from './generic'
+
 const UserPrototype = GenericBuilder('user')
-const User = ({
+export const User = ({
   ...UserPrototype,
   addNew: async ({ id, phone, ekey, eseed, address }) => {
     id = id || uuid()
@@ -27,7 +27,5 @@ const User = ({
   findByAddress: async ({ address }) => {
     const [u] = await UserPrototype.find(['address', address.toLowerCase()])
     return u
-  },
+  }
 })
-
-module.exports = { User }
