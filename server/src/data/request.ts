@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid'
-import { GenericBuilder } from './generic'
+import { GenericBuilder } from './generic.ts'
 
-import utils from '../../utils'
+import utils from '../../utils.ts'
 import stringify from 'json-stable-stringify'
 
 const RequestPrototype = GenericBuilder('request')

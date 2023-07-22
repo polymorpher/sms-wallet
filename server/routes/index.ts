@@ -7,9 +7,9 @@ import { phone } from 'phone'
 import twilio from 'twilio'
 import utils from '../utils.ts'
 import { User } from '../src/data/user.ts'
-import { isEqual, pick } from 'lodash'
+import { isEqual, pick } from 'lodash-es'
 import stringify from 'json-stable-stringify'
-import { Request } from '../src/data/request.ts'
+import { Request as CallRequest } from '../src/data/request.ts'
 import { Setting } from '../src/data/setting.ts'
 
 import { partialReqCheck, reqCheck, checkExistence, hasUserSignedBody } from './middleware.ts'
@@ -214,7 +214,7 @@ router.post('/request', async (req, res) => {
   if (Object.values(fRequest).filter(e => typeof e !== 'string').length > 0) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad request format' })
   }
-  const { id, hash } = await Request.add({ request: fRequest, address: user.address })
+  const { id, hash } = await CallRequest.add({ request: fRequest, address: user.address })
   const caller = fRequest.caller || 'An app'
   const reason = fRequest.comment ? ` (${fRequest.comment})` : ''
   try {
@@ -243,7 +243,7 @@ router.post('/request-view', async (req, res) => {
   if (!utils.isSameAddress(recoveredAddress, address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
-  const r = await Request.get(id)
+  const r = await CallRequest.get(id)
   if (!r) {
     return res.status(StatusCodes.NOT_FOUND).json({ error: 'transaction request not found' })
   }
@@ -278,7 +278,7 @@ router.post('/request-complete', async (req, res) => {
   if (!utils.isSameAddress(recoveredAddress, address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
-  const r = await Request.get(id)
+  const r = await CallRequest.get(id)
   if (!r) {
     return res.status(StatusCodes.NOT_FOUND).json({ error: 'transaction request not found' })
   }
@@ -289,7 +289,7 @@ router.post('/request-complete', async (req, res) => {
     return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'transaction belongs to different address' })
   }
   try {
-    await Request.complete({ id, txHash })
+    await CallRequest.complete({ id, txHash })
     return res.json({ success: true })
   } catch (ex) {
     console.error(ex)
@@ -297,4 +297,4 @@ router.post('/request-complete', async (req, res) => {
   }
 })
 
-module.exports = router
+export default router

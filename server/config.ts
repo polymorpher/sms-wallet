@@ -1,5 +1,7 @@
 import * as dotenv from 'dotenv'
+import { createRequire } from 'node:module'
 dotenv.config()
+const require = createRequire(import.meta.url)
 
 const DEBUG = process.env.RELAYER_DEBUG === 'true' || process.env.RELAYER_DEBUG === '1'
 const config = {

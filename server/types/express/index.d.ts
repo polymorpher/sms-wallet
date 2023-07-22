@@ -1,3 +1,4 @@
+
 interface ProcessedBody {
   phoneNumber?: string
   address?: string
@@ -7,7 +8,7 @@ interface ProcessedBody {
 
 declare global {
   namespace Express {
-    export interface Request {
+    interface Request {
       user: Record<string, any>
       processedBody: ProcessedBody
     }

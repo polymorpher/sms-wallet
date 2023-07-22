@@ -1,14 +1,15 @@
-const express = require('express')
-const w3utils = require('../w3utils')
-const { StatusCodes } = require('http-status-codes')
-const { NFT } = require('../src/data/nft.js')
+import express from 'express'
+import utils from '../utils.ts'
+import { StatusCodes } from 'http-status-codes'
+import { NFT } from '../src/data/nft.ts'
+import sharedUtils from '../../shared/utils.js'
+import { hasUserSignedBody } from './middleware.ts'
+
 const router = express.Router()
-const sharedUtils = require('../../shared/utils')
-const { hasUserSignedBody } = require('./middleware')
 router.post('/track', hasUserSignedBody, async (req, res) => {
   const { body: nfts } = req.body
   const u = req.user
-  if (!nfts?.length > 0) {
+  if (!(nfts?.length > 0)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need to track more than one' })
   }
   for (const nft of nfts) {
@@ -17,7 +18,7 @@ router.post('/track', hasUserSignedBody, async (req, res) => {
       tokenId,
       tokenType
     } = nft
-    if (!w3utils.isValidAddress(contractAddress) || !sharedUtils.isValidTokenType(tokenType) || !sharedUtils.isValidTokenId(tokenId)) {
+    if (!utils.isValidAddress(contractAddress) || !sharedUtils.isValidTokenType(tokenType) || !sharedUtils.isValidTokenId(tokenId)) {
       return res.status(StatusCodes.BAD_REQUEST).json({ error: `bad nft entry: ${JSON.stringify(nft)}` })
     }
   }
@@ -33,8 +34,8 @@ router.post('/track', hasUserSignedBody, async (req, res) => {
 // TODO: rate limit
 router.post('/lookup', async (req, res) => {
   const { address, contractAddress } = req.body
-  if (contractAddress && !w3utils.isValidAddress(contractAddress)) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad contractAddress ' + contractAddress })
+  if (contractAddress && !utils.isValidAddress(contractAddress)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: `bad contractAddress ${contractAddress}` })
   }
   try {
     const nfts = await NFT.getAllTracked({ address, contractAddress })
@@ -48,7 +49,7 @@ router.post('/lookup', async (req, res) => {
 router.post('/untrack', hasUserSignedBody, async (req, res) => {
   const { body: { contractAddress, tokenId } } = req.body
   const { address } = req.user
-  if (!w3utils.isValidAddress(contractAddress) || !sharedUtils.isValidTokenId(tokenId)) {
+  if (!utils.isValidAddress(contractAddress) || !sharedUtils.isValidTokenId(tokenId)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad parameters', contractAddress, tokenId })
   }
   try {
@@ -63,4 +64,4 @@ router.post('/untrack', hasUserSignedBody, async (req, res) => {
   }
 })
 
-module.exports = router
+export default router

@@ -1,5 +1,5 @@
 import { type ChildProcessWithoutNullStreams, spawn } from 'child_process'
-import config from '../../config'
+import config from '../../config.ts'
 import { Datastore } from '@google-cloud/datastore'
 
 const dsArgs = `beta emulators datastore start --host-port=127.0.0.1:${config.datastore.mockPort}`.split(' ')

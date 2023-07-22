@@ -1,5 +1,5 @@
 import { v1 as uuid } from 'uuid'
-import { GenericBuilder } from './generic'
+import { GenericBuilder } from './generic.ts'
 
 const UserPrototype = GenericBuilder('user')
 export const User = ({
