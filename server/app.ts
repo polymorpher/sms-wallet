@@ -11,7 +11,8 @@ import https from 'https'
 import http from 'http'
 import fs from 'fs'
 import compression from 'compression'
-import _nft from "./routes/nft.ts";
+import _nft from './routes/nft.ts'
+import requestIp from 'request-ip'
 
 dotenv.config()
 
@@ -61,6 +62,7 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+app.use(requestIp.mw())
 
 if (config.corsOrigins !== '') {
   app.use((req, res, next) => {

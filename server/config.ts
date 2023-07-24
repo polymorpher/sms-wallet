@@ -34,7 +34,12 @@ const config = {
     interval: Number(process.env.OTP_INTERVAL ?? 60000)
   },
   defaultSignatureValidDuration: 1000 * 60 * 15,
-  clientRoot: process.env.CLIENT_ROOT ?? 'https://smswallet.xyz'
+  clientRoot: process.env.CLIENT_ROOT ?? 'https://smswallet.xyz',
+
+  tg: {
+    whitelistIps: JSON.parse(process.env.TG_WHITELIST_IPS ?? '[]') as string[],
+    secret: process.env.TG_SECRET ?? ''
+  }
 }
 
 export default config

@@ -11,6 +11,7 @@ declare global {
     interface Request {
       user: Record<string, any>
       processedBody: ProcessedBody
+      clientIp?: string
     }
   }
 }
