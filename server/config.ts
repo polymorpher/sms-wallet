@@ -38,7 +38,9 @@ const config = {
 
   tg: {
     whitelistIps: JSON.parse(process.env.TG_WHITELIST_IPS ?? '[]') as string[],
-    secret: process.env.TG_SECRET ?? ''
+    secret: process.env.TG_SECRET ?? '',
+    botApiBase: process.env.TG_BOT_API_BASE ?? '',
+    botApiSecret: process.env.TG_BOT_API_SECRET ?? '',
   }
 }
 

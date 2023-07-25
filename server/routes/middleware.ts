@@ -4,10 +4,28 @@ import { User } from '../src/data/user.ts'
 import stringify from 'json-stable-stringify'
 import utils from '../utils.ts'
 import { type NextFunction, type Request, type Response } from 'express'
+// noinspection ES6PreferShortImport
+import { type ProcessedBody, UserType } from '../types/index.ts'
+
+export interface ParsedUserHandle {
+  isValid: boolean
+  userHandle: string
+  userType: UserType
+}
+export function parseUserHandle (id: string): ParsedUserHandle {
+  if (User.isTgUser(id)) {
+    return { userType: UserType.TG, userHandle: User.getTgUserId(id), isValid: true }
+  }
+  const { isValid, phoneNumber } = phone(id)
+  if (isValid) {
+    return { isValid, userHandle: phoneNumber, userType: UserType.Phone }
+  }
+  return { isValid: false, userHandle: '', userType: UserType.Unknown }
+}
 
 export const partialReqCheck = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const { phone: unvalidatedPhone, eseed } = req.body
-  const { isValid, phoneNumber } = phone(unvalidatedPhone)
+  const { phone: userId, eseed } = req.body
+  const { isValid, userHandle } = parseUserHandle(userId)
   if (!isValid) {
     res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
     return
@@ -16,7 +34,7 @@ export const partialReqCheck = async (req: Request, res: Response, next: NextFun
     res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid eseed' })
     return
   }
-  req.processedBody = { ...req.processedBody, phoneNumber, eseed: eseed.toLowerCase() }
+  req.processedBody = { ...req.processedBody, userHandle, eseed: eseed.toLowerCase() }
   next()
 }
 
@@ -37,8 +55,8 @@ export const checkExistence = async (req: Request, res: Response, next: NextFunc
     res.status(StatusCodes.BAD_REQUEST).json({ error: 'missing account info' })
     return
   }
-  const { phoneNumber, address } = req.processedBody
-  let u = await User.findByPhone({ phone: phoneNumber })
+  const { userHandle, address } = req.processedBody as ProcessedBody
+  let u = await User.findByUserHandle(userHandle)
   if (u) {
     res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number already exists' })
     return

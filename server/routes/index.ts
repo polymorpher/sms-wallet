@@ -3,7 +3,6 @@ import config from '../config.ts'
 import { StatusCodes } from 'http-status-codes'
 import { Logger } from '../logger.ts'
 import NodeCache from 'node-cache'
-import { phone } from 'phone'
 import twilio from 'twilio'
 import utils from '../utils.ts'
 import { User } from '../src/data/user.ts'
@@ -11,24 +10,30 @@ import { isEqual, pick } from 'lodash-es'
 import stringify from 'json-stable-stringify'
 import { Request as CallRequest } from '../src/data/request.ts'
 import { Setting } from '../src/data/setting.ts'
-
-import { partialReqCheck, reqCheck, checkExistence, hasUserSignedBody } from './middleware.ts'
+import axios from 'axios'
+import { checkExistence, hasUserSignedBody, parseUserHandle, partialReqCheck, reqCheck } from './middleware.ts'
+// noinspection ES6PreferShortImport
+import { type ProcessedBody, UserType } from '../types/index.ts'
 
 const Twilio = twilio(config.twilio.sid, config.twilio.token)
 const Cache = new NodeCache()
 const router = express.Router()
+const BotApiBase = axios.create({ baseURL: config.tg.botApiBase, timeout: 15000, headers: { 'X-TG-BOT-API-SECRET': config.tg.botApiSecret } })
+
 router.get('/health', async (req, res) => {
   Logger.log('[/health]', req.fingerprint)
   res.send('OK').end()
 })
 
 router.post('/signup', reqCheck, checkExistence, async (req, res) => {
-  const { phoneNumber, eseed, ekey, address } = req.processedBody
-
+  const { userHandle, eseed, ekey, address, userType } = req.processedBody as ProcessedBody
+  if (userType !== UserType.Phone) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid user handler type' })
+  }
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
-  const hash = utils.hexView(utils.keccak(`${phoneNumber}${eseed}${ekey}${address}`))
-  console.log('[Received]', { hash, phoneNumber, eseed, ekey })
-  const success = Cache.set(hash, { phoneNumber, seed: utils.hexView(seed), ekey, hash }, 120)
+  const hash = utils.hexView(utils.keccak(`${userHandle}${eseed}${ekey}${address}`))
+  console.log('[Received]', { hash, userHandle, eseed, ekey })
+  const success = Cache.set(hash, { userHandle, seed: utils.hexView(seed), ekey, hash }, 120)
   if (!success) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'please try again' })
   }
@@ -37,7 +42,7 @@ router.post('/signup', reqCheck, checkExistence, async (req, res) => {
   try {
     const message = await Twilio.messages.create({
       body: `SMS Wallet verification code: ${code}`,
-      to: phoneNumber ?? '',
+      to: userHandle ?? '',
       from: config.twilio.from
     })
     console.log('[Text]', code, message)
@@ -49,16 +54,19 @@ router.post('/signup', reqCheck, checkExistence, async (req, res) => {
 })
 
 router.post('/verify', reqCheck, checkExistence, async (req, res) => {
-  const { phoneNumber, eseed, ekey, address } = req.processedBody
+  const { userType, userHandle, eseed, ekey, address } = req.processedBody as ProcessedBody
+  if (userType !== UserType.Phone) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid user handler type' })
+  }
   const { code, signature } = req.body
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
-  const hash = utils.hexView(utils.keccak(`${phoneNumber}${eseed}${ekey}${address}`))
+  const hash = utils.hexView(utils.keccak(`${userHandle}${eseed}${ekey}${address}`))
   const cached = Cache.get(hash)
   if (!cached) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'cannot find record' })
   }
-  if (!isEqual({ phoneNumber, seed: utils.hexView(seed), ekey, hash }, cached)) {
-    console.log(cached, { phoneNumber, seed: utils.hexView(seed), ekey, hash })
+  if (!isEqual({ userHandle, seed: utils.hexView(seed), ekey, hash }, cached)) {
+    console.log('[/verify] mismatch with cache', cached, { userHandle, seed: utils.hexView(seed), ekey, hash })
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'record is inconsistent with cached' })
   }
 
@@ -79,7 +87,7 @@ router.post('/verify', reqCheck, checkExistence, async (req, res) => {
   if (recoveredAddress.toLowerCase() !== address) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'signature does not match address' })
   }
-  const u = await User.addNew({ phone: phoneNumber, ekey, eseed, address })
+  const u = await User.addNew({ phone: userHandle, ekey, eseed, address })
   if (!u) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'failed to signup, please try again in 120 seconds' })
   }
@@ -88,24 +96,33 @@ router.post('/verify', reqCheck, checkExistence, async (req, res) => {
 })
 
 router.post('/restore', partialReqCheck, async (req, res) => {
-  const { phoneNumber, eseed } = req.processedBody
-  const u = await User.findByPhone({ phone: phoneNumber })
+  const { userHandle, eseed } = req.processedBody
+  const u = await User.findByUserHandle(userHandle)
   if (!u) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number is not registered' })
   }
-  if (!isEqual(pick(u, ['phone', 'eseed']), { phone: phoneNumber, eseed })) {
+  if (!isEqual(pick(u, ['phone', 'eseed']), { phone: userHandle, eseed })) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'credential with phone number does not exist' })
   }
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
   const code = utils.genOTPStr({ seed, interval: config.otp.interval })[0]
+  const body = `SMS Wallet verification code: ${code}`
+
   try {
-    const message = await Twilio.messages.create({
-      body: `SMS Wallet verification code: ${code}`,
-      to: phoneNumber ?? '',
-      from: config.twilio.from
-    })
-    console.log('[Text][Restore]', code, message)
-    res.json({ success: true })
+    if (User.isTgUser(userHandle)) {
+      const id = User.getTgUserId(userHandle)
+      await BotApiBase.post('/msg', { body, id })
+      console.log('[Text][Restore][TG]', code, id)
+      res.json({ success: true })
+    } else {
+      const message = await Twilio.messages.create({
+        body,
+        to: userHandle ?? '',
+        from: config.twilio.from
+      })
+      console.log('[Text][Restore][SMS]', code, message)
+      res.json({ success: true })
+    }
   } catch (ex) {
     console.error(ex)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'cannot process request' })
@@ -113,13 +130,13 @@ router.post('/restore', partialReqCheck, async (req, res) => {
 })
 
 router.post('/restore-verify', partialReqCheck, async (req, res) => {
-  const { phoneNumber, eseed } = req.processedBody
+  const { userHandle, eseed } = req.processedBody
   const { code } = req.body
-  const u = await User.findByPhone({ phone: phoneNumber })
+  const u = await User.findByUserHandle(userHandle)
   if (!u) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number is not registered' })
   }
-  if (!isEqual(pick(u, ['phone', 'eseed']), { phone: phoneNumber, eseed })) {
+  if (!isEqual(pick(u, ['phone', 'eseed']), { phone: userHandle, eseed })) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'credential with phone number does not exist' })
   }
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
@@ -144,17 +161,17 @@ router.post('/lookup', async (req, res) => {
   if (!utils.isValidAddress(address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
   }
-  const { isValid, phoneNumber } = phone(destPhone)
+  const { isValid, userHandle } = parseUserHandle(destPhone)
   if (!isValid) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
   }
-  const message = `${phoneNumber} ${Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration}`
+  const message = `${userHandle} ${Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration}`
   // console.log(message, signature)
   const expectedAddress = utils.ecrecover(message, signature)
   if (expectedAddress !== address) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
-  const u = await User.findByPhone({ phone: phoneNumber })
+  const u = await User.findByUserHandle(userHandle)
   if (!u) {
     return res.json({ address: '' })
   }
@@ -181,11 +198,11 @@ router.post('/settings', hasUserSignedBody, async (req, res) => {
 })
 
 router.post('/request', async (req, res) => {
-  const { request, address: inputAddress, phone: unvalidatedPhone } = req.body
-  if (!unvalidatedPhone) {
+  const { request, address: inputAddress, phone: unvalidatedUserHandle } = req.body
+  if (!unvalidatedUserHandle) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need phone' })
   }
-  const { isValid, phoneNumber } = phone(unvalidatedPhone)
+  const { isValid, userHandle } = parseUserHandle(unvalidatedUserHandle)
   if (!inputAddress && !isValid) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need either address or phone' })
   }
@@ -194,7 +211,7 @@ router.post('/request', async (req, res) => {
   }
   let user: any = null
   if (isValid) {
-    user = await User.findByPhone({ phone: phoneNumber })
+    user = await User.findByUserHandle(userHandle)
     if (!user) {
       return res.status(StatusCodes.NOT_FOUND).json({ error: 'user does not exist' })
     }
