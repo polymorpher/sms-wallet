@@ -19,7 +19,8 @@ const config = {
   corsOrigins: process.env.CORS ?? '',
   controller: {
     whitelistIps: JSON.parse(process.env.CONTROLLER_WHITELIST_IPS ?? '[]') as string[],
-    secret: process.env.CONTROLLER_SECRET ?? ''
+    secret: process.env.CONTROLLER_SECRET ?? '',
+    apiBase: process.env.CONTROLLER_API_BASE ?? 'https://localhost:8443'
   }
 }
 export default config
