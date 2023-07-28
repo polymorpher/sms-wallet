@@ -23,19 +23,27 @@ export function parseUserHandle (id: string): ParsedUserHandle {
   return { isValid: false, userHandle: '', userType: UserType.Unknown }
 }
 
-export const partialReqCheck = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const { phone: userId, eseed } = req.body
+export const requirePhone = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const { phone: userId } = req.body
   const { isValid, userHandle } = parseUserHandle(userId)
   if (!isValid) {
     res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
     return
   }
-  if (!(eseed?.length >= 32)) {
-    res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid eseed' })
-    return
-  }
-  req.processedBody = { ...req.processedBody, userHandle, eseed: eseed.toLowerCase() }
+  req.processedBody = { ...req.processedBody, userHandle }
   next()
+}
+
+export const partialReqCheck = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  await requirePhone(req, res, () => {
+    const { eseed } = req.body
+    if (!(eseed?.length >= 32)) {
+      res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid eseed' })
+      return
+    }
+    req.processedBody = { ...req.processedBody, eseed: eseed.toLowerCase() }
+    next()
+  })
 }
 
 export const reqCheck = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -50,20 +58,16 @@ export const reqCheck = async (req: Request, res: Response, next: NextFunction):
   })
 }
 
-export const checkExistence = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  if (!req.processedBody) {
-    res.status(StatusCodes.BAD_REQUEST).json({ error: 'missing account info' })
-    return
-  }
+export const mustNotExist = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { userHandle, address } = req.processedBody as ProcessedBody
-  let u = await User.findByUserHandle(userHandle)
-  if (u) {
-    res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number already exists' })
-    return
-  }
-  u = await User.findByAddress({ address })
+  let u = await User.findByAddress({ address })
   if (u) {
     res.status(StatusCodes.BAD_REQUEST).json({ error: 'address already exists' })
+    return
+  }
+  u = await User.findByUserHandle(userHandle)
+  if (u) {
+    res.status(StatusCodes.BAD_REQUEST).json({ error: 'phone number already exists' })
     return
   }
   next()
