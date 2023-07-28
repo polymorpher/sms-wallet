@@ -68,7 +68,7 @@ const Signup = () => {
       setCountdown(120)
       const h = setInterval(() => {
         const cd = Math.max(0, Math.floor((submissionTime + 120000 - Date.now()) / 1000))
-        setCountdown(cd)
+        setCountdown(e => Math.min(e, cd))
         if (cd <= 0) {
           clearInterval(h)
         }
@@ -175,6 +175,9 @@ const Signup = () => {
               <Button onClick={signup} disabled={verifying}>Verify</Button>
               <LinkText onClick={() => history.push(paths.recover)}>
                 Recover an existing SMS Wallet
+              </LinkText>
+              <LinkText onClick={() => history.push(paths.archive)}>
+                Reset a phone number and archive SMS Wallet
               </LinkText>
             </>}
           {hash && !qrCodeData &&

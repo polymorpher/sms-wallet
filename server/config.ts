@@ -12,6 +12,7 @@ const config = {
     key: DEBUG ? './certs/test.key' : './certs/privkey.pem',
     cert: DEBUG ? './certs/test.cert' : './certs/fullchain.pem'
   },
+  archiveWaitDuration: Number(process.env.ARCHIVE_WAIT_DURATION ?? 60 * 1000 * 60 * 24),
   corsOrigins: process.env.CORS ?? '',
   secret: process.env.SECRET ?? '',
   cache: process.env.CACHE ?? 'cache',

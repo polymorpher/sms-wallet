@@ -1,5 +1,6 @@
 import { v1 as uuid } from 'uuid'
 import { GenericBuilder } from './generic.ts'
+import config from 'config.ts.ts'
 
 const UserPrototype = GenericBuilder('user')
 
@@ -47,5 +48,18 @@ export const User = ({
   },
   makeTgUserHandle: (id: string): string => {
     return `tg:${id}`
+  },
+  startReset: async (id) => {
+    return UserPrototype.update(id, { resetTime: Date.now() + config.archiveWaitDuration })
+  },
+  cancelReset: async (id) => {
+    return UserPrototype.update(id, { resetTime: 0 })
+  },
+  finalizeReset: async (id): Promise<any> => {
+    const u = await UserPrototype.get(id)
+    if (!u) {
+      return null
+    }
+    return UserPrototype.update(id, { phone: '', oldPhone: `${u.phone}`, resetFinalizeTime: Date.now() })
   }
 })

@@ -5,6 +5,7 @@ export default {
   signup: base + '/signup',
   wallet: base + '/wallet',
   recover: base + '/recover',
+  archive: base + '/archive',
   sign: base + '/sign',
   call: base + '/call',
   request: base + '/request/:id'
