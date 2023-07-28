@@ -39,7 +39,7 @@ const parseSMS = async (req, res, next) => {
     res.status(status).send(response.toString())
   }
   try {
-    const { address: fromAddress } = (await User.findByPhone({ phone: senderPhoneNumber })) || {}
+    const { address: fromAddress } = (await User.findByUserHandle({ phone: senderPhoneNumber })) || {}
     if (!fromAddress) {
       return respond('You are not registered. Signup at https://smswallet.xyz')
     }
@@ -70,7 +70,7 @@ const parseSMS = async (req, res, next) => {
         if (!isValid) {
           return respond(`error: invalid recipient phone number ${smsParams[1]}. example request "p +16505473175 0.1"`)
         }
-        const u2 = await User.findByPhone({ phone: phoneNumber })
+        const u2 = await User.findByUserHandle({ phone: phoneNumber })
         if (!u2?.address) {
           return respond(`error: recipients phone number is not a registered wallet: ${smsParams[1]}. example request "p +16505473175 0.1"`)
         }

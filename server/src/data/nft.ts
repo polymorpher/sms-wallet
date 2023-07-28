@@ -1,8 +1,7 @@
-const { v1: uuid } = require('uuid')
-const config = require('../../config')
-const { GenericBuilder } = require('./generic')
+import { GenericBuilder } from './generic.ts'
+
 const NFTPrototype = GenericBuilder('nft')
-const NFT = ({
+export const NFT = ({
   ...NFTPrototype,
   track: async ({ address, contractAddress, tokenId, tokenType }) => {
     address = address.toLowerCase()
@@ -56,7 +55,5 @@ const NFT = ({
     contractAddress = contractAddress.toLowerCase()
     const id = `${address}-${contractAddress}-${tokenId}`
     return NFTPrototype.remove(id)
-  },
+  }
 })
-
-module.exports = { NFT }

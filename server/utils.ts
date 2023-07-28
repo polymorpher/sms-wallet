@@ -1,11 +1,18 @@
-const JSSHA = require('jssha')
-const sharedUtils = require('../shared/utils')
+import { StatusCodes } from 'http-status-codes'
+import { mapValues, values } from 'lodash-es'
+import JSSHA from 'jssha'
+import sharedUtils from '../shared/utils.js'
+import ethers from 'ethers'
 
 const { keccak, hexView, hexString } = sharedUtils
 
-const { StatusCodes } = require('http-status-codes')
-const { values, mapValues } = require('lodash')
-const constants = require('./constants')
+export interface OTPSettings {
+  seed: Uint8Array
+  interval: number
+  counter: number
+  n: number
+  progressObserver?: (arg0: number, arg1: number) => void
+}
 
 const utils = {
   keccak,
@@ -13,7 +20,7 @@ const utils = {
   hexString,
   // from https://github.com/polymorpher/one-wallet
   // seed: uint8array
-  genOTP: ({ seed, interval = 30000, counter = Math.floor(Date.now() / interval), n = 1, progressObserver }) => {
+  genOTP: ({ seed, interval = 30000, counter = Math.floor(Date.now() / interval), n = 1, progressObserver }: OTPSettings) => {
     const codes = new Uint8Array(n * 4)
     const v = new DataView(codes.buffer)
     const b = new DataView(new ArrayBuffer(8))
@@ -51,15 +58,6 @@ const utils = {
     return nums.map(i => i.toString().padStart(6, '0'))
   },
 
-  parseError: (ex) => {
-    let error = ex.toString()
-    if (error && error.indexOf(constants.ReasonGiven) > 0) {
-      error = error.slice(error.indexOf(constants.ReasonGiven) + constants.ReasonGiven.length)
-      return { success: false, code: StatusCodes.OK, error, extra: ex.extra }
-    }
-    return { success: false, code: StatusCodes.INTERNAL_SERVER_ERROR, error, extra: ex.extra }
-  },
-
   checkParams: (params, res) => {
     params = mapValues(params, e => e === undefined ? null : e)
     if (values(params).includes(undefined) || values(params).includes(null)) {
@@ -67,7 +65,38 @@ const utils = {
       return false
     }
     return true
+  },
+
+  ecrecover: (message, signature) => {
+    try {
+      return ethers.utils.recoverAddress(message, signature)
+    } catch (ex) {
+      console.error(ex)
+      return null
+    }
+  },
+  checkSumAddress: (address) => {
+    try {
+      return ethers.utils.getAddress(address)
+    } catch (ex) {
+      console.error(ex)
+      return null
+    }
+  },
+  isValidAddress: (address) => {
+    try {
+      return ethers.utils.isAddress(address)
+    } catch (ex) {
+      console.error(ex)
+      return false
+    }
+  },
+  isSameAddress: (address1, address2) => {
+    if (!address1 || !address2) {
+      return false
+    }
+    return address1.toLowerCase() === address2.toLowerCase()
   }
 }
 
-module.exports = utils
+export default utils

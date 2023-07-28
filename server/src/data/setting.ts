@@ -1,10 +1,12 @@
-const { pick } = require('lodash')
-const { GenericBuilder } = require('./generic')
+import { pick } from 'lodash-es'
+
+import { GenericBuilder } from './generic.ts'
+
 const SettingPrototype = GenericBuilder('setting')
 const SettingKeys = ['hide']
-const Setting = ({
+export const Setting = ({
   ...SettingPrototype,
-  update: async (id, fields, override) => {
+  update: async (id: string, fields: string[], override?: boolean) => {
     fields = pick(fields, SettingKeys)
     const newSetting = await SettingPrototype.update(id, fields, override)
     if (!newSetting) {
@@ -12,13 +14,11 @@ const Setting = ({
     }
     return pick(newSetting, SettingKeys)
   },
-  get: async (id) => {
+  get: async (id: string) => {
     const u = await SettingPrototype.get(id)
     if (!u) {
       return null
     }
     return pick(u, SettingKeys)
-  },
+  }
 })
-
-module.exports = { Setting }
