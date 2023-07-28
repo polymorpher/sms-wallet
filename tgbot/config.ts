@@ -16,6 +16,10 @@ const config = {
     key: DEBUG ? './certs/test.key' : './certs/privkey.pem',
     cert: DEBUG ? './certs/test.cert' : './certs/fullchain.pem'
   },
-  corsOrigins: process.env.CORS ?? ''
+  corsOrigins: process.env.CORS ?? '',
+  controller: {
+    whitelistIps: JSON.parse(process.env.CONTROLLER_WHITELIST_IPS ?? '[]') as string[],
+    secret: process.env.CONTROLLER_SECRET ?? ''
+  }
 }
 export default config

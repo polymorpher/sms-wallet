@@ -7,7 +7,7 @@ import { User } from 'src/data/user.ts.ts'
 const Cache = new NodeCache()
 const router = express.Router()
 
-async function authed (req: Request, res: Response, next: NextFunction): Promise<void> {
+async function isFromBot (req: Request, res: Response, next: NextFunction): Promise<void> {
   if (!config.tg.whitelistIps.includes(req.clientIp ?? '*')) {
     console.error(`[tg][authed] Access denied for ip ${req.clientIp}`)
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'ip disallowed' })
@@ -55,7 +55,7 @@ router.post('/signup', async (req, res) => {
   res.json({ success: true })
 })
 
-router.post('/new-session', authed, async (req, res) => {
+router.post('/new-session', isFromBot, async (req, res) => {
   const session = String(req.body.session ?? '')
   const deadline = Number(req.body.deadline ?? 0)
   const tgId = String(req.body.tgId)

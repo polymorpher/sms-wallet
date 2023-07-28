@@ -12,6 +12,7 @@ import http from 'http'
 import fs from 'fs'
 import compression from 'compression'
 import { listen, init } from './src/client.ts'
+import requestIp from 'request-ip'
 
 dotenv.config()
 
@@ -67,6 +68,7 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+app.use(requestIp.mw())
 
 if (config.corsOrigins !== '') {
   app.use((req, res, next) => {

@@ -40,7 +40,7 @@ export async function listen (): Promise<void> {
   // const openWalletButton = new Api.ReplyInlineMarkup({ rows: [new Api.KeyboardButtonRow({ buttons: [new Api.KeyboardButtonWebView({ text: 'Open Wallet', url: 'https://smswallet.xyz/?tg' })] })] })
   client.addEventHandler(async (update) => {
     // console.log(update)
-    const chatID = Number(update.message.chatId)
+    const chatID = Number(update?.message?.chatId)
 
     if (!(update instanceof Api.UpdateNewMessage)) {
       return
@@ -56,4 +56,11 @@ export async function listen (): Promise<void> {
       })
     }
   })
+}
+
+export async function sendMessage (id: string, body: string): Promise<void> {
+  if (!client) {
+    return
+  }
+  await client.sendMessage(id, { message: body })
 }
