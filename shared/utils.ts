@@ -59,7 +59,7 @@ const utils = {
     return BigInt(v.toString()) / (denominator)
   },
 
-  toOne: (fractions: string, unit?: string, decimals?: number) => {
+  toOne: (fractions: string | number, unit?: string, decimals?: number) => {
     const diff = BigInt(STANDARD_DECIMAL - (decimals ?? STANDARD_DECIMAL))
     const multiplier = 10n ** diff
     const bfractions = BigInt(fractions) * multiplier
@@ -133,12 +133,12 @@ const utils = {
   }
 }
 
-interface TokenKeyInput {
+export interface TokenKeyInput {
   tokenId: string
   tokenType: string | number
   contractAddress: string
 }
-interface TokenKey {
+export interface TokenKey {
   string: string
   hash: Uint8Array
   bytes: Uint8Array
