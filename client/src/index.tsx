@@ -6,12 +6,12 @@ import store, { history } from './state/store'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'connected-react-router'
 import * as serviceWorker from './serviceWorker'
-import Routes from './Routes'
+import Routes from './AppRoutes'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import 'react-phone-number-input/style.css'
 
-document.body.ontouchstart = function () {}
+document.body.ontouchstart = function (): void {}
 
 rootSaga.run()
 
