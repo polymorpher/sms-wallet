@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "jsx": "react-jsx",
+      "incremental": true,
+      "sourceMap": true,
+      "lib": ["dom", "es2021"],
+      "target": "esnext",
+      "module": "esnext",
+      "moduleResolution": "node",
+      "strict": true,
+      "esModuleInterop": true,
+      "outDir": "dist",
+      "declaration": true,
+      "resolveJsonModule": true,
+      "noImplicitAny": false,
+      "allowJs": true
+    },
+    "include": ["./", "./src"]
+}
+  

@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import config from './config'
 import paths from './pages/paths'
 import apis from './api'
-import abi from 'web3-eth-abi'
-import BN from 'bn.js'
+import { ethers } from 'ethers'
 
 export const utils = {
   ...sharedUtils,
@@ -34,7 +33,7 @@ export const utils = {
   getExplorerHistoryUri: (address) => {
     return config.explorerHistory.replace('{{address}}', address)
   },
-  validBalance: (balance, allowFloat) => {
+  validBalance: (balance, allowFloat?: boolean) => {
     if (typeof balance === 'number') { return true }
     if (typeof balance !== 'string') { return false }
     for (let i = 0; i < balance.length; i += 1) {
@@ -53,7 +52,7 @@ export const utils = {
 
   computeBalance: (balance, price, decimals, maxPrecision) => {
     if (!utils.validBalance(balance)) {
-      return { balance: new BN(0), formatted: '0', fiat: 0, fiatFormatted: '0', valid: false }
+      return { balance: BigInt(0), formatted: '0', fiat: 0, fiatFormatted: '0', valid: false }
     }
     const ones = sharedUtils.toOne(balance || 0, null, decimals)
     const formatted = sharedUtils.formatNumber(ones, maxPrecision)
@@ -64,7 +63,7 @@ export const utils = {
 
   toBalance: (formatted, price, decimals, maxPrecision) => {
     if (!utils.validBalance(formatted, true)) {
-      return { balance: new BN(0), formatted: '0', fiat: 0, fiatFormatted: '0', valid: false }
+      return { balance: BigInt(0), formatted: '0', fiat: 0, fiatFormatted: '0', valid: false }
     }
     const balance = sharedUtils.toFraction(formatted, null, decimals)
     let fiat, fiatFormatted
@@ -117,7 +116,7 @@ export const utils = {
     }
     const encodedParameters = abi.encodeParameters(types, values)
     return selector + encodedParameters.slice(2)
-  },
+  }
 }
 
 export function getWindowDimensions () {
@@ -138,7 +137,7 @@ export function useWindowDimensions () {
     }
 
     window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    return () => { window.removeEventListener('resize', handleResize) }
   }, [])
 
   return { isMobile, ...windowDimensions }
@@ -158,17 +157,17 @@ export function processError (ex) {
   return ex.toString()
 }
 
-export const getDataURLFromFile = (img) => new Promise((resolve) => {
+export const getDataURLFromFile = async (img) => await new Promise((resolve) => {
   const reader = new FileReader()
-  reader.addEventListener('load', () => resolve(reader.result))
+  reader.addEventListener('load', () => { resolve(reader.result) })
   reader.readAsDataURL(img)
 })
 
-export const getTextFromFile = file =>
-  new Promise((resolve, reject) => {
+export const getTextFromFile = async file =>
+  await new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.addEventListener('load', () => resolve(reader.result))
-    reader.addEventListener('error', () => reject(reader.error))
+    reader.addEventListener('load', () => { resolve(reader.result) })
+    reader.addEventListener('error', () => { reject(reader.error) })
     reader.readAsText(file)
   })
 
@@ -191,5 +190,5 @@ export const NFTUtils = {
     // console.log({ link, ipfsGateway })
     // console.trace()
     return (ipfsGateway || config.ipfs.gateway).replace('{{hash}}', hash)
-  },
+  }
 }

@@ -1,6 +1,6 @@
 import './app.scss'
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import rootSaga from './state/rootSaga'
 import store, { history } from './state/store'
 import { Provider } from 'react-redux'
@@ -14,14 +14,19 @@ import 'react-phone-number-input/style.css'
 document.body.ontouchstart = function () {}
 
 rootSaga.run()
-ReactDOM.render(
-  <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <Routes />
-      <ToastContainer />
-    </ConnectedRouter>
-  </Provider>,
-  document.getElementById('root')
-)
+
+const container = document.getElementById('root')
+
+if (container != null) {
+  const root = createRoot(container)
+  root.render(
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <Routes />
+        <ToastContainer />
+      </ConnectedRouter>
+    </Provider>
+  )
+}
 
 serviceWorker.unregister()

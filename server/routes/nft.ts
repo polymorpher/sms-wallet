@@ -2,7 +2,7 @@ import express from 'express'
 import utils from '../utils.ts'
 import { StatusCodes } from 'http-status-codes'
 import { NFT } from '../src/data/nft.ts'
-import sharedUtils from '../../shared/utils.js'
+import sharedUtils from '../../shared/utils.ts'
 import { hasUserSignedBody } from './middleware.ts'
 
 const router = express.Router()
