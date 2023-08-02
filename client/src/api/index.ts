@@ -15,7 +15,7 @@ const IERC1155 = require('../../abi/IERC1155.json')
 const IERC1155MetadataURI = require('../../abi/IERC1155MetadataURI.json')
 const headers = ({ secret, network }) => ({
   'X-SECRET': secret,
-  'X-NETWORK': network,
+  'X-NETWORK': network
 })
 
 // console.log(config)
@@ -24,7 +24,7 @@ const TIMEOUT = 60000
 const apiBase = axios.create({
   baseURL: config.server,
   headers: headers({ secret: config.secret, network: config.network }),
-  timeout: TIMEOUT,
+  timeout: TIMEOUT
 })
 
 const web3 = new Web3(config.rpc)
@@ -32,7 +32,7 @@ web3.eth.defaultCommon = {
   customChain: {
     name: config.network,
     networkId: config.networkId,
-    chainId: config.chainId,
+    chainId: config.chainId
   }
 }
 // web3.eth.defaultChain = config.chainId
@@ -46,13 +46,13 @@ const setDefaults = (c) => {
 const getTokenContract = {
   ERC20: (address) => setDefaults(new Contract(IERC20, address)),
   ERC721: (address) => setDefaults(new Contract(IERC721, address)),
-  ERC1155: (address) => setDefaults(new Contract(IERC1155, address)),
+  ERC1155: (address) => setDefaults(new Contract(IERC1155, address))
 }
 
 const getTokenMetadataContract = {
   ERC20: (address) => setDefaults(new Contract(IERC20Metadata, address)),
   ERC721: (address) => setDefaults(new Contract(IERC721Metadata, address)),
-  ERC1155: (address) => setDefaults(new Contract(IERC1155MetadataURI, address)),
+  ERC1155: (address) => setDefaults(new Contract(IERC1155MetadataURI, address))
 }
 
 const apis = {
@@ -111,13 +111,13 @@ const apis = {
       const gas = await web3.eth.estimateGas({ from: address, to: contractAddress, data })
       return web3.eth.sendTransaction({ data, gas: Math.floor(gas * 1.5), from: address, to: contractAddress })
     },
-    getBalance: async ({ address }) => {
+    getBalance: async ({ address }: { address: string }): Promise<bigint> => {
       const b = await web3.eth.getBalance(address)
       return new BN(b)
     },
 
     // returns Promise<BN>
-    getTokenBalance: async ({ address, contractAddress, tokenType = '', tokenId }) => {
+    getTokenBalance: async ({ address, contractAddress, tokenType = '', tokenId }): Promise<string> => {
       if (!utils.isValidTokenType(tokenType)) {
         throw new Error(`Unknown token type: ${tokenType}`)
       }
@@ -157,7 +157,7 @@ const apis = {
         throw Error('unreachable')
       }
       return { name, symbol, uri, decimals: decimals && new BN(decimals).toNumber() }
-    },
+    }
   },
   server: {
     signup: async ({ phone, eseed, ekey, address }) => {
@@ -246,7 +246,7 @@ const apis = {
         address
       })
       return { removed, success }
-    },
+    }
   }
 }
 if (window) {

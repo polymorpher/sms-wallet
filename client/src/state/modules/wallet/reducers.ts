@@ -4,27 +4,24 @@ import uniq from 'lodash/fp/uniq'
 import omit from 'lodash/fp/omit'
 
 // address -> wallet
-export const initialState = {
-}
+export const initialState = {}
 
 const reducer = handleActions({
-  [walletActions.fetchWalletSuccess]: (state, action) => ({
+  [walletActions.fetchWalletSuccess as any]: (state, action) => ({
     ...state,
-    [action.payload.address]: { ...state[action.payload.address], ...action.payload },
+    [action.payload.address]: { ...state[action.payload.address], ...action.payload }
   }),
 
-  [walletActions.updateWallet]: (state, action) => ({
+  [walletActions.updateWallet as any]: (state, action) => ({
     ...state,
     [action.payload.address]: action.payload._merge ? omit(['_merge'], { ...state[action.payload.address], ...action.payload }) : action.payload
   }),
 
-  [walletActions.deleteWallet]: (state, action) => ({
-    ...omit([action.payload], state),
-  }),
+  [walletActions.deleteWallet as any]: (state, action) => ({ ...omit([action.payload], state) }),
 
-  [walletActions.deleteAllWallet]: () => ({}),
+  [walletActions.deleteAllWallet as any]: () => ({}),
 
-  [walletActions.trackTokens]: (state, action) => ({
+  [walletActions.trackTokens as any]: (state, action) => ({
     ...state,
     [action.payload.address]: {
       ...state[action.payload.address],
@@ -32,15 +29,15 @@ const reducer = handleActions({
       untrackedTokens: (state[action.payload.address]?.untrackedTokens || []).filter(k => (action.payload.tokens || []).find(t => t.key === k) === undefined)
     }
   }),
-  [walletActions.overrideTokens]: (state, action) => ({
+  [walletActions.overrideTokens as any]: (state, action) => ({
     ...state,
     [action.payload.address]: {
       ...state[action.payload.address],
       trackedTokens: [...action.payload.tokens],
-      untrackedTokens: [],
+      untrackedTokens: []
     }
   }),
-  [walletActions.untrackTokens]: (state, action) => ({
+  [walletActions.untrackTokens as any]: (state, action) => ({
     ...state,
     [action.payload.address]: {
       ...state[action.payload.address],
@@ -48,15 +45,13 @@ const reducer = handleActions({
       untrackedTokens: uniq([...(state[action.payload.address]?.untrackedTokens || []), ...action.payload.keys])
     }
   }),
-  [walletActions.setSelectedToken]: (state, action) => ({
+  [walletActions.setSelectedToken as any]: (state, action) => ({
     ...state,
     [action.payload.address]: {
       ...state[action.payload.address],
       selectedToken: action.payload.token
     }
-  }),
-}, {
-  ...initialState
-})
+  })
+}, { ...initialState })
 
 export default reducer

@@ -111,9 +111,9 @@ const utils = {
       return false
     }
   },
-  computeTokenKey: ({ tokenId, tokenType, contractAddress }: TokenKeyInput): TokenKey | undefined => {
+  computeTokenKey: ({ tokenId, tokenType, contractAddress }: TokenKeyInput): TokenKey => {
     if (!contractAddress || !tokenId || (tokenType !== 0 && !tokenType)) {
-      return undefined
+      return { string: '', hash: new Uint8Array(), bytes: new Uint8Array() }
     }
     contractAddress = contractAddress.toLowerCase()
     if (typeof tokenType === 'string' && tokenType.startsWith('ERC')) {

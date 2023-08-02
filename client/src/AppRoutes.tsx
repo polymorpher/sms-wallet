@@ -1,4 +1,4 @@
-import React, { useEffect, useState, lazy } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Signup from './pages/Signup'
 import Wallet from './pages/Wallet'
@@ -11,7 +11,7 @@ import SignMessage from './pages/SignMessage'
 import ApproveTransactionPage from './pages/ApproveTransaction'
 import Request from './pages/Request'
 import Archive from './pages/Archive'
-const AppRoutes = () => {
+const AppRoutes = (): React.JSX.Element => {
   const dispatch = useDispatch()
   const [rehydrated, setRehydrated] = useState(false)
   useEffect(() => {
