@@ -42,7 +42,6 @@ const config = {
     gateway: process.env.IPFS_GATEWAY ?? 'https://modulo.mypinata.cloud/ipfs/{{hash}}'
   },
   gasPrice: Number(process.env.GAS_PRICE ?? 1000),
-  networkId: Number(process.env.NETWORK_ID ?? 1666600000),
   chainId: Number(process.env.CHAIN_ID ?? 1666600000),
   rpc: process.env.RPC ?? 'https://api.s0.t.hmny.io',
   rootUrl: process.env.ROOT_URL ?? 'https://smswallet.xyz',

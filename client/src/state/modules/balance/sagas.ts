@@ -25,7 +25,7 @@ function * handleFetchTokenBalance (action): Generator<Effect> {
     }
     const balance = yield call(api.blockchain.getTokenBalance, { contractAddress, tokenType, tokenId, address })
     yield all([
-      put(balanceActions.fetchTokenBalanceSuccess({ address, key, balance: balance as string }))
+      put(balanceActions.fetchTokenBalanceSuccess({ address, key, balance: (balance as bigint).toString() }))
     ])
   } catch (err) {
     console.error(err)

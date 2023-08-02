@@ -3,7 +3,7 @@ import { Button } from 'telegram/tl/custom/button.js'
 import fs from 'fs/promises'
 import config from '../config.ts'
 import * as crypto from 'crypto'
-import { newSession } from 'src/controller.ts.ts'
+import { newSession } from './controller.ts'
 
 export let client: TelegramClient
 

@@ -1,19 +1,30 @@
 import { utils } from '../utils'
 import axios from 'axios'
-import Web3 from 'web3'
+import ethers, { type Wallet } from 'ethers'
 import config from '../config'
-import BN from 'bn.js'
-import Contract from 'web3-eth-contract'
 import Constants from '../../../shared/constants'
 import stringify from 'json-stable-stringify'
-const IERC20 = require('../../abi/IERC20.json')
-const IERC165 = require('../../abi/IERC165.json')
-const IERC20Metadata = require('../../abi/IERC20Metadata.json')
-const IERC721 = require('../../abi/IERC721.json')
-const IERC721Metadata = require('../../abi/IERC721Metadata.json')
-const IERC1155 = require('../../abi/IERC1155.json')
-const IERC1155MetadataURI = require('../../abi/IERC1155MetadataURI.json')
-const headers = ({ secret, network }) => ({
+import IERC165 from '../../abi/IERC165.json'
+
+import IERC1155MetadataURI from '../../abi/IERC1155MetadataURI.json'
+import IERC1155 from '../../abi/IERC1155.json'
+import IERC721Metadata from '../../abi/IERC721Metadata.json'
+import IERC721 from '../../abi/IERC721.json'
+import IERC20Metadata from '../../abi/IERC20Metadata.json'
+import IERC20 from '../../abi/IERC20.json'
+
+export interface HeadersConfig {
+  secret: string
+  network: string
+}
+
+export interface TokenMetaData {
+  name: string
+  symbol: string
+  uri: string
+  decimals: bigint
+}
+const headers = ({ secret, network }: HeadersConfig): Record<string, string> => ({
   'X-SECRET': secret,
   'X-NETWORK': network
 })
@@ -27,211 +38,209 @@ const apiBase = axios.create({
   timeout: TIMEOUT
 })
 
-const web3 = new Web3(config.rpc)
-web3.eth.defaultCommon = {
-  customChain: {
-    name: config.network,
-    networkId: config.networkId,
-    chainId: config.chainId
-  }
-}
+// const web3 = new Web3(config.rpc)
+// web3.eth.defaultCommon = {
+//   customChain: {
+//     name: config.network,
+//     networkId: config.networkId,
+//     chainId: config.chainId
+//   }
+// }
 // web3.eth.defaultChain = config.chainId
 
-Contract.setProvider(web3.currentProvider)
-const setDefaults = (c) => {
-  // console.log(c)
-  return c
-}
+// Contract.setProvider(web3.currentProvider)
+const provider = new ethers.JsonRpcProvider(config.rpc, { chainId: config.chainId })
 
 const getTokenContract = {
-  ERC20: (address) => setDefaults(new Contract(IERC20, address)),
-  ERC721: (address) => setDefaults(new Contract(IERC721, address)),
-  ERC1155: (address) => setDefaults(new Contract(IERC1155, address))
+  ERC20: (address): ethers.Contract => new ethers.Contract(address, IERC20, provider),
+  ERC721: (address): ethers.Contract => new ethers.Contract(address, IERC721, provider),
+  ERC1155: (address): ethers.Contract => new ethers.Contract(address, IERC1155, provider)
 }
 
 const getTokenMetadataContract = {
-  ERC20: (address) => setDefaults(new Contract(IERC20Metadata, address)),
-  ERC721: (address) => setDefaults(new Contract(IERC721Metadata, address)),
-  ERC1155: (address) => setDefaults(new Contract(IERC1155MetadataURI, address))
+  ERC20: (address): ethers.Contract => new ethers.Contract(address, IERC20Metadata, provider),
+  ERC721: (address): ethers.Contract => new ethers.Contract(address, IERC721Metadata, provider),
+  ERC1155: (address): ethers.Contract => new ethers.Contract(address, IERC1155MetadataURI, provider)
 }
 
+let activeWallet: Wallet | undefined
+
 const apis = {
+  ethers,
   web3: {
-    web3,
-    changeAccount: (key) => {
-      web3.eth.accounts.wallet.clear()
-      if (key) {
-        const { address } = web3.eth.accounts.wallet.add(key)
-        web3.eth.defaultAccount = address
-      } else {
-        web3.eth.defaultAccount = ''
-      }
+    changeAccount: (key: string): Wallet => {
+      activeWallet = new ethers.Wallet(key, provider)
+      return activeWallet
     },
     changeNetwork: (network) => {
       // TODO
     },
-    getAddress: (key) => {
+    getAddress: (key: string | Uint8Array): string => {
       if (typeof key !== 'string') {
         key = utils.hexString(key)
       }
-      return web3.eth.accounts.privateKeyToAccount(key).address
+      return new ethers.Wallet(key, provider).address
     },
-    isValidAddress: (address) => {
+    isValidAddress: (address: string): boolean => {
       try {
-        return web3.utils.isAddress(address)
+        return ethers.isAddress(address)
       } catch (ex) {
         console.error(ex)
         return false
       }
     },
-    signWithNonce: (msg, key) => {
+    signWithNonce: (msg: string, key: string): string => {
       const nonce = Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration
       const message = `${msg} ${nonce}`
-      return web3.eth.accounts.sign(message, key).signature
+      const w = new ethers.Wallet(key, provider)
+      return w.signMessageSync(message)
     },
-    signWithBody: (body, key) => {
+    signWithBody: (body: string, key: string): string => {
+      const w = new ethers.Wallet(key, provider)
       const msg = stringify(body)
-      return web3.eth.accounts.sign(msg, key).signature
+      return w.signMessageSync(msg)
     }
   },
   blockchain: {
-    sendToken: async ({ address, contractAddress, tokenType, tokenId, amount, dest }) => {
-      const c = getTokenContract[tokenType](contractAddress)
-      console.log({ address, contractAddress, tokenType, tokenId, amount, dest })
-      let data
+    sendToken: async ({ address, contractAddress, tokenType, tokenId, amount, dest }): Promise<ethers.ContractTransaction> => {
+      if (!activeWallet) {
+        throw new Error('no active wallet')
+      }
+      const c = (getTokenContract[tokenType](contractAddress) as ethers.Contract).connect(activeWallet) as ethers.Contract
+      console.log('[sendToken]', { address, contractAddress, tokenType, tokenId, amount, dest })
       if (tokenType === 'ERC20') {
-        data = c.methods.transferFrom(address, dest, amount).encodeABI()
+        return (await c.transferFrom(address, dest, amount)) as ethers.ContractTransaction
       } else if (tokenType === 'ERC721') {
-        data = c.methods.safeTransferFrom(address, dest, tokenId).encodeABI()
+        return (await c.safeTransferFrom(address, dest, tokenId)) as ethers.ContractTransaction
       } else if (tokenType === 'ERC1155') {
-        data = c.methods.safeTransferFrom(address, dest, tokenId, amount, '0x').encodeABI()
+        return (await c.safeTransferFrom(address, dest, tokenId, amount, '0x')) as ethers.ContractTransaction
       } else {
         throw Error('unreachable')
       }
-      const gas = await web3.eth.estimateGas({ from: address, to: contractAddress, data })
-      return web3.eth.sendTransaction({ data, gas: Math.floor(gas * 1.5), from: address, to: contractAddress })
     },
     getBalance: async ({ address }: { address: string }): Promise<bigint> => {
-      const b = await web3.eth.getBalance(address)
-      return new BN(b)
+      return (await provider.getBalance(address))
     },
 
-    // returns Promise<BN>
-    getTokenBalance: async ({ address, contractAddress, tokenType = '', tokenId }): Promise<string> => {
+    getTokenBalance: async ({ address, contractAddress, tokenType = '', tokenId }): Promise<bigint> => {
       if (!utils.isValidTokenType(tokenType)) {
         throw new Error(`Unknown token type: ${tokenType}`)
       }
       const c = getTokenContract[tokenType](contractAddress)
       if (tokenType === 'ERC20') {
-        return c.methods.balanceOf(address).call()
+        return (await c.balanceOf(address)) as bigint
       } else if (tokenType === 'ERC721') {
-        const owner = await c.methods.ownerOf(tokenId).call()
-        return owner.toLowerCase() === address.toLowerCase() ? new BN(1) : new BN(0)
+        const owner = (await c.ownerOf(tokenId)) as string
+        return owner.toLowerCase() === address.toLowerCase() ? 1n : 0n
       } else if (tokenType === 'ERC1155') {
-        return c.methods.balanceOf(address, tokenId).call()
+        return c.balanceOf(address, tokenId) as bigint
       } else {
         throw Error('unreachable')
       }
     },
 
-    getTokenMetadata: async ({ tokenType, contractAddress, tokenId }) => {
+    getTokenMetadata: async ({ tokenType, contractAddress, tokenId }): Promise<TokenMetaData> => {
       if (!utils.isValidTokenType(tokenType)) {
         throw new Error(`Unknown token type: ${tokenType}`)
       }
-      const c = getTokenMetadataContract[tokenType](contractAddress)
-      let name, symbol, uri, decimals
+      const c = getTokenMetadataContract[tokenType](contractAddress) as ethers.Contract
+      let name = ''; let symbol = ''; let uri = ''; let decimals = 0n
       if (tokenType === 'ERC20') {
-        [name, symbol, decimals] = await Promise.all([c.methods.name().call(), c.methods.symbol().call(), c.methods.decimals().call()])
+        decimals = await c.decimals()
+        name = await c.name()
+        symbol = await c.symbol()
       } else if (tokenType === 'ERC721') {
-        [name, symbol, uri] = await Promise.all([c.methods.name().call(), c.methods.symbol().call(), c.methods.tokenURI(tokenId).call()])
+        name = await c.name()
+        symbol = await c.symbol()
+        uri = await c.uri()
       } else if (tokenType === 'ERC1155') {
-        uri = await c.methods.uri(tokenId).call()
+        uri = await c.uri(tokenId)
         try {
           const c2 = getTokenMetadataContract.ERC721(contractAddress)
-          // eslint-disable-next-line no-lone-blocks
-          { [name, symbol] = await Promise.all([c2.methods.name().call(), c2.methods.symbol().call()]) }
+          name = await c2.name()
+          symbol = await c2.symbol()
         } catch (ex) {
           console.log('Failed to get name and symbol for', contractAddress)
         }
       } else {
         throw Error('unreachable')
       }
-      return { name, symbol, uri, decimals: decimals && new BN(decimals).toNumber() }
+      return { name, symbol, uri, decimals }
     }
   },
   server: {
-    signup: async ({ phone, eseed, ekey, address }) => {
+    signup: async ({ phone, eseed, ekey, address }): Promise<string> => {
       const { data } = await apiBase.post('/signup', { phone, eseed, ekey, address })
       const { hash } = data
       return hash
     },
-    verify: async ({ phone, eseed, ekey, address, code, signature }) => {
+    verify: async ({ phone, eseed, ekey, address, code, signature }): Promise<boolean> => {
       const { data } = await apiBase.post('/verify', { phone, eseed, ekey, address, code, signature })
       const { success } = data
       return success
     },
-    restore: async ({ phone, eseed }) => {
+    restore: async ({ phone, eseed }): Promise<boolean> => {
       const { data } = await apiBase.post('/restore', { phone, eseed })
       const { success } = data
       return success
     },
-    restoreVerify: async ({ phone, eseed, code }) => {
+    restoreVerify: async ({ phone, eseed, code }): Promise<RestoreVerifyResponse> => {
       const { data } = await apiBase.post('/restore-verify', { phone, eseed, code })
       const { ekey, address } = data
       return { ekey, address }
     },
-    archive: async ({ phone }) => {
+    archive: async ({ phone }): Promise<boolean> => {
       const { data } = await apiBase.post('/archive', { phone })
       const { success } = data
       return success
     },
-    archiveVerify: async ({ phone, code }) => {
+    archiveVerify: async ({ phone, code }): Promise<ArchiveVerifyResponse> => {
       const { data } = await apiBase.post('/archive-verify', { phone, code })
       const { timeRemain, archived, reset } = data
       return { timeRemain, archived, reset }
     },
-    lookup: async ({ destPhone, address, signature }) => {
+    lookup: async ({ destPhone, address, signature }): Promise<string> => {
       const { data } = await apiBase.post('/lookup', { destPhone, address, signature })
       const { address: destAddress } = data
       return destAddress
     },
-    settings: async ({ address, signature, newSetting = {} }) => {
+    settings: async ({ address, signature, newSetting = {} }): Promise<Record<string, string>> => {
       const { data } = await apiBase.post('/settings', { newSetting, address, signature })
-      const { address: destAddress } = data
-      return destAddress
+      const { setting } = data
+      return setting
     },
-    requestView: async ({ address, signature, id }) => {
+    requestView: async ({ address, signature, id }): Promise<RequestViewResponse> => {
       const { data } = await apiBase.post('/request-view', { address, signature, id })
       const { request, hash } = data
       return { request, hash }
     },
-    requestComplete: async ({ address, signature, id, txHash }) => {
+    requestComplete: async ({ address, signature, id, txHash }): Promise<boolean> => {
       const { data } = await apiBase.post('/request-complete', { address, signature, id, txHash })
       const { success } = data
       return success
     }
   },
   nft: {
-    getCachedData: async (address, tokenType, contractAddress, tokenId) => {
+    getCachedData: async (address, tokenType, contractAddress, tokenId): Promise<Record<string, string>> => {
       return {}
     },
-    getNFTType: async (contractAddress) => {
-      const c = new web3.eth.Contract(IERC165, contractAddress)
-      const is721 = await c.methods.supportsInterface(Constants.TokenInterfaces.ERC721).call()
+    getNFTType: async (contractAddress): Promise<string | null> => {
+      const c = new ethers.Contract(contractAddress, IERC165, provider)
+      const is721 = await c.supportsInterface(Constants.TokenInterfaces.ERC721) as boolean
       if (is721) {
         return 'ERC721'
       }
-      const is1155 = await c.methods.supportsInterface(Constants.TokenInterfaces.ERC1155).call()
+      const is1155 = await c.supportsInterface(Constants.TokenInterfaces.ERC1155) as boolean
       if (is1155) {
         return 'ERC1155'
       }
       return null
     },
-    lookup: async ({ address, contractAddress }) => {
+    lookup: async ({ address, contractAddress }): Promise<TrackedNFT[]> => {
       const { data: nfts } = await apiBase.post('/nft/lookup', { contractAddress, address })
       return nfts
     },
-    track: async ({ address, contractAddress, tokenId, tokenType, signature }) => {
+    track: async ({ address, contractAddress, tokenId, tokenType, signature }): Promise<TrackResponse> => {
       const { data: { numTracked, success } } = await apiBase.post('/nft/track', {
         body: [{ contractAddress, tokenId, tokenType }],
         signature,
@@ -239,7 +248,7 @@ const apis = {
       })
       return { numTracked, success }
     },
-    untrack: async ({ address, contractAddress, tokenId, signature }) => {
+    untrack: async ({ address, contractAddress, tokenId, signature }): Promise<UntrackResponse> => {
       const { data: { removed, success } } = await apiBase.post('/nft/untrack', {
         body: { contractAddress, tokenId },
         signature,
@@ -248,6 +257,34 @@ const apis = {
       return { removed, success }
     }
   }
+}
+export interface RestoreVerifyResponse {
+  ekey: string
+  address: string
+}
+export interface ArchiveVerifyResponse {
+  timeRemain: number
+  archived: boolean
+  reset: boolean
+}
+export interface RequestViewResponse {
+  request: any
+  hash: string
+}
+export interface TrackedNFT {
+  id: string
+  contractAddress: string
+  tokenId: string
+  tokenType: string
+  [key: string]: any
+}
+export interface TrackResponse {
+  success: boolean
+  numTracked: number
+}
+export interface UntrackResponse {
+  success: boolean
+  removed: TrackedNFT
 }
 if (window) {
   window.apis = apis
