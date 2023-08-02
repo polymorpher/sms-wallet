@@ -23,6 +23,7 @@ export const MenuItems = styled.div`
   align-items: end;
   margin-right: 8px;
 `
+
 export const MenuItemLink = styled(BaseText)`
   font-size: 24px;
   &:hover{

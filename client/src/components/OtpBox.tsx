@@ -2,7 +2,7 @@ import OtpInput from 'react-otp-input'
 import React, { forwardRef } from 'react'
 import { useWindowDimensions } from '../utils'
 
-const OtpBox = ({ onChange, value, inputStyle, containerStyle, numOnly = true, autofill = false, ...params }, ref) => {
+const OtpBox = ({ onChange, value, inputStyle, containerStyle, numOnly = true, autofill = false, ...params }, ref): React.JSX.Element => {
   const { isMobile } = useWindowDimensions()
   return (
     <OtpInput

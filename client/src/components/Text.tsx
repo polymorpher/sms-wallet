@@ -1,17 +1,18 @@
 import styled from 'styled-components'
 
-export const BaseText = styled.div`
-  color: ${props => props.$color || 'inherit'};
+export const BaseText = styled.div<{ $color?: string }>`
+
+  color: ${props => props.$color ?? 'inherit'};
   font-size: 16px;
 `
 export const SmallText = styled(BaseText)`
   font-size: 12px;
 `
-export const Label = styled(BaseText)`
-  width: ${props => props.$width || '64px'};
+export const Label = styled(BaseText)<{ $width?: string }>`
+  width: ${props => props.$width ?? '64px'};
 `
-export const LabelSmall = styled(BaseText)`
-  width: ${props => props.$width || '48px'};
+export const LabelSmall = styled(BaseText)<{ $width?: string }>`
+  width: ${props => props.$width ?? '48px'};
   font-size: 12px;
 `
 
@@ -42,10 +43,10 @@ export const Heading = styled.div`
   width: 100%;
 `
 
-export const Desc = styled.div`
+export const Desc = styled.div<{ $color?: string }>`
   box-sizing: border-box;
   padding: 16px;
-  color: ${props => props.$color || 'black'};
+  color: ${props => props.$color ?? 'black'};
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -66,7 +67,7 @@ export const LinkText = styled(BaseText)`
   margin-top: 32px;
 `
 
-export const Hint = styled.div`
+export const Hint = styled.div<{ $color?: string }>`
   font-size: 10px;
   color: ${props => props.$color ?? '#888888'};
 `

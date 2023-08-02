@@ -33,9 +33,9 @@ export const Main = styled(FlexColumn)`
   align-items: center;
 `
 
-const ModalContainer = styled.div`
+const ModalContainer = styled.div<{ $zIndex: number }>`
   position: fixed;
-  z-index: ${props => props.$zIndex || 5};
+  z-index: ${props => props.$zIndex ?? 5};
   width: 100%;
   height: 100%;
   display: flex;
@@ -59,7 +59,7 @@ const ModalBody = styled(FlexColumn)`
   color: black;
 `
 
-export const Modal = ({ style, shadowStyle, children, zIndex, visible, onCancel }) => {
+export const Modal = ({ style, shadowStyle, children, zIndex, visible, onCancel }): React.JSX.Element => {
   if (!visible) {
     return <></>
   }

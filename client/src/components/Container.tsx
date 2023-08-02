@@ -8,17 +8,17 @@ import { walletActions } from '../state/modules/wallet'
 import { useDispatch, useSelector } from 'react-redux'
 import paths from '../pages/paths'
 import apis from '../api/index'
-import { useHistory } from 'react-router'
+import { useNavigate } from 'react-router'
 
-const MainContainer = ({ children, withMenu }) => {
-  const history = useHistory()
+const MainContainer = ({ children, withMenu }): React.JSX.Element => {
+  const navigate = useNavigate()
   const dispatch = useDispatch()
-  const wallet = useSelector(state => state.wallet || {})
+  const wallet = useSelector(state => state.wallet ?? {})
   const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
 
   const [menuVisible, setMenuVisible] = useState(false)
   const [logoutModalVisible, setLogoutModalVisible] = useState(false)
-  const logout = () => {
+  const logout = (): void => {
     dispatch(walletActions.deleteAllWallet())
     setLogoutModalVisible(false)
     setMenuVisible(false)
@@ -29,23 +29,23 @@ const MainContainer = ({ children, withMenu }) => {
       <Heading style={{ justifyContent: 'flex-end', alignItems: 'flex-start', minHeight: 56 }}>
         <div
           style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', cursor: 'pointer' }}
-          onClick={() => history.push(paths.root)}
+          onClick={() => { navigate(paths.root) }}
         >
           SMS Wallet
         </div>
         {withMenu &&
           <MenuIconContainer $expanded={menuVisible}>
-            <IconImg onClick={() => setMenuVisible(!menuVisible)} src={MenuIcon} />
+            <IconImg onClick={() => { setMenuVisible(!menuVisible) }} src={MenuIcon} />
             {menuVisible &&
               <MenuItems>
-                {wallet && <MenuItemLink onClick={() => { history.push(paths.wallet) }}>{wallet[address].phone}</MenuItemLink>}
-                <MenuItemLink onClick={() => setLogoutModalVisible(true)}>Logout</MenuItemLink>
+                {wallet && <MenuItemLink onClick={() => { navigate(paths.wallet) }}>{wallet[address].phone}</MenuItemLink>}
+                <MenuItemLink onClick={() => { setLogoutModalVisible(true) }}>Logout</MenuItemLink>
               </MenuItems>}
           </MenuIconContainer>}
       </Heading>
       {children}
       {withMenu &&
-        <Modal visible={logoutModalVisible} onCancel={() => setLogoutModalVisible(false)}>
+        <Modal visible={logoutModalVisible} onCancel={() => { setLogoutModalVisible(false) }}>
           <Col>
             <BaseText>This will delete all data. To restore your wallet, you need to use the Recovery QR Code and to
               verify your phone number again

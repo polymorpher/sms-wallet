@@ -1,12 +1,12 @@
 import styled from 'styled-components'
 
-export const Button = styled.button`
+export const Button = styled.button<{ $width?: string }>`
   font-family: 'DecimaMono', system-ui;
   font-size: 16px;
   font-weight: 200;
   border: none;
   
-  width: ${props => props.$width || '128px'};
+  width: ${props => props.$width ?? '128px'};
   color: white;
   background: black;
   padding: 8px 16px;
@@ -36,10 +36,10 @@ export const CancelButton = styled(Button)`
   }
 `
 
-export const Input = styled.input`
+export const Input = styled.input<{ $width?: string, $marginTop?: string, $marginBottom?: string, $margin?: string }>`
   width: ${props => typeof props.$width === 'number' ? `${props.$width || 400}px` : (props.$width || 'auto')};
-  margin-top: ${props => props.$marginTop || props.$margin || '32px'};
-  margin-bottom: ${props => props.$marginBottom || props.$margin || '32px'};
+  margin-top: ${props => props.$marginTop ?? props.$margin ?? '32px'};
+  margin-bottom: ${props => props.$marginBottom ?? props.$margin ?? '32px'};
   border: none;
   border-bottom: 1px solid black;
   font-size: 16px;

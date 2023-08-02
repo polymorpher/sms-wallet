@@ -12,52 +12,53 @@ import Upload from 'rc-upload'
 import Select from 'react-select'
 import { BaseText } from './Text'
 
-const QrCodeScanner = ({ onScan, shouldInit, style }) => {
+const QrCodeScanner = ({ onScan, shouldInit, style }): React.JSX.Element => {
   const ref = useRef()
   const { isMobile } = useWindowDimensions()
-  const [videoDevices, setVideoDevices] = useState([])
-  const [device, setDevice] = useState()
-  const [qrCodeImageUploading, setQrCodeImageUploading] = useState()
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([])
+  const [device, setDevice] = useState<MediaDeviceInfo | undefined>()
+  const [qrCodeImageUploading, setQrCodeImageUploading] = useState<boolean>(false)
   const [allowed, setAllowed] = useState(true)
 
   useEffect(() => {
-    const f = async () => {
+    const f = async (): Promise<void> => {
       if (!allowed) {
         return
       }
       const d = await navigator.mediaDevices.enumerateDevices()
       const cams = d.filter(e => e.kind === 'videoinput')
       if (cams.length <= 0) {
-        return toast.error('Cannot access camera. Please select your QR Code')
+        toast.error('Cannot access camera. Please select your QR Code')
+        return
       }
       if (cams.length >= 1 && !cams[0].label) {
-        setTimeout(() => f(), 2500)
+        setTimeout(async () => { f().catch(console.error) }, 2500)
         console.log('got empty labels. retrying in 2.5s')
       }
       console.log(cams)
       setVideoDevices(cams)
       if (isMobile) {
-        const backCam = cams.find(e => e.label.toLowerCase().indexOf('back') >= 0)
-        setDevice(backCam || cams[0])
+        const backCam = cams.find(e => e.label.toLowerCase().includes('back'))
+        setDevice(backCam ?? cams[0])
       } else {
         setDevice(cams[0])
       }
     }
     shouldInit && videoDevices.length === 0 && f()
-  }, [shouldInit, allowed])
+  }, [isMobile, videoDevices.length, shouldInit, allowed])
 
   useEffect(() => {
-    if (device && shouldInit && allowed) {
-      ref.current.initiate()
+    if (device && shouldInit && allowed && ref?.current) {
+      (ref.current as QrReader).initiate()
     }
-  }, [device])
+  }, [device, shouldInit, allowed])
 
-  const onChange = (v) => {
+  const onChange = (v): void => {
     const d = videoDevices.find(e => e.deviceId === v.value)
     setDevice(d)
   }
 
-  const onError = (err) => {
+  const onError = (err): void => {
     if (err?.name === 'NotAllowedError') {
       console.log('Not allowed')
       setAllowed(false)
@@ -67,19 +68,22 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
     toast.error(`Failed to parse QR code. Error: ${err}`)
   }
 
-  const convertURIToImageData = (uri) => new Promise((resolve, reject) => {
+  const convertURIToImageData = async (uri): Promise<ImageData> => await new Promise((resolve, reject): void => {
     if (!uri) {
       onError('No URI detected')
-      return reject(new Error('No URI detected'))
+      reject(new Error('No URI detected'))
+      return
     }
 
     const canvas = document.createElement('canvas')
-
     const context = canvas.getContext('2d')
-
+    if (!context) {
+      onError('No context')
+      reject(new Error('No context'))
+      return
+    }
     const image = new Image()
-
-    image.addEventListener('load', function () {
+    image.addEventListener('load', function (): void {
       canvas.width = image.width
       canvas.height = image.height
       context.drawImage(image, 0, 0, canvas.width, canvas.height)
@@ -89,7 +93,7 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
     image.src = uri
   })
 
-  const beforeUpload = async (file) => {
+  const beforeUpload = async (file): Promise<undefined | boolean> => {
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
     const isJson = file.type === 'application/json'
     if (!isJpgOrPng && !isJson) {
@@ -99,8 +103,8 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
     try {
       setQrCodeImageUploading(true)
       if (isJson) {
-        const jsonData = await getTextFromFile(file)
-        console.log(jsonData)
+        const jsonData = await getTextFromFile(file) as string
+        // console.log(jsonData)
         const parsed = JSON.parse(jsonData)
         onScan(parsed, true)
         return
@@ -131,9 +135,7 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
             <>
               <Row style={{ justifyContent: 'flex-end' }}>
                 <Select
-                  style={{
-
-                  }}
+                  // style={{}}
                   styles={{
                     container: (provided) => ({
                       ...provided,
@@ -171,7 +173,7 @@ const QrCodeScanner = ({ onScan, shouldInit, style }) => {
           <Button style={{ width: 'auto', display: 'flex', gap: 16 }}>
             {qrCodeImageUploading
               ? <TailSpin width={16} height={16} />
-              : <IconImg style={{ width: 16, height: 16, color: 'white' }} src={QrIcon} />}
+              : <IconImg style={{ width: 16, height: 16, color: 'white' }} src={QrIcon as string} />}
             <BaseText>Select a Photo Instead</BaseText>
           </Button>
         </Upload>
