@@ -8,6 +8,9 @@ import { persistConfig as globalPersistConfig } from './modules/global'
 import localForage from 'localforage'
 import config from '../config'
 import { type History } from 'history'
+import { type WalletState } from './modules/wallet/reducers'
+import { type GlobalState } from './modules/global/reducers'
+import { type BalanceState } from './modules/balance/reducers'
 
 const storage = localForage.createInstance({
   name: config.appId,
@@ -46,3 +49,9 @@ export default (history: History): Reducer => persistReducer(rootConfig, rootRed
 //   wallet: persistReducer(walletConfig, reducers.wallet),
 //   router: connectRouter(history)
 // })
+
+export interface RootState {
+  wallet: WalletState
+  global: GlobalState
+  balance: BalanceState
+}

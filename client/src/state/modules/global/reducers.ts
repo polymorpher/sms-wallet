@@ -1,10 +1,14 @@
 import { handleActions } from 'redux-actions'
-import globalActions from './actions'
+import globalActions, { type NextAction } from './actions'
 
-// address -> wallet
+export interface GlobalState {
+  next: NextAction
+  prefilledPhone?: string
+}
+
 export const initialState = {
   next: {},
-  prefilledPhone: null
+  prefilledPhone: undefined
 }
 
 const reducer = handleActions({

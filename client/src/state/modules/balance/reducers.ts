@@ -2,8 +2,12 @@ import { handleActions } from 'redux-actions'
 import balanceActions, { type FetchTokenBalanceSuccessPayload } from './actions'
 import omit from 'lodash/fp/omit'
 
-// address -> {balance, tokenBalances}
-export const initialState = {}
+export type BalanceState = Record<string, {
+  balance: string
+  tokenBalances: Record<string, string>
+}>
+
+export const initialState: BalanceState = {}
 const reducer = handleActions(
   {
     [balanceActions.fetchBalanceSuccess as any]: (state, action) => ({

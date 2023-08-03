@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Redirect, useHistory } from 'react-router'
 import paths from './paths'
 import MainContainer from '../components/Container'
 import querystring from 'query-string'
@@ -12,9 +11,13 @@ import { Row } from '../components/Layout'
 import { utils } from '../utils'
 import { pick } from 'lodash'
 import { globalActions } from '../state/modules/global'
+import { type RootState } from '../state/rootReducer'
+import { type WalletState } from '../state/modules/wallet/reducers'
+import { type TransactionReceipt } from 'ethers'
+import { Navigate, useNavigate } from 'react-router'
 
-export const decodeCalldata = (calldataB64Encoded) => {
-  const calldataDecoded = Buffer.from(calldataB64Encoded || '', 'base64')
+export const decodeCalldata = (calldataB64Encoded?: string): any => {
+  const calldataDecoded = Buffer.from(calldataB64Encoded ?? '', 'base64').toString()
   try {
     return JSON.parse(calldataDecoded)
   } catch (ex) {
@@ -23,25 +26,40 @@ export const decodeCalldata = (calldataB64Encoded) => {
   }
 }
 
-export const ApproveTransaction = ({ calldata, caller, callback, comment, inputAmount, dest, onComplete }) => {
-  const wallet = useSelector(state => state.wallet || {})
+export interface ApproveTransactionParams {
+  dest: string
+  calldata: {
+    method?: string
+    selector?: string
+    parameters?: Array<{ type: string, value: string }>
+    calldata?: string
+  }
+  callback: URL
+  caller?: string
+  comment?: string
+  inputAmount?: string
+  onComplete?: (txr: TransactionReceipt) => any
+}
+
+export const ApproveTransaction = ({ calldata, caller, callback, comment, inputAmount, dest, onComplete }: ApproveTransactionParams): React.JSX.Element => {
+  const wallet = useSelector((state: RootState) => state.wallet || {})
   const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
 
   const [showDetails, setShowDetails] = useState(false)
-  const { balance: amount, formatted: amountFormatted } = utils.toBalance(inputAmount || 0)
+  const { balance: amount, formatted: amountFormatted } = utils.toBalance(inputAmount ?? '0')
 
-  const pk = wallet[address]?.pk
-  if (!pk) {
-    return <Redirect to={paths.signup} />
+  if (!address || !wallet[address]?.pk) {
+    return <Navigate to={paths.signup} />
   }
+  const pk = wallet[address]?.pk
 
-  const execute = async () => {
+  const execute = async (): Promise<void> => {
     if (!(dest?.startsWith('0x')) || !apis.web3.isValidAddress(dest)) {
       toast.error('Invalid address')
       return
     }
     try {
-      apis.web3.changeAccount(pk)
+      const w = apis.web3.wallet(pk)
       let types, values
       if (calldata.parameters) {
         types = calldata.parameters.map(p => p.type)
@@ -52,45 +70,45 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
       }
       const encoded = utils.encodeCalldata({ method: calldata.method, selector: calldata.selector, types, values })
       console.log(encoded)
-      const txParams = {
+      const tx = await w.sendTransaction({
         to: dest,
         value: amount.toString(),
         data: encoded
+      })
+      const receipt = await tx.wait()
+      if (!receipt) {
+        toast.error(`Blockchain error. Transaction is completed but no receipt given. Hash: ${tx.hash}`)
+        return
       }
-      const gas = await apis.web3.web3.eth.estimateGas(txParams)
-      const receipt = await apis.web3.web3.eth.sendTransaction({ ...txParams, gas })
       onComplete && await onComplete(receipt)
-      const hash = receipt.transactionHash
       const returnUrl = new URL(callback)
       returnUrl.searchParams.append('success', 'true')
-      returnUrl.searchParams.append('hash', hash)
+      returnUrl.searchParams.append('hash', receipt.hash)
       returnUrl.searchParams.append('address', address)
       toast.success(
         <Row>
           <BaseText style={{ marginRight: 8 }}>Execution complete</BaseText>
-          <LinkWrarpper target='_blank' href={utils.getExplorerUri(hash)}>
+          <LinkWrarpper target='_blank' href={utils.getExplorerUri(receipt.hash)}>
             <BaseText>View transaction</BaseText>
           </LinkWrarpper>
         </Row>
       )
       toast.success(`Returning to app at ${returnUrl.hostname}`)
       setTimeout(() => { location.href = returnUrl.href }, 1500)
-    } catch (ex) {
+    } catch (ex: any) {
       console.error(ex)
       toast.error(`Error during execution: ${ex.toString()}`)
-    } finally {
-      apis.web3.changeAccount()
     }
   }
 
-  const cancel = async () => {
+  const cancel = async (): Promise<void> => {
     try {
       const returnUrl = new URL(callback)
       returnUrl.searchParams.append('error', 'cancelled')
       returnUrl.searchParams.append('cancelled', 'true')
       toast.info(`Execution cancelled. Returning to app at ${returnUrl.hostname}`)
       setTimeout(() => { location.href = callback.href }, 1000)
-    } catch (ex) {
+    } catch (ex: any) {
       console.error(ex)
       toast.error(`Error occurred: ${ex.toString()}`)
     }
@@ -99,15 +117,15 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
   return (
     <MainContainer withMenu>
       <DescLeft>
-        <Title>{caller || 'An App'}{callback?.hostname ? ` (${callback?.hostname})` : ''} requests you to execute a contract call</Title>
-        {amount.gtn(0) && <BaseText> and to send {amountFormatted} ONE</BaseText>}
+        <Title>{caller ?? 'An App'}{callback?.hostname ? ` (${callback?.hostname})` : ''} requests you to execute a contract call</Title>
+        {amount > 0n && <BaseText> and to send {amountFormatted} ONE</BaseText>}
         {comment && <BaseText>Reason: {comment}</BaseText>}
         <Hint>Tips: Apps often make contract calls to transfer assets, such as NFTs and tokens, or to perform custom actions. Make sure you trust this app.</Hint>
       </DescLeft>
       <DescLeft>
         <BaseText>Contract: </BaseText>
         <Address>{dest}</Address>
-        {!showDetails && <LinkWrarpper href='#' onClick={() => setShowDetails(true)}>Show Technical Details</LinkWrarpper>}
+        {!showDetails && <LinkWrarpper href='#' onClick={() => { setShowDetails(true) }}>Show Technical Details</LinkWrarpper>}
         {showDetails &&
           <>
             {calldata.calldata && calldata.selector
@@ -121,7 +139,7 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
                 <>
                   <SmallText>Method: {calldata.method}</SmallText>
                   <SmallText>Parameters:</SmallText>
-                  {(calldata.parameters || []).map((p, i) => {
+                  {(calldata.parameters ?? []).map((p, i) => {
                     return <SmallText style={{ wordBreak: 'break-all' }} key={`${i}`}>{JSON.stringify(pick(p, ['name', 'value', 'type']))}</SmallText>
                   })}
                 </>)}
@@ -136,27 +154,39 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
   )
 }
 
-const ApproveTransactionPage = () => {
+export interface ApproveTransactionQuery {
+  caller?: string
+  comment?: string
+  amount?: string
+  inputAmount?: string
+  dest?: string
+  calldata?: string
+  phone?: string
+  callback?: string
+}
+
+const ApproveTransactionPage = (): React.JSX.Element => {
   const dispatch = useDispatch()
-  const history = useHistory()
-  const qs = querystring.parse(location.search)
-  const callback = utils.safeURL(qs.callback && Buffer.from(decodeURIComponent(qs.callback), 'base64').toString())
-  const { caller, comment, amount: inputAmount, dest, calldata: calldataB64Encoded, phone } = qs
+  const navigate = useNavigate()
+  const { caller, comment, amount: inputAmount, dest, calldata: calldataB64Encoded, phone, callback: callbackEncoded } = querystring.parse(location.search) as ApproveTransactionQuery
+
+  const callback = utils.safeURL(Buffer.from(decodeURIComponent(callbackEncoded ?? ''), 'base64').toString())
+
   const calldata = decodeCalldata(calldataB64Encoded)
 
-  const wallet = useSelector(state => state.wallet || {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
+  const wallet = useSelector<RootState, WalletState>(state => state.wallet ?? {})
+  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e)) ?? ''
   const pk = wallet[address]?.pk
 
   useEffect(() => {
     if (phone) {
       dispatch(globalActions.setPrefilledPhone(phone))
     }
-  }, [phone])
+  }, [dispatch, phone])
 
   if (!pk) {
     dispatch(globalActions.setNextAction({ path: paths.call, query: location.search }))
-    return <Redirect to={paths.signup} />
+    return <Navigate to={paths.signup} />
   }
 
   if (!callback || !calldata || !dest) {
@@ -164,7 +194,7 @@ const ApproveTransactionPage = () => {
       <MainContainer withMenu>
         <Desc>
           <BaseText>Error: the app which sent you here has malformed callback URL, call data, or destination address. Please contact the app developer.</BaseText>
-          <Button onClick={() => history.goBack()}> Go back</Button>
+          <Button onClick={() => { navigate(-1) }}> Go back</Button>
         </Desc>
       </MainContainer>
     )

@@ -3,8 +3,16 @@ import walletActions from './actions'
 import uniq from 'lodash/fp/uniq'
 import omit from 'lodash/fp/omit'
 
-// address -> wallet
-export const initialState = {}
+export type WalletState = Record<string, {
+  trackedTokens?: string[]
+  selectedToken?: string
+  phone: string
+  address: string
+  pk: string
+  eseed: string
+}>
+
+export const initialState: WalletState = {}
 
 const reducer = handleActions({
   [walletActions.fetchWalletSuccess as any]: (state, action) => ({

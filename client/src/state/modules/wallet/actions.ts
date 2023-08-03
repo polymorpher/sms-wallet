@@ -11,7 +11,9 @@ export interface FetchWalletSuccessPayload {
 export interface UpdateWalletPayload {
   _merge?: boolean
   address: string
-  [key: string]: any
+  phone?: string
+  pk?: string
+  eseed?: string
 }
 export interface DeleteWalletPayload {
   address: string

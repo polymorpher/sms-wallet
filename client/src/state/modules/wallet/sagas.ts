@@ -25,7 +25,7 @@ function * handleDeleteWallet (action): Generator<Effect> {
 function * walletSagas (): Generator<Effect> {
   yield all([
     // takeEvery(walletActions.fetchWallet().type, handleFetchWallet),
-    takeEvery(walletActions.deleteWallet().type, handleDeleteWallet)
+    takeEvery(walletActions.deleteWallet.type, handleDeleteWallet)
   ])
 }
 

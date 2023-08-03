@@ -68,7 +68,14 @@ let activeWallet: Wallet | undefined
 const apis = {
   ethers,
   web3: {
-    changeAccount: (key: string): Wallet => {
+    wallet: (key: string): Wallet => {
+      return new ethers.Wallet(key, provider)
+    },
+    changeAccount: (key?: string): Wallet | undefined => {
+      if (!key) {
+        activeWallet = undefined
+        return
+      }
       activeWallet = new ethers.Wallet(key, provider)
       return activeWallet
     },
