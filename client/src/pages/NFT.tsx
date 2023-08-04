@@ -15,7 +15,7 @@ import { walletActions } from '../state/modules/wallet'
 import { balanceActions } from '../state/modules/balance'
 import config from '../config'
 
-export const MetadataURITransformer = (url) => {
+export const MetadataURITransformer = (url?: string): string | undefined => {
   const IPFSIO = /https:\/\/ipfs\.io\/ipfs\/(.+)/
   if (!url) {
     return url
@@ -28,8 +28,15 @@ export const MetadataURITransformer = (url) => {
   return url
 }
 
+export interface UseMetadataParams {
+  uri: string
+  ipfsGateway: string
+  contentTypeOverride: string
+  animationUrlContentTypeOverride: string
+}
+
 export const useMetadata = ({
-  uri, ipfsGateway = '',
+  uri = '', ipfsGateway = '',
   contentTypeOverride = null, animationUrlContentTypeOverride = null
 } = {}) => {
   uri = NFTUtils.replaceIPFSLink(MetadataURITransformer(uri), ipfsGateway)
@@ -423,17 +430,17 @@ const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddr
           />}
         {isAddressInput &&
           <Input
-            onChange={({ target: { value } }) => setTo(value)}
+            onChange={({ target: { value } }) => { setTo(value) }}
             placeholder='0x1234abcde...'
             $width='100%' value={to} margin='16px' style={{ fontSize: 10, flex: 1 }}
           />}
-        <FloatingSwitch href='#' onClick={() => setIsAddressInput(!isAddressInput)}>use {isAddressInput ? 'phone number' : 'crypto address'}</FloatingSwitch>
+        <FloatingSwitch href='#' onClick={() => { setIsAddressInput(!isAddressInput) }}>use {isAddressInput ? 'phone number' : 'crypto address'}</FloatingSwitch>
       </Row>
       {maxQuantity > 1 &&
         <Row>
           <Label>Amount</Label>
           <Row style={{ flex: 1 }}>
-            <Input onChange={({ target: { value } }) => setAmount(value)} $width='100%' value={amount} margin='16px' />
+            <Input onChange={({ target: { value } }) => { setAmount(value) }} $width='100%' value={amount} margin='16px' />
             <Label>COPIES</Label>
           </Row>
         </Row>}
@@ -476,7 +483,7 @@ const NFTViewer = ({ visible, setVisible, onClose, contractAddress, resolvedImag
 
   const showManagement = () => {
     setManagementVisible(true)
-    setTimeout(() => setManagementVisible(false), 2500)
+    setTimeout(() => { setManagementVisible(false) }, 2500)
   }
   const untrack = async () => {
     try {
@@ -511,11 +518,11 @@ const NFTViewer = ({ visible, setVisible, onClose, contractAddress, resolvedImag
       >
         <NFTViewerContainer>
           <NFTDisplayWrapper>
-            {isImage && <NFTImageFull src={resolvedImageUrl} onClick={() => showManagement()} />}
-            {isVideo && <NFTVideoFull src={resolvedImageUrl} onClick={() => showManagement()} loop muted autoplay />}
+            {isImage && <NFTImageFull src={resolvedImageUrl} onClick={() => { showManagement() }} />}
+            {isVideo && <NFTVideoFull src={resolvedImageUrl} onClick={() => { showManagement() }} loop muted autoplay />}
             {managementVisible &&
               <NFTManagementPanel>
-                <Button style={{ width: '100%', height: '100%' }} onClick={() => untrack()}>
+                <Button style={{ width: '100%', height: '100%' }} onClick={async () => { await untrack() }}>
                   {isTracking ? <TailSpin /> : <><BaseText style={{ fontSize: 40 }}>✕</BaseText><br />Hide NFT</>}
                 </Button>
               </NFTManagementPanel>}
@@ -527,10 +534,10 @@ const NFTViewer = ({ visible, setVisible, onClose, contractAddress, resolvedImag
           {balance?.gtn(1) && <NFTQuantity>x{balance.toString()}</NFTQuantity>}
           <Row style={{ padding: '0 16px' }}>
             <Col style={{ flex: '100%' }}>
-              {!showDetails && <LinkWrarpper href='#' onClick={() => setShowDetails(true)}><TechnicalText>Show Technical Details</TechnicalText></LinkWrarpper>}
-              {showDetails && <LinkWrarpper href='#' onClick={() => setShowDetails(false)}><TechnicalText>Hide Technical Details</TechnicalText></LinkWrarpper>}
+              {!showDetails && <LinkWrarpper href='#' onClick={() => { setShowDetails(true) }}><TechnicalText>Show Technical Details</TechnicalText></LinkWrarpper>}
+              {showDetails && <LinkWrarpper href='#' onClick={() => { setShowDetails(false) }}><TechnicalText>Hide Technical Details</TechnicalText></LinkWrarpper>}
             </Col>
-            <Button style={{ background: '#222', whiteSpace: 'nowrap' }} onClick={() => setSendModalVisible(true)}>Send NFT</Button>
+            <Button style={{ background: '#222', whiteSpace: 'nowrap' }} onClick={() => { setSendModalVisible(true) }}>Send NFT</Button>
           </Row>
           {showDetails &&
             <Col style={{ gap: 0, padding: '0 16px' }}>
@@ -623,14 +630,14 @@ const NFTTracker = ({ visible, setVisible }) => {
 
         <LabelSmall>Contract</LabelSmall>
         <Input
-          onChange={({ target: { value } }) => setContract(value)}
+          onChange={({ target: { value } }) => { setContract(value) }}
           placeholder='0x1234abcde...'
           $width='100%' value={contract} margin='16px' style={{ fontSize: 10, flex: 1 }}
         />
       </Row>
       <Row>
         <LabelSmall>TokenID</LabelSmall>
-        <Input onChange={({ target: { value } }) => setTokenId(value)} placeholder='123...' $width='100%' value={tokenId} margin='16px' />
+        <Input onChange={({ target: { value } }) => { setTokenId(value) }} placeholder='123...' $width='100%' value={tokenId} margin='16px' />
       </Row>
       <Row style={{ justifyContent: 'center', marginTop: 16 }}>
         <Button onClick={track} disabled={isTracking}>{isTracking ? <TailSpin width={16} height={16} /> : 'Add'}</Button>
@@ -666,12 +673,12 @@ const NFTShowcase = ({ address }) => {
                   Nothing to show here :( <br />
                   Try adding some NFTs you own
                 </BaseText>}
-              <Button style={{ width: '100%' }} onClick={() => setTrackerVisible(true)}><BaseText style={{ fontSize: 40 }}>⊕</BaseText><br />Add NFT</Button>
+              <Button style={{ width: '100%' }} onClick={() => { setTrackerVisible(true) }}><BaseText style={{ fontSize: 40 }}>⊕</BaseText><br />Add NFT</Button>
             </Desc>
           </FlexRow>
         </FlexColumn>
       </Gallery>
-      <NFTViewer visible={viewerVisible} setVisible={setViewerVisible} onClose={() => setSelected(null)} {...selected} />
+      <NFTViewer visible={viewerVisible} setVisible={setViewerVisible} onClose={() => { setSelected(null) }} {...selected} />
       <NFTTracker visible={trackerVisible} setVisible={setTrackerVisible} />
     </>
   )
