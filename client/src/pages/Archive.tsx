@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { BaseText, Desc, LinkText, Title } from '../components/Text'
 import { toast } from 'react-toastify'
 import PhoneInput from 'react-phone-number-input'
@@ -8,20 +8,21 @@ import apis from '../api'
 import OtpBox from '../components/OtpBox'
 import { useSelector } from 'react-redux'
 import paths from './paths'
-import { useHistory } from 'react-router'
+import { useNavigate } from 'react-router'
 import MainContainer from '../components/Container'
 import phoneValidator from 'phone'
 import humanizeDuration from 'humanize-duration'
+import { type RootState } from '../state/rootReducer'
 
-const Archive = () => {
-  const history = useHistory()
+const Archive = (): React.JSX.Element => {
+  const navigate = useNavigate()
   const [phone, setPhone] = useState('')
   const [archiving, setArchiving] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [readyForCode, setReadyForCode] = useState(false)
   const [code, setCode] = useState('')
   const [countdown, setCountdown] = useState(0)
-  const prefilledPhone = useSelector(state => state.global.prefilledPhone)
+  const prefilledPhone = useSelector<RootState, string>(state => state.global.prefilledPhone ?? '')
 
   useEffect(() => {
     if (prefilledPhone) {
@@ -33,7 +34,7 @@ const Archive = () => {
     }
   }, [prefilledPhone])
 
-  const archivePhone = async () => {
+  const archivePhone = async (): Promise<void> => {
     if (!(countdown <= 0)) {
       return
     }
@@ -59,20 +60,20 @@ const Archive = () => {
       setArchiving(false)
     }
   }
-  const restart = () => {
+  const restart = (): void => {
     setPhone('')
     setCountdown(0)
     setReadyForCode(false)
     setCode('')
   }
 
-  const archivePhoneVerify = async () => {
+  const archivePhoneVerify = useCallback(async (): Promise<void> => {
     setVerifying(true)
     try {
       const { timeRemain, archived, reset } = await apis.server.archiveVerify({ phone, code })
       if (archived) {
         toast.success('Archived wallet. You can sign up again now using the same phone number')
-        history.push(paths.signup)
+        navigate(paths.signup)
         return
       }
       const timeRemainStr = humanizeDuration(timeRemain, { largest: 2, round: true })
@@ -90,13 +91,13 @@ const Archive = () => {
       setVerifying(false)
       setCountdown(0)
     }
-  }
+  }, [navigate, code, phone])
 
-  useEffect(() => {
+  useEffect((): void => {
     if (code?.length === 6 && !verifying) {
-      archivePhoneVerify()
+      archivePhoneVerify().catch(console.error)
     }
-  }, [code, verifying])
+  }, [code, verifying, archivePhoneVerify])
   return (
     <MainContainer>
       <Title> Archive your wallet </Title>
@@ -110,7 +111,7 @@ const Archive = () => {
               inputComponent={Input}
               defaultCountry='US'
               placeholder='Enter phone number'
-              value={phone} onChange={setPhone}
+              value={phone} onChange={(e) => { setPhone(e ?? '') }}
             />
             <Button onClick={archivePhone} disabled={archiving}>Verify</Button>
           </>}

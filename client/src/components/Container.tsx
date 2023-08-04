@@ -10,7 +10,7 @@ import paths from '../pages/paths'
 import apis from '../api/index'
 import { useNavigate } from 'react-router'
 
-const MainContainer = ({ children, withMenu }): React.JSX.Element => {
+const MainContainer = ({ children, withMenu = false }): React.JSX.Element => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const wallet = useSelector(state => state.wallet ?? {})

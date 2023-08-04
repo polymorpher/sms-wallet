@@ -1,4 +1,4 @@
-export const base = process.env.PUBLIC_URL || ''
+export const base = process.env.PUBLIC_URL ?? ''
 
 export default {
   root: base + '/',
