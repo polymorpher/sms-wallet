@@ -215,9 +215,9 @@ export const getTextFromFile = async (file): Promise<string | ArrayBuffer | null
   })
 
 export const NFTUtils = {
-  replaceIPFSLink: (link: string, ipfsGateway?: string): string => {
+  replaceIPFSLink: (link?: string, ipfsGateway?: string): string => {
     if (!link) {
-      return link
+      return ''
     }
     if (!link.includes('://')) {
       return exports.default.replaceIPFSLink(`ipfs://${link}`, ipfsGateway)

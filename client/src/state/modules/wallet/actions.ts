@@ -19,17 +19,29 @@ export interface DeleteWalletPayload {
   address: string
 }
 
+export interface TrackedToken {
+  id: string
+  address: string
+  contractAddress: string
+  tokenId: string
+  tokenType: string
+  key: string
+}
+
 export interface TrackTokensPayload {
   address: string
-  tokens: string[]
+  tokens: TrackedToken[]
 }
 
 export type OverrideTokensPayload = TrackTokensPayload
-export type UntrackTokensPayload = TrackTokensPayload
+export interface UntrackTokensPayload {
+  address: string
+  keys: string[]
+}
 
 export interface SetSelectedTokenPayload {
   address: string
-  selectedToken: string
+  selectedToken: TrackedToken
 }
 
 const fetchWallet = createAction<FetchWalletPayload>('FETCH_WALLET')

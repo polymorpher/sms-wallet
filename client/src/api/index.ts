@@ -109,18 +109,19 @@ const apis = {
     }
   },
   blockchain: {
-    sendToken: async ({ address, contractAddress, tokenType, tokenId, amount, dest }): Promise<ethers.ContractTransaction> => {
+    sendToken: async ({ address, contractAddress, tokenType, tokenId, amount, dest }): Promise<ethers.ContractTransactionResponse> => {
       if (!activeWallet) {
         throw new Error('no active wallet')
       }
       const c = (getTokenContract[tokenType](contractAddress) as ethers.Contract).connect(activeWallet) as ethers.Contract
+
       console.log('[sendToken]', { address, contractAddress, tokenType, tokenId, amount, dest })
       if (tokenType === 'ERC20') {
-        return (await c.transferFrom(address, dest, amount)) as ethers.ContractTransaction
+        return (await c.transferFrom(address, dest, amount)) as ethers.ContractTransactionResponse
       } else if (tokenType === 'ERC721') {
-        return (await c.safeTransferFrom(address, dest, tokenId)) as ethers.ContractTransaction
+        return (await c.safeTransferFrom(address, dest, tokenId)) as ethers.ContractTransactionResponse
       } else if (tokenType === 'ERC1155') {
-        return (await c.safeTransferFrom(address, dest, tokenId, amount, '0x')) as ethers.ContractTransaction
+        return (await c.safeTransferFrom(address, dest, tokenId, amount, '0x')) as ethers.ContractTransactionResponse
       } else {
         throw Error('unreachable')
       }
@@ -243,7 +244,7 @@ const apis = {
       }
       return null
     },
-    lookup: async ({ address, contractAddress }): Promise<TrackedNFT[]> => {
+    lookup: async (address: string, contractAddress?: string): Promise<TrackedNFT[]> => {
       const { data: nfts } = await apiBase.post('/nft/lookup', { contractAddress, address })
       return nfts
     },
@@ -283,7 +284,7 @@ export interface TrackedNFT {
   contractAddress: string
   tokenId: string
   tokenType: string
-  [key: string]: any
+  address: string
 }
 export interface TrackResponse {
   success: boolean

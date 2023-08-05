@@ -4,7 +4,7 @@ import { Col, FlexColumn, FlexRow, Modal, Row } from '../components/Layout'
 import { Button, FloatingSwitch, Input, LinkWrarpper } from '../components/Controls'
 import styled from 'styled-components'
 import { NFTUtils, processError, utils } from '../utils'
-import apis from '../api'
+import apis, { type TrackedNFT } from '../api'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,6 +14,9 @@ import PhoneInput from 'react-phone-number-input'
 import { walletActions } from '../state/modules/wallet'
 import { balanceActions } from '../state/modules/balance'
 import config from '../config'
+import { type RootState } from '../state/rootReducer'
+import { type TrackedToken } from '../state/modules/wallet/actions'
+import { type WalletState } from '../state/modules/wallet/reducers'
 
 export const MetadataURITransformer = (url?: string): string | undefined => {
   const IPFSIO = /https:\/\/ipfs\.io\/ipfs\/(.+)/
@@ -29,28 +32,33 @@ export const MetadataURITransformer = (url?: string): string | undefined => {
 }
 
 export interface UseMetadataParams {
-  uri: string
-  ipfsGateway: string
-  contentTypeOverride: string
-  animationUrlContentTypeOverride: string
+  uri?: string
+  ipfsGateway?: string
+  contentTypeOverride?: string
+  animationUrlContentTypeOverride?: string
 }
 
-export const useMetadata = ({
-  uri = '', ipfsGateway = '',
-  contentTypeOverride = null, animationUrlContentTypeOverride = null
-} = {}) => {
+export interface UseMetadataResult {
+  metadata?: Record<string, any>
+  resolvedImageUrl?: string
+  resolvedAnimationUrl?: string
+  contentType?: string
+  animationUrlContentType?: string
+}
+
+export const useMetadata = ({ uri, ipfsGateway, contentTypeOverride, animationUrlContentTypeOverride }: UseMetadataParams): UseMetadataResult => {
   uri = NFTUtils.replaceIPFSLink(MetadataURITransformer(uri), ipfsGateway)
-  const [metadata, setMetadata] = useState()
-  const [contentType, setContentType] = useState(contentTypeOverride)
-  const [resolvedImageUrl, setResolvedImageUrl] = useState(contentTypeOverride)
-  const [resolvedAnimationUrl, setResolvedAnimationUrl] = useState(contentTypeOverride)
-  const [animationUrlContentType, setAnimationUrlContentType] = useState(animationUrlContentTypeOverride)
+  const [metadata, setMetadata] = useState<Record<string, any>>()
+  const [contentType, setContentType] = useState<string | undefined>(contentTypeOverride)
+  const [resolvedImageUrl, setResolvedImageUrl] = useState<string | undefined>()
+  const [resolvedAnimationUrl, setResolvedAnimationUrl] = useState<string | undefined>()
+  const [animationUrlContentType, setAnimationUrlContentType] = useState<string | undefined>(animationUrlContentTypeOverride)
 
   useEffect(() => {
-    if (!uri) {
-      return
-    }
-    const f = async function () {
+    const f = async function (): Promise<void> {
+      if (!uri) {
+        return
+      }
       try {
         const { data: metadata } = await axios.get(uri)
         setMetadata(metadata)
@@ -74,18 +82,32 @@ export const useMetadata = ({
         toast.error(`Unable to retrieve data for token uri ${uri}`)
       }
     }
-    f()
-  }, [uri])
+    f().catch(console.error)
+  }, [uri, contentType, ipfsGateway])
   return { metadata, resolvedImageUrl, resolvedAnimationUrl, contentType, animationUrlContentType }
 }
 
-export const loadNFTData = ({ contractAddress, tokenId, tokenType }) => {
-  const [state, setState] = useState({ contractName: null, contractSymbol: null, uri: null })
+export interface NFTTokenSpec {
+  contractAddress: string
+  tokenId: string
+  tokenType: string
+}
+export interface NFTTokenData {
+  contractName?: string
+  contractSymbol?: string
+  uri?: string
+}
+
+export interface AddressSpecificNFTTokenSpec extends NFTTokenSpec {
+  address: string
+}
+export const useNFTData = ({ contractAddress, tokenId, tokenType }: NFTTokenSpec): NFTTokenData => {
+  const [state, setState] = useState<NFTTokenData>({ })
   useEffect(() => {
     if (!contractAddress || !tokenId || !tokenType) {
       return
     }
-    async function f () {
+    async function f (): Promise<void> {
       try {
         const { name: contractName, symbol: contractSymbol, uri } = await apis.blockchain.getTokenMetadata({ contractAddress, tokenId, tokenType })
         setState({ contractName, contractSymbol, uri })
@@ -94,34 +116,36 @@ export const loadNFTData = ({ contractAddress, tokenId, tokenType }) => {
         toast.error(`Failed to get NFT metadata: ${processError(ex)}`)
       }
     }
-    f()
+    f().catch(console.error)
   }, [contractAddress, tokenId, tokenType])
   return { ...state }
 }
 
 // eslint-disable-next-line no-unused-vars
-const loadCachedMetadata = ({ address, contractAddress, tokenId, tokenType }) => {
-  const [cached, setCached] = useState({})
+const useCachedMetadata = ({ address, contractAddress, tokenId, tokenType }: AddressSpecificNFTTokenSpec): UseMetadataResult & NFTTokenData => {
+  const [cached, setCached] = useState<UseMetadataResult & NFTTokenData>({})
   useEffect(() => {
     if (!contractAddress || !tokenId || !tokenType || !address) {
       return
     }
-    async function g () {
+    async function g (): Promise<void> {
       try {
         const {
           found,
           contractName, contractSymbol, name, description,
           image, video, imageType
-        } = await apis.nft.getCachedData({ contractAddress, tokenId, tokenType })
+        } = await apis.nft.getCachedData(address, contractAddress, tokenId, tokenType)
         if (found) {
           setCached({
             contractName,
             contractSymbol,
-            name,
-            description,
-            image,
-            video,
-            imageType
+            metadata: {
+              name,
+              description,
+              image,
+              video,
+              imageType
+            }
           })
         } else {
           console.log('Cache not found', { contractAddress, tokenId, tokenType })
@@ -131,25 +155,25 @@ const loadCachedMetadata = ({ address, contractAddress, tokenId, tokenType }) =>
         toast.error(`Failed to get cached NFT metadata: ${processError(ex)}`)
       }
     }
-    g()
+    g().catch(console.error)
   }, [address, contractAddress, tokenId, tokenType])
   return { ...cached }
 }
 
-const loadNFTBalance = ({ contractAddress, address, tokenId, tokenType }) => {
+const useNFTBalance = ({ contractAddress, address, tokenId, tokenType }: AddressSpecificNFTTokenSpec): bigint => {
   const dispatch = useDispatch()
   const key = utils.computeTokenKey({ contractAddress, tokenId, tokenType }).string
-  const balance = useSelector(state => state.balance?.[address]?.tokenBalances?.[key] || '')
+  const balance = useSelector<RootState, string>(state => state.balance?.[address]?.tokenBalances?.[key] || '')
   useEffect(() => {
     if (!contractAddress || !tokenId || !tokenType || !address) {
       return
     }
-    async function f () {
+    async function f (): Promise<void> {
       dispatch(balanceActions.fetchTokenBalance({ address, contractAddress, tokenId, tokenType }))
     }
-    f()
-  }, [contractAddress, address, tokenId, tokenType])
-  return new BN(balance)
+    f().catch(console.error)
+  }, [dispatch, contractAddress, address, tokenId, tokenType])
+  return BigInt(balance)
 }
 
 export const Gallery = styled.div`
@@ -271,33 +295,33 @@ const TechnicalText = styled(BaseText)`
   color: white;
 `
 
-export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect }) => {
-  const { contractName, uri } = loadNFTData({ contractAddress, tokenId, tokenType })
-  const balance = loadNFTBalance({ contractAddress, tokenId, tokenType, address })
+export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect }: AddressSpecificNFTTokenSpec & { onSelect?: (...args: any[]) => void }): React.JSX.Element => {
+  const { contractName, uri } = useNFTData({ contractAddress, tokenId, tokenType })
+  const balance = useNFTBalance({ contractAddress, tokenId, tokenType, address })
   // eslint-disable-next-line no-unused-vars
-  const { metadata, resolvedImageUrl, contentType, resolvedAnimationUrl, animationUrlContentType } = useMetadata({ uri, contractAddress, tokenType })
+  const { metadata, resolvedImageUrl, contentType } = useMetadata({ uri })
   const isImage = contentType?.startsWith('image')
   const isVideo = contentType?.startsWith('video')
   // const isAnimationUrlImage = animationUrlContentType?.startsWith('image')
   // const isAnimationUrlVideo = animationUrlContentType?.startsWith('video')
-  if (balance.ltn(1)) {
+  if (balance < 1n) {
     return <></>
   }
 
   return (
     <>
-      <NFTItemContainer onClick={() => onSelect && onSelect({ resolvedImageUrl, contractAddress, isImage, isVideo, metadata, contractName, tokenId, tokenType })}>
+      <NFTItemContainer onClick={() => { onSelect?.({ resolvedImageUrl, contractAddress, isImage, isVideo, metadata, contractName, tokenId, tokenType }) }}>
         {!contentType && <Loading><TailSpin /> </Loading>}
         {isImage && <NFTImage src={resolvedImageUrl} />}
         {/* <NFTImage src='https://1wallet.mypinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/1.png' /> */}
-        {isVideo && <NFTVideo src={resolvedImageUrl} loop muted autoplay />}
+        {isVideo && <NFTVideo src={resolvedImageUrl} loop muted autoPlay />}
         <Row>
           <FlexColumn style={{ flex: 1 }}>
             <NFTName>{metadata?.displayName || metadata?.name}</NFTName>
             <NFTCollection>{contractName}</NFTCollection>
           </FlexColumn>
         </Row>
-        {balance.gtn(1) && <NFTQuantity>x{balance.toString()}</NFTQuantity>}
+        {balance > 1n && <NFTQuantity>x{balance.toString()}</NFTQuantity>}
       </NFTItemContainer>
     </>
   )
@@ -311,47 +335,47 @@ if (config.chainId === 1666600000) {
   DUMMY_NFTS = config.test.nfts
 }
 
-const loadNFTs = ({ address }) => {
+const useNFTs = (address: string): TrackedNFT[] => {
   const dispatch = useDispatch()
-  const tracked = useSelector(state => state.wallet?.[address]?.trackedTokens || [])
-  const [nfts, setNfts] = useState([...tracked, ...DUMMY_NFTS])
+  const tracked = useSelector<RootState, TrackedToken[]>(state => state.wallet?.[address]?.trackedTokens ?? [])
+  const [nfts, setNfts] = useState<TrackedNFT[]>([...tracked, ...DUMMY_NFTS])
   useEffect(() => {
-    async function f () {
+    async function f (): Promise<void> {
       try {
-        const nfts = await apis.nft.lookup({ address })
+        const nfts = await apis.nft.lookup(address)
         console.log(nfts)
         const tokens = nfts.map(e => ({ ...e, key: utils.computeTokenKey(e).string }))
-        dispatch(walletActions.overrideTokens({ tokens }))
+        dispatch(walletActions.overrideTokens({ address, tokens }))
         setNfts([...nfts, ...DUMMY_NFTS])
       } catch (ex) {
         console.error(ex)
         toast.error('Unable to look up NFTs owned by this wallet')
       }
     }
-    f()
-  }, [address])
+    f().catch(console.error)
+  }, [dispatch, address])
   return nfts
 }
 
-const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddress, tokenId, tokenType }) => {
+const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddress, tokenId, tokenType }): React.JSX.Element => {
   const dispatch = useDispatch()
   const [isAddressInput, setIsAddressInput] = useState(false)
   const [phone, setPhone] = useState('')
   const [to, setTo] = useState('')
   const [amount, setAmount] = useState('1')
   const [isSending, setIsSending] = useState(false)
-  const wallet = useSelector(state => state.wallet || {})
+  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
   const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
-  const pk = wallet[address]?.pk
+  const pk = wallet[address ?? '']?.pk
 
-  const send = async () => {
+  const send = async (): Promise<void> => {
     const value = amount?.toString()
     if (!value || value === '0') {
       toast.error('Invalid amount')
       return
     }
 
-    if (!(new BN(value).lte(new BN(maxQuantity)))) {
+    if (!(BigInt(value) < BigInt(maxQuantity))) {
       toast.error('Amount exceeds balance')
       return
     }
@@ -378,7 +402,7 @@ const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddr
     toast.info('Submitting transaction...')
     try {
       apis.web3.changeAccount(pk)
-      const { transactionHash } = await apis.blockchain.sendToken({
+      const { hash } = await apis.blockchain.sendToken({
         address,
         contractAddress,
         tokenId,
@@ -392,7 +416,7 @@ const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddr
       toast.success(
         <FlexRow>
           <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
-          <LinkWrarpper target='_blank' href={utils.getExplorerUri(transactionHash)}>
+          <LinkWrarpper target='_blank' href={utils.getExplorerUri(hash)}>
             <BaseText>View transaction</BaseText>
           </LinkWrarpper>
         </FlexRow>)
@@ -649,7 +673,7 @@ const NFTTracker = ({ visible, setVisible }) => {
 const NFTShowcase = ({ address }) => {
   const [viewerVisible, setViewerVisible] = useState(false)
   const [trackerVisible, setTrackerVisible] = useState(false)
-  const nfts = loadNFTs({ address })
+  const nfts = useNFTs(address)
   const [selected, setSelected] = useState()
   // console.log(nfts)
   useEffect(() => {

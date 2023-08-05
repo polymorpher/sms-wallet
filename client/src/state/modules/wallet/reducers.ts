@@ -1,10 +1,10 @@
 import { handleActions } from 'redux-actions'
-import walletActions from './actions'
+import walletActions, { type TrackedToken } from './actions'
 import uniq from 'lodash/fp/uniq'
 import omit from 'lodash/fp/omit'
 
 export type WalletState = Record<string, {
-  trackedTokens?: string[]
+  trackedTokens?: TrackedToken[]
   selectedToken?: string
   phone: string
   address: string
