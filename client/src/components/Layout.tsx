@@ -58,8 +58,16 @@ const ModalBody = styled(FlexColumn)`
   background: white;
   color: black;
 `
+export interface ModalParams {
+  style?: React.CSSProperties
+  shadowStyle?: React.CSSProperties
+  children: React.ReactNode
+  zIndex?: number
+  visible?: boolean
+  onCancel?: () => any
+}
 
-export const Modal = ({ style, shadowStyle, children, zIndex, visible, onCancel }): React.JSX.Element => {
+export const Modal = ({ style, shadowStyle, children, zIndex, visible, onCancel }: ModalParams): React.JSX.Element => {
   if (!visible) {
     return <></>
   }

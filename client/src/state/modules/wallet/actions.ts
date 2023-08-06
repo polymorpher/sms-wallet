@@ -20,8 +20,8 @@ export interface DeleteWalletPayload {
 }
 
 export interface TrackedToken {
-  id: string
-  address: string
+  id?: string
+  address?: string
   contractAddress: string
   tokenId: string
   tokenType: string

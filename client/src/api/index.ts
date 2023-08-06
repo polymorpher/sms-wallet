@@ -102,7 +102,7 @@ const apis = {
       const w = new ethers.Wallet(key, provider)
       return w.signMessageSync(message)
     },
-    signWithBody: (body: string, key: string): string => {
+    signWithBody: (body: any, key: string): string => {
       const w = new ethers.Wallet(key, provider)
       const msg = stringify(body)
       return w.signMessageSync(msg)
