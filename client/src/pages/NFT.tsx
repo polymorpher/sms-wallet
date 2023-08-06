@@ -295,7 +295,18 @@ const TechnicalText = styled(BaseText)`
   color: white;
 `
 
-export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect }: AddressSpecificNFTTokenSpec & { onSelect?: (...args: any[]) => void }): React.JSX.Element => {
+export interface SelectedNFT {
+  resolvedImageUrl?: string
+  contractAddress: string
+  isImage?: boolean
+  isVideo?: boolean
+  metadata?: Record<string, any>
+  contractName?: string
+  tokenId: string
+  tokenType: string
+}
+
+export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect }: AddressSpecificNFTTokenSpec & { onSelect?: (selected: SelectedNFT) => void }): React.JSX.Element => {
   const { contractName, uri } = useNFTData({ contractAddress, tokenId, tokenType })
   const balance = useNFTBalance({ contractAddress, tokenId, tokenType, address })
   // eslint-disable-next-line no-unused-vars
@@ -310,7 +321,9 @@ export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect
 
   return (
     <>
-      <NFTItemContainer onClick={() => { onSelect?.({ resolvedImageUrl, contractAddress, isImage, isVideo, metadata, contractName, tokenId, tokenType }) }}>
+      <NFTItemContainer onClick={() => {
+        onSelect?.({ resolvedImageUrl, contractAddress, isImage, isVideo, metadata, contractName, tokenId, tokenType })
+      }}>
         {!contentType && <Loading><TailSpin /> </Loading>}
         {isImage && <NFTImage src={resolvedImageUrl} />}
         {/* <NFTImage src='https://1wallet.mypinata.cloud/ipfs/QmUgueVH4cQgBEB8aJ3JJT8hMaDS4yHaHvBugGhGLyz9Nx/1.png' /> */}
@@ -662,7 +675,7 @@ const NFTTracker = ({ visible, setVisible }: NFTTrackerParams): React.JSX.Elemen
         return
       }
       const balance = await apis.blockchain.getTokenBalance({ tokenType, tokenId, contractAddress: contract, address })
-      if (!new BN(balance).gtn(0)) {
+      if (!(balance > 0n)) {
         toast.error('You do not own the NFT')
         return
       }
@@ -710,7 +723,7 @@ const NFTShowcase = ({ address }: { address: string }): React.JSX.Element => {
   const [viewerVisible, setViewerVisible] = useState<boolean>(false)
   const [trackerVisible, setTrackerVisible] = useState<boolean>(false)
   const nfts = useNFTs(address)
-  const [selected, setSelected] = useState<boolean>(false)
+  const [selected, setSelected] = useState<SelectedNFT | undefined>()
   // console.log(nfts)
   useEffect(() => {
     if (selected) {
@@ -738,7 +751,7 @@ const NFTShowcase = ({ address }: { address: string }): React.JSX.Element => {
           </FlexRow>
         </FlexColumn>
       </Gallery>
-      <NFTViewer visible={viewerVisible} setVisible={setViewerVisible} onClose={() => { setSelected(null) }} {...selected} />
+      <NFTViewer visible={viewerVisible} setVisible={setViewerVisible} onClose={() => { setSelected(undefined) }} {...selected} />
       <NFTTracker visible={trackerVisible} setVisible={setTrackerVisible} />
     </>
   )
