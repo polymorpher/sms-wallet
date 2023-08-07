@@ -14,23 +14,26 @@ const QRImage = styled.img`
   object-fit: contain;
 `
 
-const SaveQR = ({ phone, address, qrCodeData, onSaveQR, onDone }) => {
-  const refQr = useRef()
+const SaveQR = ({ phone, address, qrCodeData, onSaveQR, onDone }): React.JSX.Element => {
+  const refQr = useRef<HTMLDivElement>(null)
   const [codeSaved, setCodeSaved] = useState(false)
 
-  const capture = async () => {
+  const capture = async (): Promise<Blob | undefined> => {
+    if (!refQr?.current) {
+      return
+    }
     const canvas = await html2canvas(refQr.current)
-    return new Promise((resolve, reject) => {
+    return await new Promise<Blob | undefined>((resolve, reject) => {
       try {
-        canvas.toBlob(blob => { resolve(blob) })
+        canvas.toBlob(blob => { resolve(blob ?? undefined) })
       } catch (err) {
         reject(err)
       }
     })
   }
 
-  const saveQR = async () => {
-    const blob = await capture()
+  const saveQR = async (): Promise<void> => {
+    const blob = await capture() as Blob
     const element = document.createElement('a')
     element.href = URL.createObjectURL(blob)
     element.download = `sms-wallet-${phone.replace('+', '_')}-${address}.png`
@@ -38,7 +41,7 @@ const SaveQR = ({ phone, address, qrCodeData, onSaveQR, onDone }) => {
     element.click()
     URL.revokeObjectURL(element.href)
     setCodeSaved(true)
-    onSaveQR && onSaveQR()
+    onSaveQR?.()
   }
 
   return (
