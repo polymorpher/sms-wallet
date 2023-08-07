@@ -15,10 +15,6 @@ export interface UpdateWalletPayload {
   pk?: string
   eseed?: string
 }
-export interface DeleteWalletPayload {
-  address: string
-}
-
 export interface TrackedToken {
   id?: string
   address?: string
@@ -48,7 +44,7 @@ const fetchWallet = createAction<FetchWalletPayload>('FETCH_WALLET')
 const fetchWalletSuccess = createAction<FetchWalletSuccessPayload>('FETCH_WALLET_SUCCESS')
 
 const updateWallet = createAction<UpdateWalletPayload>('UPDATE_WALLET')
-const deleteWallet = createAction<DeleteWalletPayload>('DELETE_WALLET')
+const deleteWallet = createAction<string>('DELETE_WALLET')
 const deleteAllWallet = createAction('DELETE_ALL_WALLET')
 
 const trackTokens = createAction<TrackTokensPayload>('TRACK_TOKENS')

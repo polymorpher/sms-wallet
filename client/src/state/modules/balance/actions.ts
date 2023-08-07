@@ -22,11 +22,7 @@ export interface FetchBalancePayload {
   address: string
 }
 
-export interface DeleteBalancePayload {
-  address: string
-}
-
-const deleteBalance = createAction<DeleteBalancePayload>('DELETE_BALANCE')
+const deleteBalance = createAction<string>('DELETE_BALANCE')
 
 const fetchBalance = createAction<FetchBalancePayload>('FETCH_BALANCE')
 const fetchBalanceSuccess = createAction<FetchBalanceSuccessPayload>('FETCH_BALANCE_SUCCESS')
