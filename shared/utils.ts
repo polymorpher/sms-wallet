@@ -1,8 +1,24 @@
 import createKeccakHash from 'keccak'
 import Conversion from 'ethjs-unit'
 import BN from 'bn.js'
-import Constants from './constants.ts'
 const STANDARD_DECIMAL = 18
+
+export const Constants = {
+  TokenType: {
+    0: 'ERC20',
+    1: 'ERC721',
+    2: 'ERC1155',
+    3: 'NONE',
+    ERC20: 0,
+    ERC721: 1,
+    ERC1155: 2,
+    NONE: 3
+  },
+  TokenInterfaces: {
+    ERC721: '0x80ac58cd',
+    ERC1155: '0xd9b67a26'
+  }
+}
 
 const utils = {
   keccak: (bytes: string | Buffer | Uint8Array): Uint8Array => {

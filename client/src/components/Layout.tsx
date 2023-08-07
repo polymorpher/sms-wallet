@@ -33,7 +33,7 @@ export const Main = styled(FlexColumn)`
   align-items: center;
 `
 
-const ModalContainer = styled.div<{ $zIndex: number }>`
+const ModalContainer = styled.div<{ $zIndex: number | undefined }>`
   position: fixed;
   z-index: ${props => props.$zIndex ?? 5};
   width: 100%;

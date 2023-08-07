@@ -59,7 +59,7 @@ export default {
         type: 'asset/resource'
       },
       {
-        test: /\.(png|jpg|gif)$/,
+        test: /\.(png|jpg|gif|webp)$/,
         use: [
           'file-loader'
         ]

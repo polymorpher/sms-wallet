@@ -1,6 +1,13 @@
 import { utils } from '../utils'
 import axios from 'axios'
-import ethers, { type Wallet } from 'ethers'
+import {
+  Wallet,
+  hashMessage,
+  isAddress,
+  type ContractTransactionResponse,
+  Contract,
+  JsonRpcProvider
+} from 'ethers'
 import config from '../config'
 import Constants from '../../../shared/constants'
 import stringify from 'json-stable-stringify'
@@ -49,34 +56,33 @@ const apiBase = axios.create({
 // web3.eth.defaultChain = config.chainId
 
 // Contract.setProvider(web3.currentProvider)
-const provider = new ethers.JsonRpcProvider(config.rpc, { chainId: config.chainId })
+const provider = new JsonRpcProvider(config.rpc, { chainId: config.chainId })
 
 const getTokenContract = {
-  ERC20: (address): ethers.Contract => new ethers.Contract(address, IERC20, provider),
-  ERC721: (address): ethers.Contract => new ethers.Contract(address, IERC721, provider),
-  ERC1155: (address): ethers.Contract => new ethers.Contract(address, IERC1155, provider)
+  ERC20: (address): Contract => new Contract(address, IERC20, provider),
+  ERC721: (address): Contract => new Contract(address, IERC721, provider),
+  ERC1155: (address): Contract => new Contract(address, IERC1155, provider)
 }
 
 const getTokenMetadataContract = {
-  ERC20: (address): ethers.Contract => new ethers.Contract(address, IERC20Metadata, provider),
-  ERC721: (address): ethers.Contract => new ethers.Contract(address, IERC721Metadata, provider),
-  ERC1155: (address): ethers.Contract => new ethers.Contract(address, IERC1155MetadataURI, provider)
+  ERC20: (address): Contract => new Contract(address, IERC20Metadata, provider),
+  ERC721: (address): Contract => new Contract(address, IERC721Metadata, provider),
+  ERC1155: (address): Contract => new Contract(address, IERC1155MetadataURI, provider)
 }
 
 let activeWallet: Wallet | undefined
-
 const apis = {
-  ethers,
+  hashMessage,
   web3: {
     wallet: (key: string): Wallet => {
-      return new ethers.Wallet(key, provider)
+      return new Wallet(key, provider)
     },
     changeAccount: (key?: string): Wallet | undefined => {
       if (!key) {
         activeWallet = undefined
         return
       }
-      activeWallet = new ethers.Wallet(key, provider)
+      activeWallet = new Wallet(key, provider)
       return activeWallet
     },
     changeNetwork: (network) => {
@@ -86,11 +92,11 @@ const apis = {
       if (typeof key !== 'string') {
         key = utils.hexString(key)
       }
-      return new ethers.Wallet(key, provider).address
+      return new Wallet(key, provider).address
     },
     isValidAddress: (address: string): boolean => {
       try {
-        return ethers.isAddress(address)
+        return isAddress(address)
       } catch (ex) {
         console.error(ex)
         return false
@@ -99,29 +105,29 @@ const apis = {
     signWithNonce: (msg: string, key: string): string => {
       const nonce = Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration
       const message = `${msg} ${nonce}`
-      const w = new ethers.Wallet(key, provider)
+      const w = new Wallet(key, provider)
       return w.signMessageSync(message)
     },
     signWithBody: (body: any, key: string): string => {
-      const w = new ethers.Wallet(key, provider)
+      const w = new Wallet(key, provider)
       const msg = stringify(body)
       return w.signMessageSync(msg)
     }
   },
   blockchain: {
-    sendToken: async ({ address, contractAddress, tokenType, tokenId, amount, dest }): Promise<ethers.ContractTransactionResponse> => {
+    sendToken: async ({ address, contractAddress, tokenType, tokenId, amount, dest }): Promise<ContractTransactionResponse> => {
       if (!activeWallet) {
         throw new Error('no active wallet')
       }
-      const c = (getTokenContract[tokenType](contractAddress) as ethers.Contract).connect(activeWallet) as ethers.Contract
+      const c = (getTokenContract[tokenType](contractAddress) as Contract).connect(activeWallet) as Contract
 
       console.log('[sendToken]', { address, contractAddress, tokenType, tokenId, amount, dest })
       if (tokenType === 'ERC20') {
-        return (await c.transferFrom(address, dest, amount)) as ethers.ContractTransactionResponse
+        return (await c.transferFrom(address, dest, amount)) as ContractTransactionResponse
       } else if (tokenType === 'ERC721') {
-        return (await c.safeTransferFrom(address, dest, tokenId)) as ethers.ContractTransactionResponse
+        return (await c.safeTransferFrom(address, dest, tokenId)) as ContractTransactionResponse
       } else if (tokenType === 'ERC1155') {
-        return (await c.safeTransferFrom(address, dest, tokenId, amount, '0x')) as ethers.ContractTransactionResponse
+        return (await c.safeTransferFrom(address, dest, tokenId, amount, '0x')) as ContractTransactionResponse
       } else {
         throw Error('unreachable')
       }
@@ -151,7 +157,7 @@ const apis = {
       if (!utils.isValidTokenType(tokenType)) {
         throw new Error(`Unknown token type: ${tokenType}`)
       }
-      const c = getTokenMetadataContract[tokenType](contractAddress) as ethers.Contract
+      const c = getTokenMetadataContract[tokenType](contractAddress) as Contract
       let name = ''; let symbol = ''; let uri = ''; let decimals = 0n
       if (tokenType === 'ERC20') {
         decimals = await c.decimals()
@@ -233,7 +239,7 @@ const apis = {
       return {}
     },
     getNFTType: async (contractAddress): Promise<string | null> => {
-      const c = new ethers.Contract(contractAddress, IERC165, provider)
+      const c = new Contract(contractAddress, IERC165, provider)
       const is721 = await c.supportsInterface(Constants.TokenInterfaces.ERC721) as boolean
       if (is721) {
         return 'ERC721'

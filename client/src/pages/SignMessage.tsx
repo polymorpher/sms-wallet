@@ -53,7 +53,7 @@ const SignMessage = (): React.JSX.Element => {
       const sig = apis.web3.wallet(pk).signMessageSync(message)
       const returnUrl = new URL(callback)
       returnUrl.searchParams.append('signature', sig)
-      returnUrl.searchParams.append('messageHash', apis.ethers.hashMessage(message))
+      returnUrl.searchParams.append('messageHash', apis.hashMessage(message))
       returnUrl.searchParams.append('address', address)
       toast.success(`Signing complete. Returning to app at ${returnUrl.hostname}`)
       setTimeout(() => { location.href = returnUrl.href }, 1000)

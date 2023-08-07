@@ -4,6 +4,7 @@ import { useWindowDimensions } from '../utils'
 
 const OtpBox = ({ onChange, value, inputStyle, containerStyle, numOnly = true, autofill = false, ...params }, ref): React.JSX.Element => {
   const { isMobile } = useWindowDimensions()
+
   return (
     <OtpInput
       placeholder=''
@@ -27,7 +28,10 @@ const OtpBox = ({ onChange, value, inputStyle, containerStyle, numOnly = true, a
         ...inputStyle
       }}
       separator={<span> </span>}
+      // renderSeparator={<span>-</span>}
+      // renderInput={(props) => <input {...props} />}
       {...params}
+        // @ts-expect-error autoComplete
       autoComplete={autofill ? 'one-time-code' : 'off'}
     />
   )
