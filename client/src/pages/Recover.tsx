@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { BaseText, Desc, LinkText, Title } from '../components/Text'
 import QrCodeScanner from '../components/QrCodeScanner'
 import qs from 'query-string'
@@ -11,13 +11,15 @@ import OtpBox from '../components/OtpBox'
 import { walletActions } from '../state/modules/wallet'
 import { useDispatch, useSelector } from 'react-redux'
 import paths from './paths'
-import { useHistory } from 'react-router'
+import { useNavigate } from 'react-router'
 import MainContainer from '../components/Container'
 import { globalActions } from '../state/modules/global'
 import phoneValidator from 'phone'
 import { IconImg } from '../components/Menu'
 import QrIcon from '../../assets/qr.svg'
 import styled from 'styled-components'
+import { type RootState } from '../state/rootReducer'
+import { type NextAction } from '../state/modules/global/actions'
 
 const InvisibleInput = styled(Input)`
   width: 0;
@@ -44,31 +46,31 @@ const StyledPhoneInput = styled(PhoneInput)`
   }
 `
 
-const processRecoverData = (d) => {
+const processRecoverData = (d): string | null => {
   try {
     const q = qs.parseUrl(d)
-    return q?.query?.p
+    return String(q?.query?.p)
   } catch (ex) {
     console.error(ex)
     return null
   }
 }
-const Recover = () => {
-  const history = useHistory()
+const Recover = (): React.JSX.Element => {
+  const navigate = useNavigate()
   const dispatch = useDispatch()
-  const [p, setP] = useState()
+  const [p, setP] = useState<Uint8Array | undefined>()
   const [phone, setPhone] = useState('')
   const [restoring, setRestoring] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [readyForCode, setReadyForCode] = useState(false)
   const [code, setCode] = useState('')
   const [countdown, setCountdown] = useState(0)
-  const next = useSelector(state => state.global.next || {})
-  const prefilledPhone = useSelector(state => state.global.prefilledPhone)
+  const next = useSelector<RootState, NextAction>(state => state.global.next || {})
+  const prefilledPhone = useSelector<RootState, string | undefined>(state => state.global.prefilledPhone)
   const [password, setPassword] = useState('')
   const [revealPassword, setRevealPassword] = useState(false)
 
-  const confirmManualPassword = () => {
+  const confirmManualPassword = (): void => {
     const p = utils.hexStringToBytes(password)
     setP(p)
   }
@@ -83,7 +85,7 @@ const Recover = () => {
     }
   }, [prefilledPhone])
 
-  const onScan = (data, isJson) => {
+  const onScan = (data, isJson): void => {
     if (!data) {
       return
     }
@@ -96,7 +98,10 @@ const Recover = () => {
     setP(p)
     // console.log(pStr)
   }
-  const restore = async () => {
+  const restore = async (): Promise<void> => {
+    if (!p) {
+      return
+    }
     if (!(countdown <= 0)) {
       return
     }
@@ -116,29 +121,32 @@ const Recover = () => {
         }
       })
       toast.success('Verification SMS Sent')
-    } catch (ex) {
+    } catch (ex: any) {
       console.error(ex)
       toast.error('Error: ' + processError(ex))
     } finally {
       setRestoring(false)
     }
   }
-  const restart = () => {
+  const restart = (): void => {
     setPhone('')
     setCountdown(0)
     setReadyForCode(false)
     setCode('')
   }
 
-  const restoreVerify = async () => {
+  const restoreVerify = useCallback(async (inputCode: string): Promise<void> => {
+    if (!p) {
+      return
+    }
     setVerifying(true)
     const { eseed } = utils.computeParameters({ phone, p })
     try {
-      const { ekey, address } = await apis.server.restoreVerify({ phone, eseed, code })
+      const { ekey, address } = await apis.server.restoreVerify({ phone, eseed, code: inputCode })
       // console.log({ ekey, address })
-      const q = utils.hexStringToBytes(eseed)
+      const q = utils.hexStringToBytes(eseed) as Uint8Array
       const iv = q.slice(0, 16)
-      const pk = utils.decrypt(utils.hexStringToBytes(ekey), p, iv)
+      const pk = utils.decrypt(utils.hexStringToBytes(ekey) as Uint8Array, p, iv)
       const derivedAddress = apis.web3.getAddress(pk)
       if (address.toLowerCase() !== derivedAddress.toLowerCase()) {
         console.error(address, derivedAddress)
@@ -150,11 +158,11 @@ const Recover = () => {
       setTimeout(() => {
         if (next?.path) {
           dispatch(globalActions.setNextAction({}))
-          dispatch(globalActions.setPrefilledPhone())
-          history.push({ pathname: next.path, search: next.query })
+          dispatch(globalActions.setPrefilledPhone(''))
+          navigate({ pathname: next.path, search: next.query })
           return
         }
-        history.push(paths.wallet)
+        navigate(paths.wallet)
       }, 1000)
     } catch (ex) {
       console.error(ex)
@@ -164,18 +172,18 @@ const Recover = () => {
       setVerifying(false)
       setCountdown(0)
     }
-  }
+  }, [dispatch, navigate, p, phone, next?.path, next?.query])
 
   useEffect(() => {
     if (code?.length === 6 && !verifying) {
-      restoreVerify()
+      restoreVerify(code).catch(console.error)
     }
-  }, [code, verifying])
+  }, [restoreVerify, code, verifying])
   console.log(p)
   return (
     <MainContainer>
       <Title> Recover your wallet </Title>
-      <form action='#' onSubmit={(e) => e.preventDefault()}>
+      <form action='#' onSubmit={(e) => { e.preventDefault() }}>
         <Desc>
           {!p &&
             <>
@@ -183,8 +191,8 @@ const Recover = () => {
               <QrCodeScanner style={{ maxWidth: 288 }} onScan={onScan} shouldInit />
               {!revealPassword &&
                 <>
-                  <Button style={{ whiteSpace: 'nowrap', width: 'auto', display: 'flex', gap: '16px' }} onClick={() => setRevealPassword(true)}>
-                    <IconImg style={{ width: 16, height: 16, color: 'white' }} src={QrIcon} />
+                  <Button style={{ whiteSpace: 'nowrap', width: 'auto', display: 'flex', gap: '16px' }} onClick={() => { setRevealPassword(true) }}>
+                    <IconImg style={{ width: 16, height: 16, color: 'white' }} src={QrIcon as string} />
                     <BaseText>Use Keychain / Password</BaseText>
                   </Button>
                 </>}
@@ -201,7 +209,7 @@ const Recover = () => {
                   <Input
                     style={!p && revealPassword ? { width: 288, marginTop: 36, marginBottom: 16 } : { border: 'none', position: 'absolute', width: 0, margin: 0 }}
                     type='password' placeholder='Keychain Password' autoComplete='password' value={password}
-                    onChange={({ target: { value } }) => setPassword(value)}
+                    onChange={({ target: { value } }) => { setPassword(value) }}
                   />
                   <Button onClick={confirmManualPassword}>Next</Button>
                 </>}
@@ -216,7 +224,7 @@ const Recover = () => {
                 inputComponent={Input}
                 defaultCountry='US'
                 placeholder='Enter phone number'
-                value={phone} onChange={setPhone}
+                value={phone} onChange={(e) => { setPhone(e ?? '') }}
               />
               <Button onClick={restore} disabled={restoring}>Verify</Button>
             </>}

@@ -17,7 +17,7 @@ export interface Balance {
 interface KeyEncryptionParameters {
   phone: string
   p: Uint8Array
-  pk: Uint8Array
+  pk?: Uint8Array
 }
 
 interface ComputedParameters {
