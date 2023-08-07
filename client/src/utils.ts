@@ -1,6 +1,6 @@
 import AES from 'aes-js'
 import sharedUtils from '../../shared/utils'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import config from './config'
 import paths from './pages/paths'
 import apis from './api'
@@ -17,15 +17,16 @@ export interface Balance {
 interface KeyEncryptionParameters {
   phone: string
   p: Uint8Array
-  pk?: Uint8Array
+  pk: Uint8Array
+}
+interface PartialKeyEncryptionParameters {
+  phone: string
+  p: Uint8Array
 }
 
 interface ComputedParameters {
   address: string
   ekey: string
-  eseed: string
-}
-interface PartialComputedParameters {
   eseed: string
 }
 
@@ -105,14 +106,18 @@ export const utils = {
     return { balance, formatted, fiat, fiatFormatted, valid: true }
   },
 
-  computeParameters: ({ phone, p, pk }: KeyEncryptionParameters): ComputedParameters | PartialComputedParameters => {
+  computePartialParameters: ({ phone, p }: PartialKeyEncryptionParameters): string => {
+    const phoneBytes = utils.stringToBytes(phone)
+    const combined = utils.bytesConcat(p, phoneBytes)
+    const q = utils.keccak(combined)
+    return utils.hexView(q)
+  },
+
+  computeParameters: ({ phone, p, pk }: KeyEncryptionParameters): ComputedParameters => {
     const phoneBytes = utils.stringToBytes(phone)
     const combined = utils.bytesConcat(p, phoneBytes)
     const q = utils.keccak(combined)
     const eseed = utils.hexView(q)
-    if (!pk) {
-      return { eseed }
-    }
     const iv = q.slice(0, 16)
     const ekeyBytes = utils.encrypt(pk, p, iv)
     const ekey = utils.hexView(ekeyBytes)

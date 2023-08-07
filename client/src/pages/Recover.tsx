@@ -106,7 +106,7 @@ const Recover = (): React.JSX.Element => {
       return
     }
     setRestoring(true)
-    const { eseed } = utils.computeParameters({ phone, p })
+    const eseed = utils.computePartialParameters({ phone, p })
     // console.log({ phone, eseed })
     try {
       await apis.server.restore({ phone, eseed })
@@ -140,7 +140,7 @@ const Recover = (): React.JSX.Element => {
       return
     }
     setVerifying(true)
-    const { eseed } = utils.computeParameters({ phone, p })
+    const eseed = utils.computePartialParameters({ phone, p })
     try {
       const { ekey, address } = await apis.server.restoreVerify({ phone, eseed, code: inputCode })
       // console.log({ ekey, address })
