@@ -340,9 +340,9 @@ export interface NFTSendModalParams {
   modelVisible?: boolean
   setModelVisible: (visible: boolean) => any
   maxQuantity: bigint
-  contractAddress: string
-  tokenId: string
-  tokenType: string
+  contractAddress?: string
+  tokenId?: string
+  tokenType?: string
 }
 
 const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddress, tokenId, tokenType }: NFTSendModalParams): React.JSX.Element => {
@@ -562,7 +562,7 @@ const NFTViewer = ({ visible, setVisible, onClose, contractAddress, resolvedImag
                 <TechnicalText>Contract: </TechnicalText>
                 <TechnicalText onClick={() => {
                   setShowFullAddress(!showFullAddress)
-                  navigator.clipboard.writeText(contractAddress).catch(console.error)
+                  navigator.clipboard.writeText(contractAddress ?? '').catch(console.error)
                   toast.info('Copied address')
                 }}
                 >{showFullAddress ? contractAddress : utils.ellipsisAddress(contractAddress)}
@@ -571,7 +571,7 @@ const NFTViewer = ({ visible, setVisible, onClose, contractAddress, resolvedImag
               <Row>
                 <TechnicalText>ID: </TechnicalText>
                 <TechnicalText onClick={() => {
-                  navigator.clipboard.writeText(tokenId).catch(console.error)
+                  navigator.clipboard.writeText(tokenId ?? '').catch(console.error)
                   toast.info('Copied Token ID')
                 }}
                 >{tokenId}
@@ -580,7 +580,7 @@ const NFTViewer = ({ visible, setVisible, onClose, contractAddress, resolvedImag
               <Row>
                 <TechnicalText>Type: </TechnicalText>
                 <TechnicalText onClick={() => {
-                  navigator.clipboard.writeText(tokenType).catch(console.error)
+                  navigator.clipboard.writeText(tokenType ?? '').catch(console.error)
                   toast.info('Copied Token Type')
                 }}
                 >{tokenType}

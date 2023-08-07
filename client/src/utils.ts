@@ -120,9 +120,9 @@ export const utils = {
     return { address, ekey, eseed }
   },
 
-  ellipsisAddress: (address: string): string => {
+  ellipsisAddress: (address?: string): string => {
     if (!address || address.length < 10) {
-      return address
+      return address ?? ''
     }
     return address.slice(0, 6) + '...' + address.slice(address.length - 3, address.length)
   },

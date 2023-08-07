@@ -134,9 +134,9 @@ const utils = {
 }
 
 export interface TokenKeyInput {
-  tokenId: string
-  tokenType: string | number
-  contractAddress: string
+  tokenId?: string
+  tokenType?: string | number
+  contractAddress?: string
 }
 export interface TokenKey {
   string: string
