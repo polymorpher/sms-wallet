@@ -16,25 +16,26 @@ import { type WalletState } from '../state/modules/wallet/reducers'
 import { type TransactionReceipt } from 'ethers'
 import { Navigate, useNavigate } from 'react-router'
 
-export const decodeCalldata = (calldataB64Encoded?: string): any => {
+export interface CallData {
+  method?: string
+  selector?: string
+  parameters?: Array<{ type: string, value: string }>
+  calldata?: string
+}
+export const decodeCalldata = (calldataB64Encoded?: string): CallData | undefined => {
   const calldataDecoded = Buffer.from(calldataB64Encoded ?? '', 'base64').toString()
   try {
     return JSON.parse(calldataDecoded)
   } catch (ex) {
     console.error(ex)
-    return null
+    return undefined
   }
 }
 
 export interface ApproveTransactionParams {
   dest: string
-  calldata: {
-    method?: string
-    selector?: string
-    parameters?: Array<{ type: string, value: string }>
-    calldata?: string
-  }
-  callback: URL
+  calldata?: CallData
+  callback?: URL
   caller?: string
   comment?: string
   inputAmount?: string
@@ -54,6 +55,9 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
   const pk = wallet[address]?.pk
 
   const execute = async (): Promise<void> => {
+    if (!calldata) {
+      return
+    }
     if (!(dest?.startsWith('0x')) || !apis.web3.isValidAddress(dest)) {
       toast.error('Invalid address')
       return
@@ -81,10 +85,6 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
         return
       }
       onComplete && await onComplete(receipt)
-      const returnUrl = new URL(callback)
-      returnUrl.searchParams.append('success', 'true')
-      returnUrl.searchParams.append('hash', receipt.hash)
-      returnUrl.searchParams.append('address', address)
       toast.success(
         <Row>
           <BaseText style={{ marginRight: 8 }}>Execution complete</BaseText>
@@ -93,8 +93,16 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
           </LinkWrarpper>
         </Row>
       )
-      toast.success(`Returning to app at ${returnUrl.hostname}`)
-      setTimeout(() => { location.href = returnUrl.href }, 1500)
+      if (callback) {
+        const returnUrl = new URL(callback)
+        returnUrl.searchParams.append('success', 'true')
+        returnUrl.searchParams.append('hash', receipt.hash)
+        returnUrl.searchParams.append('address', address)
+        toast.success(`Returning to app at ${returnUrl.hostname}`)
+        setTimeout(() => {
+          location.href = returnUrl.href
+        }, 1500)
+      }
     } catch (ex: any) {
       console.error(ex)
       toast.error(`Error during execution: ${ex.toString()}`)
@@ -102,6 +110,10 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
   }
 
   const cancel = async (): Promise<void> => {
+    if (!callback) {
+      toast.info('Execution cancelled.')
+      return
+    }
     try {
       const returnUrl = new URL(callback)
       returnUrl.searchParams.append('error', 'cancelled')
@@ -126,7 +138,7 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
         <BaseText>Contract: </BaseText>
         <Address>{dest}</Address>
         {!showDetails && <LinkWrarpper href='#' onClick={() => { setShowDetails(true) }}>Show Technical Details</LinkWrarpper>}
-        {showDetails &&
+        {showDetails && calldata &&
           <>
             {calldata.calldata && calldata.selector
               ? (

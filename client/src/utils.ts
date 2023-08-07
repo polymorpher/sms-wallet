@@ -126,11 +126,11 @@ export const utils = {
     }
     return address.slice(0, 6) + '...' + address.slice(address.length - 3, address.length)
   },
-  safeURL: (callback: string): URL | null => {
+  safeURL: (callback: string): URL | undefined => {
     try {
       return new URL(callback)
     } catch (ex) {
-      return null
+      return undefined
     }
   },
   encodeCalldata: ({ method, selector, types, values = [] }: CallDataEncodeInput) => {

@@ -275,8 +275,16 @@ export interface ArchiveVerifyResponse {
   archived: boolean
   reset: boolean
 }
+export interface CallRequest {
+  calldata: string
+  caller?: string
+  callback?: string
+  comment?: string
+  amount: string
+  dest: string
+}
 export interface RequestViewResponse {
-  request: any
+  request: CallRequest
   hash: string
 }
 export interface TrackedNFT {
