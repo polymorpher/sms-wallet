@@ -8,7 +8,6 @@ import apis, { type TrackedNFT } from '../api'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
-import BN from 'bn.js'
 import { TailSpin } from 'react-loading-icons'
 import PhoneInput from 'react-phone-number-input'
 import { walletActions } from '../state/modules/wallet'
@@ -17,6 +16,13 @@ import config from '../config'
 import { type RootState } from '../state/rootReducer'
 import { type TrackedToken } from '../state/modules/wallet/actions'
 import { type WalletState } from '../state/modules/wallet/reducers'
+import {
+  type AddressSpecificNFTTokenSpec,
+  type NFTTokenData,
+  type NFTTokenSpec, type NFTViewerParams, type SelectedNFT,
+  type UseMetadataParams,
+  type UseMetadataResult
+} from './types'
 
 export const MetadataURITransformer = (url?: string): string | undefined => {
   const IPFSIO = /https:\/\/ipfs\.io\/ipfs\/(.+)/
@@ -29,21 +35,6 @@ export const MetadataURITransformer = (url?: string): string | undefined => {
     return NFTUtils.replaceIPFSLink(hash)
   }
   return url
-}
-
-export interface UseMetadataParams {
-  uri?: string
-  ipfsGateway?: string
-  contentTypeOverride?: string
-  animationUrlContentTypeOverride?: string
-}
-
-export interface UseMetadataResult {
-  metadata?: Record<string, any>
-  resolvedImageUrl?: string
-  resolvedAnimationUrl?: string
-  contentType?: string
-  animationUrlContentType?: string
 }
 
 export const useMetadata = ({ uri, ipfsGateway, contentTypeOverride, animationUrlContentTypeOverride }: UseMetadataParams): UseMetadataResult => {
@@ -87,20 +78,6 @@ export const useMetadata = ({ uri, ipfsGateway, contentTypeOverride, animationUr
   return { metadata, resolvedImageUrl, resolvedAnimationUrl, contentType, animationUrlContentType }
 }
 
-export interface NFTTokenSpec {
-  contractAddress: string
-  tokenId: string
-  tokenType: string
-}
-export interface NFTTokenData {
-  contractName?: string
-  contractSymbol?: string
-  uri?: string
-}
-
-export interface AddressSpecificNFTTokenSpec extends NFTTokenSpec {
-  address: string
-}
 export const useNFTData = ({ contractAddress, tokenId, tokenType }: NFTTokenSpec): NFTTokenData => {
   const [state, setState] = useState<NFTTokenData>({ })
   useEffect(() => {
@@ -294,17 +271,6 @@ const TechnicalText = styled(BaseText)`
   font-size: 10px;
   color: white;
 `
-
-export interface SelectedNFT {
-  resolvedImageUrl?: string
-  contractAddress: string
-  isImage?: boolean
-  isVideo?: boolean
-  metadata?: Record<string, any>
-  contractName?: string
-  tokenId: string
-  tokenType: string
-}
 
 export const NFTItem = ({ address, contractAddress, tokenId, tokenType, onSelect }: AddressSpecificNFTTokenSpec & { onSelect?: (selected: SelectedNFT) => void }): React.JSX.Element => {
   const { contractName, uri } = useNFTData({ contractAddress, tokenId, tokenType })
@@ -515,20 +481,6 @@ const NFTDisplayWrapper = styled.div`
   cursor: pointer;
   position: relative;
 `
-
-export interface NFTViewerParams {
-  visible: boolean
-  setVisible?: (visible: boolean) => any
-  onClose?: () => any
-  contractAddress: string
-  resolvedImageUrl: string
-  isImage: string
-  isVideo: string
-  metadata: Record<string, any>
-  contractName: string
-  tokenId: string
-  tokenType: string
-}
 
 const NFTViewer = ({ visible, setVisible, onClose, contractAddress, resolvedImageUrl, isImage, isVideo, metadata, contractName, tokenId, tokenType }: NFTViewerParams): React.JSX.Element => {
   const dispatch = useDispatch()
