@@ -14,6 +14,8 @@ export interface UpdateWalletPayload {
   phone?: string
   pk?: string
   eseed?: string
+  // p is the recovery secret. It should be deleted as soon as the user saves it. They are given the option to save it later when creating the wallet
+  p?: string
 }
 export interface TrackedToken {
   id?: string
