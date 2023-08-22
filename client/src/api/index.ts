@@ -188,10 +188,10 @@ const apis = {
       const { hash } = data
       return hash
     },
-    tgSignup: async ({ phone, eseed, ekey, address, signature, session, tgId }): Promise<string> => {
-      const { data } = await apiBase.post('/tg/signup', { eseed, ekey, address, signature, session, tgId })
-      const { hash } = data
-      return hash
+    tgSignup: async ({ eseed, ekey, address, signature, sessionId, userId }): Promise<string> => {
+      const { data } = await apiBase.post('/tg/signup', { eseed, ekey, address, signature, sessionId, userId })
+      const { success } = data
+      return success
     },
     verify: async ({ phone, eseed, ekey, address, code, signature }): Promise<boolean> => {
       const { data } = await apiBase.post('/verify', { phone, eseed, ekey, address, code, signature })

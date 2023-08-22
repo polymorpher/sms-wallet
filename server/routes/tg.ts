@@ -26,19 +26,24 @@ interface TGSignupConfig {
   eseed: string
   ekey: string
   address: string
-  session: string
+  sessionId: string
   signature: string
+  userId: string
 }
 
 router.post('/signup', async (req, res) => {
-  const { eseed, ekey, address, session, signature } = req.body as TGSignupConfig
-  console.log('[tg][/signup]', { eseed, ekey, address, session, signature })
-  const tgId = Cache.get<string>(session)
+  const { eseed, ekey, address, sessionId, signature, userId } = req.body as TGSignupConfig
+  console.log('[tg][/signup]', { eseed, ekey, address, sessionId, signature })
+  const tgId = Cache.get<string>(sessionId)
   if (!tgId) {
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'invalid session' })
     return
   }
-  const hash = utils.hexView(utils.keccak(`${tgId}${eseed}${ekey}${address}`))
+  if (userId !== tgId) {
+    res.status(StatusCodes.UNAUTHORIZED).json({ error: 'user id mismatch' })
+    return
+  }
+  const hash = utils.hexView(utils.keccak(`${userId}${eseed}${ekey}${address}`))
   const recoveredAddress = utils.ecrecover(hash, signature)
   if (!recoveredAddress) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'signature cannot be recovered to address' })
@@ -50,8 +55,8 @@ router.post('/signup', async (req, res) => {
   if (!u) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'failed to signup, please try again in 120 seconds' })
   }
-  console.log('[tg][/signup]', `Created account ${tgId} ${address}. Deleting session ${session}`)
-  Cache.del(session)
+  console.log('[tg][/signup]', `Created account ${tgId} ${address}. Deleting session ${sessionId}`)
+  Cache.del(sessionId)
   res.json({ success: true })
 })
 
