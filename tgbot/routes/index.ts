@@ -8,8 +8,6 @@ import { sendMessage } from '../src/client.ts'
 
 const router = express.Router()
 
-
-
 async function isFromController (req: Request, res: Response, next: NextFunction): Promise<void> {
   if (!config.controller.whitelistIps.includes(req.clientIp ?? '*')) {
     console.error(`[isFromController] Access denied for ip ${req.clientIp}`)
