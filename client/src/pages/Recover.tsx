@@ -179,7 +179,7 @@ const Recover = (): React.JSX.Element => {
       restoreVerify(code).catch(console.error)
     }
   }, [restoreVerify, code, verifying])
-  console.log(p)
+
   return (
     <MainContainer>
       <Title> Recover your wallet </Title>

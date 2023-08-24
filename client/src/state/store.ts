@@ -1,29 +1,39 @@
-import {
-  createStore,
-  applyMiddleware,
-  compose
-} from 'redux'
+import { configureStore } from '@reduxjs/toolkit'
 import createSagaMiddleware from 'redux-saga'
 import { createBrowserHistory } from 'history'
-import { routerMiddleware } from 'connected-react-router'
-import rootReducer from './rootReducer'
+import { createReduxHistoryContext } from 'redux-first-history'
 
-// Create a history of your choosing (we're using a browser history in this case).
-export const history = createBrowserHistory()
+import {
+  persistStore,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER
+} from 'redux-persist'
+import { buildRootReducer } from './rootReducer'
 
 export const sagaMiddleware = createSagaMiddleware()
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
-
-const store = createStore(
-  rootReducer(history),
-  undefined,
-  composeEnhancers(
-    applyMiddleware(
-      sagaMiddleware,
-      routerMiddleware(history)
-    )
-  )
+const {
+  createReduxHistory,
+  routerMiddleware,
+  routerReducer
+} = createReduxHistoryContext(
+  { history: createBrowserHistory() }
 )
+
+const store = configureStore({
+  reducer: buildRootReducer(routerReducer),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({ serializableCheck: { ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER] } }).concat(
+      routerMiddleware,
+      sagaMiddleware
+    )
+})
+
+export const persistor = persistStore(store)
+export const history = createReduxHistory(store)
 
 export default store

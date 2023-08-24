@@ -14,7 +14,7 @@ async function isFromController (req: Request, res: Response, next: NextFunction
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'ip disallowed' })
     return
   }
-  const secret = req.header('x-sms-wallet-secret')
+  const secret = req.header('X-TG-BOT-API-SECRET')
   if (config.controller.secret.length > 0 && secret !== config.controller.secret) {
     console.error(`[isFromController] Access denied for secret ${secret}`)
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'bad secret' })

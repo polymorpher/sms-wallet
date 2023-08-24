@@ -2,7 +2,11 @@ import axios from 'axios'
 import crypto from 'crypto'
 import config from '../config.ts'
 
-const Base = axios.create({ baseURL: config.controller.apiBase, timeout: 15000 })
+const Base = axios.create({
+  baseURL: config.controller.apiBase,
+  headers: { 'x-sms-wallet-secret': config.controller.secret },
+  timeout: 15000
+})
 
 export async function newSession (tgId: string): Promise<string> {
   const session = crypto.randomBytes(32).toString('hex')

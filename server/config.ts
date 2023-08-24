@@ -38,10 +38,15 @@ const config = {
   clientRoot: process.env.CLIENT_ROOT ?? 'https://smswallet.xyz',
 
   tg: {
+    // bot server's IP
     whitelistIps: JSON.parse(process.env.TG_WHITELIST_IPS ?? '[]') as string[],
+
+    // for access-control of APIs on this server, which are meant to be called by the bot server
     secret: process.env.TG_SECRET ?? '',
-    botApiBase: process.env.TG_BOT_API_BASE ?? '',
+
+    // for sending requests to the bot. It must match the secret set at the bot server
     botApiSecret: process.env.TG_BOT_API_SECRET ?? '',
+    botApiBase: process.env.TG_BOT_API_BASE ?? ''
   }
 }
 

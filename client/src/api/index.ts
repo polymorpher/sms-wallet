@@ -32,8 +32,8 @@ export interface TokenMetaData {
   decimals: bigint
 }
 const headers = ({ secret, network }: HeadersConfig): Record<string, string> => ({
-  'X-SECRET': secret,
-  'X-NETWORK': network
+  'X-SMS-WALLET-SECRET': secret,
+  'X-SMS-WALLET-NETWORK': network
 })
 
 // console.log(config)
@@ -56,7 +56,7 @@ const apiBase = axios.create({
 // web3.eth.defaultChain = config.chainId
 
 // Contract.setProvider(web3.currentProvider)
-const provider = new JsonRpcProvider(config.rpc, { chainId: config.chainId })
+const provider = new JsonRpcProvider(config.rpc)
 
 const getTokenContract = {
   ERC20: (address): Contract => new Contract(address, IERC20, provider),
@@ -166,7 +166,7 @@ const apis = {
       } else if (tokenType === 'ERC721') {
         name = await c.name()
         symbol = await c.symbol()
-        uri = await c.uri()
+        uri = await c.tokenURI(tokenId)
       } else if (tokenType === 'ERC1155') {
         uri = await c.uri(tokenId)
         try {
