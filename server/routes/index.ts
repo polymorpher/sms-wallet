@@ -21,11 +21,17 @@ import {
 } from './middleware.ts'
 // noinspection ES6PreferShortImport
 import { type ProcessedBody, UserType } from '../types/index.ts'
+import https from 'https'
 
 const Twilio = twilio(config.twilio.sid, config.twilio.token)
 const Cache = new NodeCache()
 const router = express.Router()
-const BotApiBase = axios.create({ baseURL: config.bot.url, timeout: 15000, headers: { 'X-TG-BOT-API-SECRET': config.bot.serverToBotSecret } })
+const BotApiBase = axios.create({
+  baseURL: config.bot.url,
+  timeout: 15000,
+  headers: { 'X-TG-BOT-API-SECRET': config.bot.serverToBotSecret },
+  httpsAgent: config.debug ? new https.Agent({ rejectUnauthorized: false }) : undefined
+})
 
 router.get('/health', async (req, res) => {
   Logger.log('[/health]', req.fingerprint)

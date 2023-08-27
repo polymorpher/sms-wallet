@@ -2,8 +2,8 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import config from '../config.ts'
 import { StatusCodes } from 'http-status-codes'
 import NodeCache from 'node-cache'
-import utils from 'utils.ts.ts'
-import { User } from 'src/data/user.ts.ts'
+import utils from '../utils.ts'
+import { User } from '../src/data/user.ts'
 const Cache = new NodeCache()
 const router = express.Router()
 

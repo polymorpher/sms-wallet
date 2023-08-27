@@ -1,11 +1,13 @@
 import axios from 'axios'
 import crypto from 'crypto'
 import config from '../config.ts'
+import https from 'https'
 
 const Base = axios.create({
   baseURL: config.wallet.server,
   headers: { 'x-sms-wallet-secret': config.wallet.botToServerSecret },
-  timeout: 15000
+  timeout: 15000,
+  httpsAgent: config.debug ? new https.Agent({ rejectUnauthorized: false }) : undefined
 })
 
 export async function newSession (tgId: string): Promise<string> {

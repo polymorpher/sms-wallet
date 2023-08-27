@@ -12,6 +12,7 @@ import http from 'http'
 import fs from 'fs'
 import compression from 'compression'
 import _nft from './routes/nft.ts'
+import _tg from './routes/tg.ts'
 import requestIp from 'request-ip'
 
 dotenv.config()
@@ -84,6 +85,7 @@ app.options('*', async (_req, res) => {
 })
 app.use('/', _index)
 app.use('/nft', _nft)
+app.use('/tg', _tg)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

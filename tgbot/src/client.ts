@@ -1,5 +1,5 @@
 import { TelegramClient, Api, sessions } from 'telegram'
-import { Button } from 'telegram/tl/custom/button.js'
+import { type Button } from 'telegram/tl/custom/button.js'
 import fs from 'fs/promises'
 import config from '../config.ts'
 import { newSession } from './controller.ts'
@@ -33,12 +33,13 @@ export async function init (): Promise<void> {
   await saveSession()
 }
 
-const buildOpenWalletButton = async (userId: string): Promise<Button | null> => {
+const buildOpenWalletButton = async (userId: string): Promise<Button | Api.ReplyInlineMarkup | null> => {
   const sessionId = await newSession(userId)
   if (!sessionId) {
     return null
   }
-  return new Button(new Api.KeyboardButtonSimpleWebView({ text: 'Open Wallet', url: `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}` }))
+  // return new Button(new Api.KeyboardButtonSimpleWebView({ text: 'Open Wallet', url: `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}` }))
+  return new Api.ReplyInlineMarkup({ rows: [new Api.KeyboardButtonRow({ buttons: [new Api.KeyboardButtonWebView({ text: 'Open Wallet', url: `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}` })] })] })
 }
 
 export async function listen (): Promise<void> {
@@ -60,7 +61,9 @@ export async function listen (): Promise<void> {
     }
 
     if (update.message.message.startsWith('/start')) {
-      const from = update.message.fromId as Api.PeerUser
+      console.log(update.message)
+      const from = update.message.peerId as Api.PeerUser
+      // console.log(from)
       const userId = from.userId.toString()
       const button = await buildOpenWalletButton(userId)
       if (!button) {
