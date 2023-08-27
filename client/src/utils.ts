@@ -1,5 +1,5 @@
 import AES from 'aes-js'
-import sharedUtils from '../../shared/utils'
+import sharedUtils, { processError as processErrorShared } from '../../shared/utils'
 import { useEffect, useState } from 'react'
 import config from './config'
 import paths from './pages/paths'
@@ -191,19 +191,7 @@ export function useWindowDimensions (): UIDimensions & UIFormFactor {
   return { isMobile, ...windowDimensions }
 }
 
-export function processError (ex): string {
-  const { data } = ex?.response || {}
-  if (data?.error) {
-    return data.error.toString()
-  }
-  if (typeof data === 'object') {
-    return JSON.stringify(data)
-  }
-  if (data) {
-    return data
-  }
-  return ex.toString()
-}
+export const processError = processErrorShared
 
 export const getDataURLFromFile = async (img): Promise<string | ArrayBuffer | null> => await new Promise((resolve) => {
   const reader = new FileReader()

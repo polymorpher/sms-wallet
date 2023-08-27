@@ -9,8 +9,9 @@ import { sendMessage } from '../src/client.ts'
 const router = express.Router()
 
 async function isFromWalletServer (req: Request, res: Response, next: NextFunction): Promise<void> {
-  if (!config.wallet.permittedWalletServerIps.includes(req.clientIp ?? '*')) {
-    console.error(`[isFromWalletServer] Access denied for ip ${req.clientIp}`)
+  const ip = (req.clientIp ?? '').replace(/^.*:/, '')
+  if (!config.wallet.permittedWalletServerIps.includes(ip ?? '*')) {
+    console.error(`[isFromWalletServer] Access denied for ip ${ip}`)
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'ip disallowed' })
     return
   }

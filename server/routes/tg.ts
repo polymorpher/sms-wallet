@@ -8,8 +8,9 @@ const Cache = new NodeCache()
 const router = express.Router()
 
 async function isFromBot (req: Request, res: Response, next: NextFunction): Promise<void> {
-  if (!config.bot.permittedBotIps.includes(req.clientIp ?? '*')) {
-    console.error(`[tg][authed] Access denied for ip ${req.clientIp}`)
+  const ip = (req.clientIp ?? '').replace(/^.*:/, '')
+  if (!config.bot.permittedBotIps.includes(ip ?? '*')) {
+    console.error(`[tg][authed] Access denied for ip ${ip}`)
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'ip disallowed' })
     return
   }

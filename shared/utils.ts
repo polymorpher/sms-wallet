@@ -149,6 +149,20 @@ const utils = {
   }
 }
 
+export function processError (ex): string {
+  const { data, status, statusText } = ex?.response || {}
+  if (data?.error) {
+    return data.error.toString()
+  }
+  if (typeof data === 'object') {
+    return `${status} ${statusText} ${JSON.stringify(data)}`
+  }
+  if (data) {
+    return data
+  }
+  return ex.toString()
+}
+
 export interface TokenKeyInput {
   tokenId?: string
   tokenType?: string | number
