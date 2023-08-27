@@ -2,7 +2,6 @@ import { TelegramClient, Api, sessions } from 'telegram'
 import { Button } from 'telegram/tl/custom/button.js'
 import fs from 'fs/promises'
 import config from '../config.ts'
-import * as crypto from 'crypto'
 import { newSession } from './controller.ts'
 
 export let client: TelegramClient
@@ -26,11 +25,11 @@ export async function init (): Promise<void> {
   const stringSession = await loadSession()
   client = new TelegramClient(
     new sessions.StringSession(stringSession),
-    config.tg.apiId,
-    config.tg.apiHash,
+    config.bot.apiId,
+    config.bot.apiHash,
     { connectionRetries: 5 }
   )
-  await client.start({ botAuthToken: config.tg.botToken })
+  await client.start({ botAuthToken: config.bot.botToken })
   await saveSession()
 }
 
@@ -39,7 +38,7 @@ const buildOpenWalletButton = async (userId: string): Promise<Button | null> => 
   if (!sessionId) {
     return null
   }
-  return new Button(new Api.KeyboardButtonSimpleWebView({ text: 'Open Wallet', url: `https://smswallet.xyz/tg?userId=${userId}&sessionId=${sessionId}` }))
+  return new Button(new Api.KeyboardButtonSimpleWebView({ text: 'Open Wallet', url: `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}` }))
 }
 
 export async function listen (): Promise<void> {

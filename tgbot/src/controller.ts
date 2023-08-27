@@ -3,8 +3,8 @@ import crypto from 'crypto'
 import config from '../config.ts'
 
 const Base = axios.create({
-  baseURL: config.controller.apiBase,
-  headers: { 'x-sms-wallet-secret': config.controller.secret },
+  baseURL: config.wallet.server,
+  headers: { 'x-sms-wallet-secret': config.wallet.botToServerSecret },
   timeout: 15000
 })
 

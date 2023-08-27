@@ -8,13 +8,13 @@ const Cache = new NodeCache()
 const router = express.Router()
 
 async function isFromBot (req: Request, res: Response, next: NextFunction): Promise<void> {
-  if (!config.tg.whitelistIps.includes(req.clientIp ?? '*')) {
+  if (!config.bot.permittedBotIps.includes(req.clientIp ?? '*')) {
     console.error(`[tg][authed] Access denied for ip ${req.clientIp}`)
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'ip disallowed' })
     return
   }
   const secret = req.header('X-SMS-WALLET-SECRET')
-  if (config.tg.secret.length > 0 && secret !== config.tg.secret) {
+  if (config.bot.botToServerSecret.length > 0 && secret !== config.bot.botToServerSecret) {
     console.error(`[tg][authed] Access denied for secret ${secret}`)
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'bad secret' })
     return

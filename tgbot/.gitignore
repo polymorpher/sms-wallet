@@ -5,6 +5,7 @@ logs
 node_modules/
 .eslintcache
 .env
+.env.*
 .yarn/
 
 /certs/*

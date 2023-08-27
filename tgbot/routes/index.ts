@@ -8,15 +8,15 @@ import { sendMessage } from '../src/client.ts'
 
 const router = express.Router()
 
-async function isFromController (req: Request, res: Response, next: NextFunction): Promise<void> {
-  if (!config.controller.whitelistIps.includes(req.clientIp ?? '*')) {
-    console.error(`[isFromController] Access denied for ip ${req.clientIp}`)
+async function isFromWalletServer (req: Request, res: Response, next: NextFunction): Promise<void> {
+  if (!config.wallet.permittedWalletServerIps.includes(req.clientIp ?? '*')) {
+    console.error(`[isFromWalletServer] Access denied for ip ${req.clientIp}`)
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'ip disallowed' })
     return
   }
   const secret = req.header('X-TG-BOT-API-SECRET')
-  if (config.controller.secret.length > 0 && secret !== config.controller.secret) {
-    console.error(`[isFromController] Access denied for secret ${secret}`)
+  if (config.wallet.serverToBotSecret.length > 0 && secret !== config.wallet.serverToBotSecret) {
+    console.error(`[isFromWalletServer] Access denied for secret ${secret}`)
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'bad secret' })
     return
   }
@@ -33,7 +33,7 @@ interface MsgRequest {
   id: string
 }
 
-router.post('/msg', isFromController, async (req, res) => {
+router.post('/msg', isFromWalletServer, async (req, res) => {
   const { body, id } = req.body as MsgRequest
   if (!body || !id) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'need id, body', body, id })

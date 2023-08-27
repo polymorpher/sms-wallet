@@ -37,16 +37,16 @@ const config = {
   defaultSignatureValidDuration: 1000 * 60 * 15,
   clientRoot: process.env.CLIENT_ROOT ?? 'https://smswallet.xyz',
 
-  tg: {
+  bot: {
     // bot server's IP
-    whitelistIps: JSON.parse(process.env.TG_WHITELIST_IPS ?? '[]') as string[],
+    permittedBotIps: JSON.parse(process.env.PERMITTED_BOT_IPS ?? '[]') as string[],
 
     // for access-control of APIs on this server, which are meant to be called by the bot server
-    secret: process.env.TG_SECRET ?? '',
+    botToServerSecret: process.env.BOT_TO_SERVER_SECRET ?? '',
 
     // for sending requests to the bot. It must match the secret set at the bot server
-    botApiSecret: process.env.TG_BOT_API_SECRET ?? '',
-    botApiBase: process.env.TG_BOT_API_BASE ?? ''
+    serverToBotSecret: process.env.SERVER_TO_BOT_ACCESS_SECRET ?? '',
+    url: process.env.BOT_API ?? ''
   }
 }
 
