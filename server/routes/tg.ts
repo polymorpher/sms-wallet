@@ -40,16 +40,18 @@ router.post('/signup', async (req, res) => {
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'invalid session' })
     return
   }
-  if (userId !== tgId) {
+  if (`tg:${userId}` !== tgId) {
+    console.error('[tg][/signup] mismatch user id', { userId, tgId })
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'user id mismatch' })
     return
   }
-  const hash = utils.hexView(utils.keccak(`${userId}${eseed}${ekey}${address}`))
-  const recoveredAddress = utils.ecrecover(hash, signature)
+  const message = `${tgId}${eseed}${ekey}${address}`
+  const recoveredAddress = utils.recover(message, signature)?.toLowerCase()
   if (!recoveredAddress) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'signature cannot be recovered to address' })
   }
-  if (recoveredAddress.toLowerCase() !== address) {
+  if (recoveredAddress !== address) {
+    console.error('[tg][/signup] mismatch address', { recoveredAddress, address })
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'signature does not match address' })
   }
   const u = await User.addNew({ phone: tgId, ekey, eseed, address })
@@ -65,6 +67,7 @@ router.post('/new-session', isFromBot, async (req, res) => {
   const session = String(req.body.session ?? '')
   const deadline = Number(req.body.deadline ?? 0)
   const tgId = String(req.body.tgId)
+  console.log('[/new-session]', { session, tgId, deadline })
   if (!session) {
     res.status(StatusCodes.BAD_REQUEST).json({ error: 'require session id' })
     return
@@ -74,7 +77,7 @@ router.post('/new-session', isFromBot, async (req, res) => {
     res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad deadline', deadline, now })
     return
   }
-  Cache.set(session, `tg:${tgId}`, now - deadline)
+  Cache.set(session, `tg:${tgId}`, deadline - now)
   res.json({ success: true })
 })
 

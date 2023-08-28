@@ -67,9 +67,9 @@ const utils = {
     return true
   },
 
-  ecrecover: (message, signature) => {
+  recover: (message, signature) => {
     try {
-      return ethers.utils.recoverAddress(message, signature)
+      return ethers.recoverAddress(ethers.hashMessage(message), signature)
     } catch (ex) {
       console.error(ex)
       return null
@@ -77,7 +77,7 @@ const utils = {
   },
   checkSumAddress: (address) => {
     try {
-      return ethers.utils.getAddress(address)
+      return ethers.getAddress(address)
     } catch (ex) {
       console.error(ex)
       return null
@@ -85,7 +85,7 @@ const utils = {
   },
   isValidAddress: (address) => {
     try {
-      return ethers.utils.isAddress(address)
+      return ethers.isAddress(address)
     } catch (ex) {
       console.error(ex)
       return false

@@ -22,6 +22,7 @@ import {
 // noinspection ES6PreferShortImport
 import { type ProcessedBody, UserType } from '../types/index.ts'
 import https from 'https'
+import ethers from 'ethers'
 
 const Twilio = twilio(config.twilio.sid, config.twilio.token)
 const Cache = new NodeCache()
@@ -73,7 +74,8 @@ router.post('/verify', reqCheck, mustNotExist, async (req, res) => {
   }
   const { code, signature } = req.body
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
-  const hash = utils.hexView(utils.keccak(`${userHandle}${eseed}${ekey}${address}`))
+  const message = `${userHandle}${eseed}${ekey}${address}`
+  const hash = ethers.hashMessage(message)
   const cached = Cache.get(hash)
   if (!cached) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'cannot find record' })
@@ -93,11 +95,11 @@ router.post('/verify', reqCheck, mustNotExist, async (req, res) => {
     console.log({ code, codeNow, codePrev })
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'verification code incorrect' })
   }
-  const recoveredAddress = utils.ecrecover(hash, signature)
+  const recoveredAddress = utils.recover(hash, signature)
   if (!recoveredAddress) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'signature cannot be recovered to address' })
   }
-  if (recoveredAddress.toLowerCase() !== address) {
+  if (!utils.isSameAddress(recoveredAddress, address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'signature does not match address' })
   }
   const u = await User.addNew({ phone: userHandle, ekey, eseed, address })
@@ -180,7 +182,7 @@ router.post('/lookup', async (req, res) => {
   }
   const message = `${userHandle} ${Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration}`
   // console.log(message, signature)
-  const expectedAddress = utils.ecrecover(message, signature)
+  const expectedAddress = utils.recover(message, signature)
   if (expectedAddress !== address) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
@@ -269,7 +271,7 @@ router.post('/request-view', async (req, res) => {
   if (!utils.isValidAddress(address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
   }
-  const recoveredAddress = utils.ecrecover(id, signature)
+  const recoveredAddress = utils.recover(id, signature)
   if (!utils.isSameAddress(recoveredAddress, address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }
@@ -304,7 +306,7 @@ router.post('/request-complete', async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
   }
   const message = `${id} ${txHash}`
-  const recoveredAddress = utils.ecrecover(message, signature)
+  const recoveredAddress = utils.recover(message, signature)
   if (!utils.isSameAddress(recoveredAddress, address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
   }

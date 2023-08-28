@@ -16,6 +16,7 @@ import { type NextAction } from '../state/modules/global/actions'
 import { type WalletState } from '../state/modules/wallet/reducers'
 import querystring from 'query-string'
 import { Row } from '../components/Layout'
+import { ethers } from 'ethers'
 const randomSeed = (): Uint8Array => {
   const otpSeedBuffer = new Uint8Array(32)
   return window.crypto.getRandomValues(otpSeedBuffer)
@@ -40,9 +41,10 @@ const TgSignup = (): React.JSX.Element => {
     async function signup (): Promise<void> {
       const { address, ekey, eseed } = utils.computeParameters({ phone: userId, p, pk })
       try {
-        const message = `${userId}${eseed}${ekey}${address}`
+        const message = `tg:${userId}${eseed}${ekey}${address}`
         const signature = apis.web3.wallet(utils.hexString(pk)).signMessageSync(message)
-
+        console.log(ethers.hashMessage(message))
+        console.log(utils.hexView(utils.keccak(message)))
         const success = await apis.server.tgSignup({ signature, sessionId, userId, eseed, ekey, address })
         if (!success) {
           toast.error('Signup failed for unknown reason. Please try again later')
@@ -52,7 +54,7 @@ const TgSignup = (): React.JSX.Element => {
         setSignedup(true)
       } catch (ex) {
         console.error(ex)
-        toast.error('Error: ' + processError(ex))
+        toast.error(`Error: ${processError(ex)})`)
       }
     }
     signup().catch(console.error)

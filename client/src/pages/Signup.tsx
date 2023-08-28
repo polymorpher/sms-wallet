@@ -78,7 +78,7 @@ const Signup = (): React.JSX.Element => {
       toast.success('Verification SMS Sent')
     } catch (ex) {
       console.error(ex)
-      toast.error('Error: ' + processError(ex))
+      toast.error(`Error: ${processError(ex)}`)
     } finally {
       setVerifying(false)
     }
@@ -101,7 +101,7 @@ const Signup = (): React.JSX.Element => {
       }
     } catch (ex) {
       console.error(ex)
-      toast.error('Verification error: ' + processError(ex))
+      toast.error(`Verification error: ${processError(ex)}`)
     } finally {
       setCode('')
       setVerifying(false)

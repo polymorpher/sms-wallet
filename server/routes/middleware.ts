@@ -76,10 +76,9 @@ export const mustNotExist = async (req: Request, res: Response, next: NextFuncti
 export const hasUserSignedBody = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { address, signature, body } = req.body
   const msg = stringify(body)
-
-  const expectedAddress = utils.ecrecover(msg, signature)
+  const expectedAddress = utils.recover(msg, signature)
   // console.log(msg, expectedAddress, address)
-  if (!address || !expectedAddress || address !== expectedAddress) {
+  if (!utils.isSameAddress(address, expectedAddress)) {
     res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid signature' })
     return
   }
