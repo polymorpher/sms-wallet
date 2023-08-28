@@ -10,6 +10,7 @@ export type WalletState = Record<string, {
   address: string
   pk: string
   eseed: string
+  p?: string
 }>
 
 export const initialState: WalletState = {}
