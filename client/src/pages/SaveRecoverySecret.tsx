@@ -6,7 +6,7 @@ import { type WalletState } from '../state/modules/wallet/reducers'
 import apis from '../api'
 import { Navigate, useNavigate } from 'react-router'
 import paths from './paths'
-import { BaseText, DescLeft, LinkText } from '../components/Text'
+import { BaseText, DescLeft, LinkText, SmallText } from '../components/Text'
 import { Col, Row } from '../components/Layout'
 import { Button, LinkWrarpper } from '../components/Controls'
 import { globalActions } from '../state/modules/global'
@@ -36,13 +36,13 @@ const SaveRecoverySecret = (): React.JSX.Element => {
     const dest = `https://t.me/share/url?url=${url}&text=${text}`
     setTgDest(dest)
     const subject = encodeURIComponent('My recovery secret for H1Wallet (t.country)')
-    const email = encodeURIComponent(`mailto:<fill in recipient here>?subject=${subject}&body=${text}`)
+    const email = 'mailto:' + encodeURIComponent('<fill-in-recipient-here>') + `?subject=${subject}&body=${text}`
     setEmailDest(email)
   }, [phone, p, pk, address])
 
   const cleanup = (): void => {
     dispatch(walletActions.updateWallet({ ...state, p: '' }))
-    toast.info('Recovery secret is saved and deleted from account')
+    toast.info('Recovery secret is cleaned up')
     navigate(paths.wallet)
   }
 
@@ -51,22 +51,25 @@ const SaveRecoverySecret = (): React.JSX.Element => {
   }
 
   return (
-    <MainContainer withMenu>
+    <MainContainer>
       {!p && <DescLeft>
         <BaseText>You have already saved recovery secret before. It was deleted and is no longer accessible from here.</BaseText>
         <Button onClick={() => { navigate(paths.wallet) }}>BACK TO WALLET</Button>
         </DescLeft>}
-      {!p && <DescLeft>
+      {p && <DescLeft>
         <BaseText>Please save your recovery secret by Telegram message or by email.</BaseText>
         <BaseText>Recovery secret can only be used to recover the wallet, not to access it.</BaseText>
-        <Col>
+        <Col style={{ alignItems: 'center', marginTop: 16, marginBottom: 16 }}>
           <LinkWrarpper href={tgDest} target={'_blank'}>SAVE BY TELEGRAM</LinkWrarpper>
-          <BaseText>OR</BaseText>
+          <SmallText>OR</SmallText>
           <LinkWrarpper href={emailDest} target={'_blank'}>SAVE BY EMAIL</LinkWrarpper>
-          <LinkText onClick={() => { navigate(paths.wallet) }}> {'<<'} BACK </LinkText>
         </Col>
-        <Button onClick={() => { cleanup() }}> DELETE RECOVERY SECRET</Button>
-        <BaseText>After you save your recovery secret, it is a good practice to delete it here, so no one else can see it anymore. The annoying reminder bar will also be removed once you complete this step.</BaseText>
+        <Row style={{ justifyContent: 'space-between', alignContent: 'center' }}>
+          <LinkText onClick={() => { navigate(paths.wallet) }}> {'<<'} BACK </LinkText>
+          <Button onClick={() => { cleanup() }}> CLEAN UP</Button>
+        </Row>
+
+        <BaseText>After cleaning up, the secret will no longer be accessible here</BaseText>
         </DescLeft>}
     </MainContainer>
   )

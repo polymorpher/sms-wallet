@@ -14,10 +14,9 @@ import { type RootState } from '../state/rootReducer'
 import { type NextAction } from '../state/modules/global/actions'
 import querystring from 'query-string'
 
-const Recover = (): React.JSX.Element => {
+const TgRecover = (): React.JSX.Element => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const [p, setP] = useState<Uint8Array | undefined>()
   const [verifying, setVerifying] = useState(false)
   const next = useSelector<RootState, NextAction>(state => state.global.next || {})
   const [password, setPassword] = useState('')
@@ -41,7 +40,7 @@ const Recover = (): React.JSX.Element => {
       const eseed = utils.computePartialParameters({ phone: fullId, p })
       const { success, ekey, address, error } = await apis.server.tgRestore({ userId, eseed, sessionId })
       if (!success || !ekey || !address) {
-        toast.error(error)
+        toast.error(`Error during recovery: ${error}`)
         return
       }
 
@@ -91,4 +90,4 @@ const Recover = (): React.JSX.Element => {
   )
 }
 
-export default Recover
+export default TgRecover

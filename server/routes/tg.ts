@@ -108,11 +108,11 @@ router.post('/restore', partialReqCheck, async (req, res) => {
   if (!u) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Telegram account is not registered' })
   }
-  if (!isEqual(pick(u, ['phone', 'eseed']), { phone: userHandle, eseed })) {
+  if (!isEqual(pick(u, ['phone', 'eseed']), { phone: tgId, eseed })) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Recovery secret is incorrect' })
   }
 
-  res.json({ ekey: u.ekey, address: u.address })
+  res.json({ success: true, ekey: u.ekey, address: u.address })
 })
 
 export default router

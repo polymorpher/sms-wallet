@@ -54,7 +54,7 @@ const TgSignup = (): React.JSX.Element => {
         setSignedup(true)
       } catch (ex) {
         console.error(ex)
-        toast.error(`Error: ${processError(ex)})`)
+        toast.error(`Error: ${processError(ex)}`)
       }
     }
     signup().catch(console.error)
@@ -64,7 +64,10 @@ const TgSignup = (): React.JSX.Element => {
     if (!signedUp) {
       return
     }
-    const done = (): void => {
+    const { address, eseed } = utils.computeParameters({ phone: fullUserId, pk, p })
+    console.log({ fullUserId, pk, p, address, eseed })
+    dispatch(walletActions.updateWallet({ phone: fullUserId, address, pk: utils.hexView(pk), eseed, p: utils.hexView(p) }))
+    setTimeout(() => {
       if (next?.path) {
         dispatch(globalActions.setNextAction({}))
         dispatch(globalActions.setPrefilledPhone(''))
@@ -72,13 +75,7 @@ const TgSignup = (): React.JSX.Element => {
         return
       }
       navigate(paths.wallet)
-    }
-    const saveLater = (): void => {
-      const { address, eseed } = utils.computeParameters({ phone: fullUserId, pk, p })
-      dispatch(walletActions.updateWallet({ phone: fullUserId, address, pk: utils.hexView(pk), eseed, p: utils.hexView(p) }))
-      done()
-    }
-    setTimeout(() => { saveLater() }, 1000)
+    }, 2000)
   }, [dispatch, navigate, fullUserId, next.path, next.query, p, pk, signedUp])
 
   const existingAddress = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
@@ -98,7 +95,7 @@ const TgSignup = (): React.JSX.Element => {
 
         {signedUp && <>
           <BaseText>Your wallet is ready!</BaseText>
-          <BaseText>Redirecting in 1s...</BaseText>
+          <BaseText>Redirecting in 2s...</BaseText>
         </>
         }
       </Desc>

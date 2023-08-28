@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { BaseText, Heading } from './Text'
+import { BaseText, Desc, Heading } from './Text'
 import { IconImg, MenuIconContainer, MenuItemLink, MenuItems } from './Menu'
 import MenuIcon from '../../assets/menu.svg'
 import { Col, Main, Modal, Row } from './Layout'
-import { Button } from './Controls'
+import { Button, LinkWrarpper } from './Controls'
 import { walletActions } from '../state/modules/wallet'
 import { useDispatch, useSelector } from 'react-redux'
 import paths from '../pages/paths'
@@ -20,6 +20,9 @@ const MainContainer = ({ children, withMenu = false }): React.JSX.Element => {
 
   const [menuVisible, setMenuVisible] = useState(false)
   const [logoutModalVisible, setLogoutModalVisible] = useState(false)
+
+  const state = wallet[address ?? '']
+  const p = state?.p
   const logout = (): void => {
     dispatch(walletActions.deleteAllWallet())
     setLogoutModalVisible(false)
@@ -45,6 +48,10 @@ const MainContainer = ({ children, withMenu = false }): React.JSX.Element => {
               </MenuItems>}
           </MenuIconContainer>}
       </Heading>
+      {withMenu && p &&
+      <Desc>
+        <BaseText>ALERT: YOU HAVE NOT <LinkWrarpper href={paths.saveSecret}> SAVED YOUR RECOVERY SECRET</LinkWrarpper></BaseText>
+      </Desc>}
       {children}
       {withMenu &&
         <Modal visible={logoutModalVisible} onCancel={() => { setLogoutModalVisible(false) }}>

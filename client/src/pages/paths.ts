@@ -7,6 +7,7 @@ export default {
   wallet: base + '/wallet',
   recover: base + '/recover',
   tgRecover: base + '/tg-recover',
+  saveSecret: base + '/save-secret',
   archive: base + '/archive',
   sign: base + '/sign',
   call: base + '/call',
