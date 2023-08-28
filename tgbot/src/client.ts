@@ -38,8 +38,10 @@ const buildOpenWalletButton = async (userId: string): Promise<Button | Api.Reply
   if (!sessionId) {
     return null
   }
-  // return new Button(new Api.KeyboardButtonSimpleWebView({ text: 'Open Wallet', url: `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}` }))
-  return new Api.ReplyInlineMarkup({ rows: [new Api.KeyboardButtonRow({ buttons: [new Api.KeyboardButtonWebView({ text: 'Open Wallet', url: `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}` })] })] })
+  const url = `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}`
+  console.log(url)
+  // return new Button(new Api.KeyboardButtonSimpleWebView({ text: 'Open Wallet', url }))
+  return new Api.ReplyInlineMarkup({ rows: [new Api.KeyboardButtonRow({ buttons: [new Api.KeyboardButtonWebView({ text: 'Open Wallet', url })] })] })
 }
 
 export async function listen (): Promise<void> {

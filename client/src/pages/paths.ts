@@ -1,5 +1,5 @@
 export const base = process.env.PUBLIC_URL ?? ''
-
+console.log('base', base)
 export default {
   root: base + '/',
   signup: base + '/signup',

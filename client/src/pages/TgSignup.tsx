@@ -21,7 +21,7 @@ const randomSeed = (): Uint8Array => {
   return window.crypto.getRandomValues(otpSeedBuffer)
 }
 
-const Signup = (): React.JSX.Element => {
+const TgSignup = (): React.JSX.Element => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [pk] = useState(randomSeed())
@@ -32,7 +32,7 @@ const Signup = (): React.JSX.Element => {
   const qs = querystring.parse(location.search) as Record<string, string>
   const { userId, sessionId } = qs
   const next = useSelector<RootState, NextAction>(state => state.global.next || {})
-
+  console.log('[TgSignup]')
   useEffect(() => {
     if (!sessionId || !userId || !p || !pk) {
       return
@@ -122,4 +122,4 @@ const Signup = (): React.JSX.Element => {
   )
 }
 
-export default Signup
+export default TgSignup
