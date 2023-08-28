@@ -4,6 +4,8 @@ import { StatusCodes } from 'http-status-codes'
 import NodeCache from 'node-cache'
 import utils from '../utils.ts'
 import { User } from '../src/data/user.ts'
+import { partialReqCheck } from './middleware.ts'
+import { isEqual, pick } from 'lodash-es'
 const Cache = new NodeCache()
 const router = express.Router()
 
@@ -85,6 +87,32 @@ router.post('/new-session', isFromBot, async (req, res) => {
   }
   Cache.set(session, `tg:${tgId}`, deadline - now)
   res.json({ success: true })
+})
+
+router.post('/restore', partialReqCheck, async (req, res) => {
+  const { userHandle, eseed } = req.processedBody
+  const { sessionId } = req.body
+  console.log('[tg][/restore]', { eseed, userHandle, sessionId })
+  const tgId = Cache.get<string>(sessionId)
+  if (!tgId) {
+    res.status(StatusCodes.UNAUTHORIZED).json({ error: 'invalid session' })
+    return
+  }
+  if (`tg:${userHandle}` !== tgId) {
+    console.error('[tg][/restore] mismatch user id', { userHandle, tgId })
+    res.status(StatusCodes.UNAUTHORIZED).json({ error: 'user id does not match session' })
+    return
+  }
+
+  const u = await User.findByUserHandle(User.makeTgUserHandle(userHandle))
+  if (!u) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Telegram account is not registered' })
+  }
+  if (!isEqual(pick(u, ['phone', 'eseed']), { phone: userHandle, eseed })) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Recovery secret is incorrect' })
+  }
+
+  res.json({ ekey: u.ekey, address: u.address })
 })
 
 export default router

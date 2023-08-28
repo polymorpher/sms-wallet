@@ -47,7 +47,7 @@ const TgSignup = (): React.JSX.Element => {
         if (!success) {
           toast.error(error)
           toast.info('Redirecting in 2s...')
-          setTimeout(() => { navigate(paths.tgRecover) }, 2000)
+          setTimeout(() => { navigate({ pathname: paths.tgRecover, search: `?userId=${userId}&sessionId=${sessionId}` }) }, 2000)
           return
         }
         toast.success('Signup successful')
@@ -58,7 +58,7 @@ const TgSignup = (): React.JSX.Element => {
       }
     }
     signup().catch(console.error)
-  }, [sessionId, userId, fullUserId, p, pk])
+  }, [navigate, sessionId, userId, fullUserId, p, pk])
 
   useEffect(() => {
     if (!signedUp) {

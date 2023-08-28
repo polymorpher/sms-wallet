@@ -204,7 +204,7 @@ const apis = {
       return success
     },
     tgRestore: async ({ eseed, sessionId, userId }): Promise<{ success: boolean, ekey?: string, address?: string, error?: string }> => {
-      const { data } = await apiBase.post('/tg/restore', { phone, eseed, sessionId, userId })
+      const { data } = await apiBase.post('/tg/restore', { eseed, sessionId, phone: userId })
       const { success, ekey, address } = data
       return { success, ekey, address }
     },
