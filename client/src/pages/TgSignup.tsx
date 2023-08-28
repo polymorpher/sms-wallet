@@ -43,9 +43,11 @@ const TgSignup = (): React.JSX.Element => {
         const signature = apis.web3.wallet(utils.hexString(pk)).signMessageSync(message)
         console.log(ethers.hashMessage(message))
         console.log(utils.hexView(utils.keccak(message)))
-        const success = await apis.server.tgSignup({ signature, sessionId, userId, eseed, ekey, address })
+        const { success, error } = await apis.server.tgSignup({ signature, sessionId, userId, eseed, ekey, address })
         if (!success) {
-          toast.error('Signup failed for unknown reason. Please try again later')
+          toast.error(error)
+          toast.info('Redirecting in 2s...')
+          setTimeout(() => { navigate(paths.tgRecover) }, 2000)
           return
         }
         toast.success('Signup successful')

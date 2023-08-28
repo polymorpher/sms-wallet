@@ -54,6 +54,12 @@ router.post('/signup', async (req, res) => {
     console.error('[tg][/signup] mismatch address', { recoveredAddress, address })
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'signature does not match address' })
   }
+
+  const u0 = await User.findByUserHandle(tgId)
+  if (u0) {
+    return res.json({ success: false, error: 'You already signed up before. Please recover your wallet using recovery secret' })
+  }
+
   const u = await User.addNew({ phone: tgId, ekey, eseed, address })
   if (!u) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'failed to signup, please try again in 120 seconds' })

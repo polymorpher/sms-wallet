@@ -6,6 +6,7 @@ export default {
   tgSignup: base + '/tg',
   wallet: base + '/wallet',
   recover: base + '/recover',
+  tgRecover: base + '/tg-recover',
   archive: base + '/archive',
   sign: base + '/sign',
   call: base + '/call',
