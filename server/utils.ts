@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 import { mapValues, values } from 'lodash-es'
 import JSSHA from 'jssha'
 import sharedUtils from '../shared/utils.ts'
-import ethers from 'ethers'
+import * as ethers from 'ethers'
 
 const { keccak, hexView, hexString } = sharedUtils
 
@@ -15,6 +15,7 @@ export interface OTPSettings {
 }
 
 const utils = {
+  ethers,
   keccak,
   hexView,
   hexString,

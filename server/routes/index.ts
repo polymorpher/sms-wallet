@@ -22,7 +22,6 @@ import {
 // noinspection ES6PreferShortImport
 import { type ProcessedBody, UserType } from '../types/index.ts'
 import https from 'https'
-import ethers from 'ethers'
 
 const Twilio = twilio(config.twilio.sid, config.twilio.token)
 const Cache = new NodeCache()
@@ -75,7 +74,7 @@ router.post('/verify', reqCheck, mustNotExist, async (req, res) => {
   const { code, signature } = req.body
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
   const message = `${userHandle}${eseed}${ekey}${address}`
-  const hash = ethers.hashMessage(message)
+  const hash = utils.ethers.hashMessage(message)
   const cached = Cache.get(hash)
   if (!cached) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'cannot find record' })

@@ -41,7 +41,7 @@ const TgSignup = (): React.JSX.Element => {
     async function signup (): Promise<void> {
       const { address, ekey, eseed } = utils.computeParameters({ phone: userId, p, pk })
       try {
-        const message = `tg:${userId}${eseed}${ekey}${address}`
+        const message = `tg:${userId}${eseed}${ekey}${address}`.toLowerCase()
         const signature = apis.web3.wallet(utils.hexString(pk)).signMessageSync(message)
         console.log(ethers.hashMessage(message))
         console.log(utils.hexView(utils.keccak(message)))

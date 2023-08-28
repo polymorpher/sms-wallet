@@ -45,12 +45,12 @@ router.post('/signup', async (req, res) => {
     res.status(StatusCodes.UNAUTHORIZED).json({ error: 'user id mismatch' })
     return
   }
-  const message = `${tgId}${eseed}${ekey}${address}`
+  const message = `${tgId}${eseed}${ekey}${address}`.toLowerCase()
   const recoveredAddress = utils.recover(message, signature)?.toLowerCase()
   if (!recoveredAddress) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'signature cannot be recovered to address' })
   }
-  if (recoveredAddress !== address) {
+  if (!utils.isSameAddress(recoveredAddress, address)) {
     console.error('[tg][/signup] mismatch address', { recoveredAddress, address })
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'signature does not match address' })
   }
