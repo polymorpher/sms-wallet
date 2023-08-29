@@ -1,12 +1,13 @@
 export const base = process.env.PUBLIC_URL ?? ''
-console.log('base', base)
+
 export default {
   root: base + '/',
   signup: base + '/signup',
-  tgSignup: base + '/tg',
+  tg: base + '/tg',
+  tgSignup: base + '/tg/signup',
+  tgRecover: base + '/tg/recover',
   wallet: base + '/wallet',
   recover: base + '/recover',
-  tgRecover: base + '/tg-recover',
   saveSecret: base + '/save-secret',
   archive: base + '/archive',
   sign: base + '/sign',

@@ -11,17 +11,21 @@ import Archive from './pages/Archive'
 import TgSignup from './pages/TgSignup'
 import TgRecover from './pages/TgRecover'
 import SaveRecoverySecret from './pages/SaveRecoverySecret'
+import TgRouter from './pages/TgRouter'
 const AppRoutes = (): React.JSX.Element => {
   return (
     <Routes>
       {/* <Route exact path='/' element={() => <Landing />} /> */}
       <Route path={paths.root} element={<Wallet />} />
       <Route path={paths.wallet} element={<Wallet />} />
+
+      <Route path={paths.tg} element={<TgRouter />} />
       <Route path={paths.tgSignup} element={<TgSignup />} />
+      <Route path={paths.tgRecover} element={<TgRecover />} />
+
       <Route path={paths.signup} element={<Signup />} />
       <Route path={paths.archive} element={<Archive />} />
       <Route path={paths.recover} element={<Recover />} />
-      <Route path={paths.tgRecover} element={<TgRecover />} />
       <Route path={paths.saveSecret} element={<SaveRecoverySecret />} />
       <Route path={paths.sign} element={<SignMessage />} />
       <Route path={paths.call} element={<ApproveTransactionPage />} />
