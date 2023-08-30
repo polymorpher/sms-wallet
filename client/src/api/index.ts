@@ -1,5 +1,5 @@
 import { utils } from '../utils'
-import axios from 'axios'
+import axios, { type AxiosError, HttpStatusCode } from 'axios'
 import {
   Wallet,
   hashMessage,
@@ -188,10 +188,31 @@ const apis = {
       const { hash } = data
       return hash
     },
-    tgSignup: async ({ eseed, ekey, address, signature, sessionId, userId }): Promise<{ success: boolean, error?: string }> => {
-      const { data } = await apiBase.post('/tg/signup', { eseed, ekey, address, signature, sessionId, userId })
-      const { success, error } = data
-      return { success, error }
+    tgSignup: async ({ eseed, ekey, address, signature, sessionId, userId }): Promise<{
+      success: boolean
+      error?: any
+      invalidSession?: boolean
+      accountExists?: boolean
+    }> => {
+      try {
+        const { data } = await apiBase.post('/tg/signup', { eseed, ekey, address, signature, sessionId, userId })
+        const { success, error, accountExists } = data
+        return { success, error, accountExists }
+      } catch (ex: any) {
+        if (ex?.response) {
+          const e = ex as AxiosError
+          if (e.status === HttpStatusCode.Unauthorized) {
+            return { success: false, error: e?.response?.data || '', invalidSession: true }
+          }
+          throw ex
+        }
+        throw ex
+      }
+    },
+    tgRestore: async ({ eseed, sessionId, userId }): Promise<{ success: boolean, ekey?: string, address?: string, error?: string }> => {
+      const { data } = await apiBase.post('/tg/restore', { eseed, sessionId, phone: `tg:${userId}` })
+      const { success, ekey, address } = data
+      return { success, ekey, address }
     },
     verify: async ({ phone, eseed, ekey, address, code, signature }): Promise<boolean> => {
       const { data } = await apiBase.post('/verify', { phone, eseed, ekey, address, code, signature })
@@ -202,11 +223,6 @@ const apis = {
       const { data } = await apiBase.post('/restore', { phone, eseed })
       const { success } = data
       return success
-    },
-    tgRestore: async ({ eseed, sessionId, userId }): Promise<{ success: boolean, ekey?: string, address?: string, error?: string }> => {
-      const { data } = await apiBase.post('/tg/restore', { eseed, sessionId, phone: `tg:${userId}` })
-      const { success, ekey, address } = data
-      return { success, ekey, address }
     },
     restoreVerify: async ({ phone, eseed, code }): Promise<RestoreVerifyResponse> => {
       const { data } = await apiBase.post('/restore-verify', { phone, eseed, code })

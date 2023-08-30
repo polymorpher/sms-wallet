@@ -59,7 +59,7 @@ router.post('/signup', async (req, res) => {
 
   const u0 = await User.findByUserHandle(tgId)
   if (u0) {
-    return res.json({ success: false, error: 'You already signed up before. Please recover your wallet using recovery secret' })
+    return res.json({ success: false, error: 'You already signed up before. Please recover your wallet using recovery secret', accountExists: true })
   }
 
   const u = await User.addNew({ phone: tgId, ekey, eseed, address })

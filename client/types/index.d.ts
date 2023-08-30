@@ -5,4 +5,11 @@ declare global {
   }
 }
 
+declare module 'history' {
+  interface History {
+    goBack: () => void
+    goForward: () => void
+  }
+}
+
 export {}
