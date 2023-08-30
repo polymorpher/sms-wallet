@@ -33,6 +33,7 @@ const TEST_NFTS = [{
 const config = {
   priceRefreshInterval: 60 * 1000,
   appId: 'sms-wallet',
+  name: process.env.APP_NAME ?? 'SMS Wallet',
   debug: Boolean(process.env.DEBUG),
   ipfs: {
     // gateway: process.env.IPFS_GATEWAY ?? 'https://ipfs.infura.io/ipfs/{{hash}}'

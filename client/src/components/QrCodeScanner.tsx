@@ -11,6 +11,7 @@ import { Row } from './Layout'
 import Upload from 'rc-upload'
 import Select from 'react-select'
 import { BaseText } from './Text'
+import config from '../config'
 
 const QrCodeScanner = ({ onScan, shouldInit, style }): React.JSX.Element => {
   const ref = useRef()
@@ -166,7 +167,7 @@ const QrCodeScanner = ({ onScan, shouldInit, style }): React.JSX.Element => {
       }
       {!allowed &&
         <BaseText $color='red'>
-          You disallowed SMS Wallet to use your camera.
+          You disallowed {config.name} to use your camera.
         </BaseText>}
       <Row style={{ marginTop: 16, justifyContent: 'center' }}>
         <Upload beforeUpload={beforeUpload}>

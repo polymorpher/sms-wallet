@@ -19,6 +19,7 @@ import { Navigate, useNavigate } from 'react-router'
 import { type RootState } from '../state/rootReducer'
 import { type NextAction } from '../state/modules/global/actions'
 import { type WalletState } from '../state/modules/wallet/reducers'
+import config from "../config";
 const randomSeed = (): Uint8Array => {
   const otpSeedBuffer = new Uint8Array(32)
   return window.crypto.getRandomValues(otpSeedBuffer)
@@ -181,10 +182,10 @@ const Signup = (): React.JSX.Element => {
             <>
               <Button onClick={signup} disabled={verifying}>Verify</Button>
               <LinkText onClick={() => { navigate(paths.recover) }}>
-                Recover an existing SMS Wallet
+                Recover an existing {config.name}
               </LinkText>
               <LinkText onClick={() => { navigate(paths.archive) }}>
-                Reset a phone number and archive SMS Wallet
+                Reset a phone number and archive {config.name}
               </LinkText>
             </>}
           {hash && !qrCodeData &&

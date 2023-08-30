@@ -11,6 +11,7 @@ import apis from '../api/index'
 import { useNavigate } from 'react-router'
 import { type RootState } from '../state/rootReducer'
 import { type WalletState } from '../state/modules/wallet/reducers'
+import config from '../config'
 
 const MainContainer = ({ children, withMenu = false }): React.JSX.Element => {
   const navigate = useNavigate()
@@ -36,7 +37,7 @@ const MainContainer = ({ children, withMenu = false }): React.JSX.Element => {
           style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', cursor: 'pointer' }}
           onClick={() => { navigate(paths.root) }}
         >
-          SMS Wallet
+          {config.name}
         </div>
         {withMenu &&
           <MenuIconContainer>

@@ -4,6 +4,7 @@ import { FlexColumn, FlexRow } from '../components/Layout'
 import { Button } from '../components/Controls'
 import html2canvas from 'html2canvas'
 import styled from 'styled-components'
+import config from "../config";
 
 const QRImage = styled.img`
   border: 1px solid lightgrey;
@@ -48,7 +49,7 @@ const SaveQR = ({ phone, address, qrCodeData, onSaveQR, onDone }): React.JSX.Ele
     <>
       <Title>Save your recovery code </Title>
       <Desc ref={refQr}>
-        <BaseText>Scan or load this QR code to recover SMS Wallet on any device</BaseText>
+        <BaseText>Scan or load this QR code to recover {config.name} on any device</BaseText>
         <QRImage
           src={qrCodeData}
           onClick={saveQR}

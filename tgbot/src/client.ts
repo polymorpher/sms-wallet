@@ -69,7 +69,7 @@ export async function listen (): Promise<void> {
       const userId = from.userId.toString()
       const button = await buildOpenWalletButton(userId)
       if (!button) {
-        await client.sendMessage(chatID, { message: 'Hello! SMS Wallet is temporarily unavailable on Telegram. Please try again later or contact support.' })
+        await client.sendMessage(chatID, { message: 'Hello! h1wallet is temporarily unavailable on Telegram. Please try again later or contact support.' })
         return
       }
       await client.sendMessage(chatID, {
