@@ -65,6 +65,7 @@ export async function listen (): Promise<void> {
     if (update.message.message.startsWith('/start')) {
       console.log(update.message)
       const from = update.message.peerId as Api.PeerUser
+
       // console.log(from)
       const userId = from.userId.toString()
       const button = await buildOpenWalletButton(userId)
