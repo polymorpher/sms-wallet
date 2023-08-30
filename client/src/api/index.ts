@@ -199,9 +199,10 @@ const apis = {
         const { success, error, accountExists } = data
         return { success, error, accountExists }
       } catch (ex: any) {
+        console.log(ex)
         if (ex?.response) {
           const e = ex as AxiosError
-          if (e.status === HttpStatusCode.Unauthorized) {
+          if (e.response?.status === HttpStatusCode.Unauthorized) {
             return { success: false, error: e?.response?.data || '', invalidSession: true }
           }
           throw ex

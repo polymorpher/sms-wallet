@@ -23,7 +23,7 @@ const TgRouter = (): React.JSX.Element => {
 
   // TODO: delete address if pk and phone are not present
 
-  return <Navigate to={{ pathname: paths.wallet, search: `?userId=${userId}&sessionId=${sessionId}` }} />
+  return <Navigate to={{ pathname: paths.tgSignup, search: `?userId=${userId}&sessionId=${sessionId}` }} />
 }
 
 export default TgRouter

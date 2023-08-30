@@ -96,13 +96,15 @@ const TgSignup = (): React.JSX.Element => {
     <MainContainer>
       <Desc>
         {invalidSession && <>
-          <BaseText>Your session expired. Please send /start to the bot and re-open the wallet using new button </BaseText>
+          <BaseText>Your session expired. Please close the window and send</BaseText>
+          <BaseText> /start </BaseText>
+          <BaseText>to the bot, then re-open the wallet using the button in reply message</BaseText>
         </>}
         {accountExists && <>
           <BaseText>Your Telegram account already have a wallet, but it is not set up on this device</BaseText>
           <Button onClick={recover}>Recover</Button>
         </>}
-        {!signedUp &&
+        {!signedUp && !accountExists && !invalidSession &&
         <>
           <BaseText>Creating Your Wallet...</BaseText>
           <TailSpin width={32} height={32} style={{ margin: 32 }} />
