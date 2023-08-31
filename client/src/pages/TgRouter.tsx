@@ -11,7 +11,7 @@ const TgRouter = (): React.JSX.Element => {
   const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
   const qs = querystring.parse(location.search) as Record<string, string>
   const { userId, sessionId } = qs
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
+  const address = Object.keys(wallet).find(addr => wallet[addr].phone === userId && apis.web3.isValidAddress(addr))
   const state = wallet[address ?? '']
   const pk = state?.pk
   const phone = state?.phone
