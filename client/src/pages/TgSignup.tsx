@@ -68,8 +68,9 @@ const TgSignup = (): React.JSX.Element => {
   useEffect(() => {
     if (containWallet(fullUserId)) {
       switchWallet(fullUserId)
+      navigate(paths.wallet)
     }
-  }, [containWallet, switchWallet])
+  }, [containWallet, switchWallet, navigate])
 
   useEffect(() => {
     if (!signedUp) {
@@ -85,7 +86,6 @@ const TgSignup = (): React.JSX.Element => {
         navigate({ pathname: next.path, search: next.query })
         return
       }
-      navigate(paths.wallet)
     }, 2000)
   }, [dispatch, navigate, fullUserId, next.path, next.query, p, pk, signedUp])
 
