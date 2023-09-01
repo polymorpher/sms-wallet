@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import paths from './paths'
 import MainContainer from '../components/Container'
 import querystring from 'query-string'
@@ -10,15 +10,12 @@ import { toast } from 'react-toastify'
 import { Row } from '../components/Layout'
 import { utils } from '../utils'
 import { globalActions } from '../state/modules/global'
-import { type RootState } from '../state/rootReducer'
-import { type WalletState } from '../state/modules/wallet/reducers'
 import { Navigate, useNavigate } from 'react-router'
+import useMultipleWallet from '../hooks/useMultipleWallet'
 
 const SignMessage = (): React.JSX.Element => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
   const qs = querystring.parse(location.search) as Record<string, string | undefined>
   const callback = utils.safeURL(Buffer.from(decodeURIComponent(qs.callback ?? ''), 'base64').toString())
   const { caller, message, comment, phone } = qs
@@ -29,7 +26,10 @@ const SignMessage = (): React.JSX.Element => {
     }
   }, [dispatch, phone])
 
-  const pk = wallet[address ?? '']?.pk
+  const { wallet } = useMultipleWallet()
+  const pk = wallet?.pk
+  const address = wallet?.address
+
   if (!pk) {
     dispatch(globalActions.setNextAction({ path: paths.sign, query: location.search }))
     return <Navigate to={paths.signup} />

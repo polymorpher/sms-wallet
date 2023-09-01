@@ -1,29 +1,26 @@
-import React from 'react'
-import apis from '../api'
-import { useSelector } from 'react-redux'
+import React, { useEffect } from 'react'
 import paths from './paths'
-import { Navigate } from 'react-router'
-import { type RootState } from '../state/rootReducer'
-import { type WalletState } from '../state/modules/wallet/reducers'
+import { useNavigate } from 'react-router'
 import querystring from 'query-string'
+import useMultipleWallet from '../hooks/useMultipleWallet'
 
 const TgRouter = (): React.JSX.Element => {
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
   const qs = querystring.parse(location.search) as Record<string, string>
   const { userId, sessionId } = qs
-  const address = Object.keys(wallet).find(addr => wallet[addr].phone === userId && apis.web3.isValidAddress(addr))
-  const state = wallet[address ?? '']
-  const pk = state?.pk
-  const phone = state?.phone
+  const { wallet, containWallet, switchWallet } = useMultipleWallet()
+  const navigate = useNavigate()
 
-  if (address && pk && phone) {
-    console.log('redirecting to existing wallet', address)
-    return <Navigate to={{ pathname: paths.wallet, search: '?tg' }} />
-  }
+  useEffect(() => {
+    if (wallet?.address && wallet.pk && wallet.phone === userId) {
+      navigate(paths.wallet)
+    } else if (containWallet(userId)) {
+      switchWallet(userId)
+    } else {
+      navigate({ pathname: paths.tgSignup, search: `?userId=${userId}&sessionId=${sessionId}` })
+    }
+  }, [wallet, switchWallet, containWallet, navigate, sessionId, userId])
 
-  // TODO: delete address if pk and phone are not present
-
-  return <Navigate to={{ pathname: paths.tgSignup, search: `?userId=${userId}&sessionId=${sessionId}` }} />
+  return <></>
 }
 
 export default TgRouter

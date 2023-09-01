@@ -12,9 +12,9 @@ import { globalActions } from '../state/modules/global'
 import { Navigate, useNavigate } from 'react-router'
 import { type RootState } from '../state/rootReducer'
 import { type NextAction } from '../state/modules/global/actions'
-import { type WalletState } from '../state/modules/wallet/reducers'
 import querystring from 'query-string'
 import { Button } from '../components/Controls'
+import useMultipleWallet from '../hooks/useMultipleWallet'
 
 const randomSeed = (): Uint8Array => {
   const otpSeedBuffer = new Uint8Array(32)
@@ -29,7 +29,6 @@ const TgSignup = (): React.JSX.Element => {
   const [accountExists, setAccountExists] = useState(false)
   const [invalidSession, setInvalidSession] = useState(false)
   const [signedUp, setSignedup] = useState<boolean>(false)
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
   const qs = querystring.parse(location.search) as Record<string, string>
   const { userId, sessionId } = qs
   const fullUserId = `tg:${userId}`
@@ -64,6 +63,14 @@ const TgSignup = (): React.JSX.Element => {
     signup().catch(console.error)
   }, [navigate, sessionId, userId, fullUserId, p, pk])
 
+  const { wallet, switchWallet, containWallet } = useMultipleWallet()
+
+  useEffect(() => {
+    if (containWallet(fullUserId)) {
+      switchWallet(fullUserId)
+    }
+  }, [containWallet, switchWallet])
+
   useEffect(() => {
     if (!signedUp) {
       return
@@ -86,8 +93,9 @@ const TgSignup = (): React.JSX.Element => {
     navigate({ pathname: paths.tgRecover, search: `?userId=${userId}&sessionId=${sessionId}` })
   }
 
-  const existingAddress = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
-  if (existingAddress) {
+  const existingAddress = wallet?.address
+
+  if (existingAddress && wallet?.phone === fullUserId) {
     console.log('redirecting because wallet exists:', existingAddress)
     return <Navigate to={paths.wallet} />
   }
