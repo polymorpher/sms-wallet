@@ -3,7 +3,8 @@ import { type Button } from 'telegram/tl/custom/button.js'
 import fs from 'fs/promises'
 import config from '../config.ts'
 import { newSession } from './controller.ts'
-import start, { CommandHandler } from 'commands/start.ts'
+import start, { CommandHandler } from '../commands/start.ts'
+import balance from '../commands/balance.ts'
 
 export let client: TelegramClient
 
@@ -65,20 +66,24 @@ export async function listen (): Promise<void> {
 
     const commands: [RegExp, CommandHandler][] = [
       [/^\/start$/, start],
-      [/^\/balance$/, start],
+      [/^\/balance$/, balance],
       [/^\/balance (?<token>\w+)$/, start],
       [/^\/send (?<to>\w+) (?<amount>\w+)$/, start],
+      [/^\/send (?<to>\w+) (?<amount>\w+) (?<token>\w+)$/, start],
       [/^\/tokenaddress (?<tokenLabel>\w+)$/, start],
       [/^\/open$/, start],
       [/^\/recover$/, start],
       [/^\/balance (?<tgUserName>\w+)$/, start],
     ]
 
+    const from = update.message.peerId as Api.PeerUser
+    const userId = from.userId.toString()
+
     for (const [regex, handler] of commands) {
       const match = regex.exec(update.message.message)
 
       if (match) {
-        const message = await handler(client, update.message, match.groups)
+        const message = await handler(userId, match.groups)
 
         if (typeof message === "string") {
           await client.sendMessage(chatID, { message })

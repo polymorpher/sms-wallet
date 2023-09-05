@@ -4,7 +4,7 @@ import { type Button } from 'telegram/tl/custom/button.js'
 import { newSession } from '../src/controller.ts'
 import config from '../config.ts'
 
-export type CommandHandler = (client: TelegramClient, message: Api.Message, arg?: Record<string, string>) => Promise<SendMessageParams | string>
+export type CommandHandler = (userId: string, arg?: Record<string, string>) => Promise<SendMessageParams | string>
 
 const buildOpenWalletButton = async (userId: string): Promise<Button | Api.ReplyInlineMarkup | null> => {
   const sessionId = await newSession(userId)
@@ -36,9 +36,7 @@ const buildOpenWalletButton = async (userId: string): Promise<Button | Api.Reply
   })
 }
 
-const start: CommandHandler = async (_client, message) => {
-  const from = message.peerId as Api.PeerUser
-  const userId = from.userId.toString()
+const start: CommandHandler = async (userId) => {
   const buttons = await buildOpenWalletButton(userId)
 
   if (!buttons) {

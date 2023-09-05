@@ -3,7 +3,8 @@ import crypto from 'crypto'
 import config from '../config.ts'
 import https from 'https'
 import { processError } from '../../shared/utils.ts'
-const Base = axios.create({
+
+export const Base = axios.create({
   baseURL: config.wallet.server,
   headers: { 'x-sms-wallet-secret': config.wallet.botToServerSecret },
   timeout: 15000,
