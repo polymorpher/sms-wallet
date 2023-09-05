@@ -3,6 +3,7 @@ import { type Button } from 'telegram/tl/custom/button.js'
 import fs from 'fs/promises'
 import config from '../config.ts'
 import { newSession } from './controller.ts'
+import start, { CommandHandler } from 'commands/start.ts'
 
 export let client: TelegramClient
 
@@ -62,21 +63,31 @@ export async function listen (): Promise<void> {
       return
     }
 
-    if (update.message.message.startsWith('/start')) {
-      console.log(update.message)
-      const from = update.message.peerId as Api.PeerUser
+    const commands: [RegExp, CommandHandler][] = [
+      [/^\/start$/, start],
+      [/^\/balance$/, start],
+      [/^\/balance (?<token>\w+)$/, start],
+      [/^\/send (?<to>\w+) (?<amount>\w+)$/, start],
+      [/^\/tokenaddress (?<tokenLabel>\w+)$/, start],
+      [/^\/open$/, start],
+      [/^\/recover$/, start],
+      [/^\/balance (?<tgUserName>\w+)$/, start],
+    ]
 
-      // console.log(from)
-      const userId = from.userId.toString()
-      const button = await buildOpenWalletButton(userId)
-      if (!button) {
-        await client.sendMessage(chatID, { message: 'Hello! h1wallet is temporarily unavailable on Telegram. Please try again later or contact support.' })
+    for (const [regex, handler] of commands) {
+      const match = regex.exec(update.message.message)
+
+      if (match) {
+        const message = await handler(client, update.message, match.groups)
+
+        if (typeof message === "string") {
+          await client.sendMessage(chatID, { message })
+        } else {
+          await client.sendMessage(chatID, message)
+        }
+        
         return
       }
-      await client.sendMessage(chatID, {
-        message: 'Hello! Please open your wallet using the button below',
-        buttons: button
-      })
     }
   })
 }
