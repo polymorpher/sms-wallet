@@ -5,7 +5,7 @@ import https from 'https'
 import { processError } from '../../shared/utils.ts'
 
 export const Base = axios.create({
-  baseURL: config.wallet.server,
+  baseURL: `${config.wallet.server}/tg`,
   headers: { 'x-sms-wallet-secret': config.wallet.botToServerSecret },
   timeout: 15000,
   httpsAgent: config.debug ? new https.Agent({ rejectUnauthorized: false }) : undefined

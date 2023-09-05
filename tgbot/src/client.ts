@@ -4,7 +4,7 @@ import fs from 'fs/promises'
 import config from '../config.ts'
 import { newSession } from './controller.ts'
 import start, { CommandHandler } from '../commands/start.ts'
-import balance from '../commands/balance.ts'
+import { balance, balanceToken } from '../commands/balance.ts'
 
 export let client: TelegramClient
 
@@ -67,7 +67,7 @@ export async function listen (): Promise<void> {
     const commands: [RegExp, CommandHandler][] = [
       [/^\/start$/, start],
       [/^\/balance$/, balance],
-      [/^\/balance (?<token>\w+)$/, start],
+      [/^\/balance (?<token>\w+)$/, balanceToken],
       [/^\/send (?<to>\w+) (?<amount>\w+)$/, start],
       [/^\/send (?<to>\w+) (?<amount>\w+) (?<token>\w+)$/, start],
       [/^\/tokenaddress (?<tokenLabel>\w+)$/, start],

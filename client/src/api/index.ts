@@ -6,19 +6,11 @@ import {
   isAddress,
   type ContractTransactionResponse,
   Contract,
-  JsonRpcProvider
 } from 'ethers'
 import config from '../config'
 import Constants from '../../../shared/constants'
+import web3, { provider, getTokenContract, getTokenMetadataContract } from '../../../shared/web3'
 import stringify from 'json-stable-stringify'
-import IERC165 from '../../abi/IERC165.json'
-
-import IERC1155MetadataURI from '../../abi/IERC1155MetadataURI.json'
-import IERC1155 from '../../abi/IERC1155.json'
-import IERC721Metadata from '../../abi/IERC721Metadata.json'
-import IERC721 from '../../abi/IERC721.json'
-import IERC20Metadata from '../../abi/IERC20Metadata.json'
-import IERC20 from '../../abi/IERC20.json'
 
 export interface HeadersConfig {
   secret: string
@@ -56,19 +48,6 @@ const apiBase = axios.create({
 // web3.eth.defaultChain = config.chainId
 
 // Contract.setProvider(web3.currentProvider)
-const provider = new JsonRpcProvider(config.rpc)
-
-const getTokenContract = {
-  ERC20: (address): Contract => new Contract(address, IERC20, provider),
-  ERC721: (address): Contract => new Contract(address, IERC721, provider),
-  ERC1155: (address): Contract => new Contract(address, IERC1155, provider)
-}
-
-const getTokenMetadataContract = {
-  ERC20: (address): Contract => new Contract(address, IERC20Metadata, provider),
-  ERC721: (address): Contract => new Contract(address, IERC721Metadata, provider),
-  ERC1155: (address): Contract => new Contract(address, IERC1155MetadataURI, provider)
-}
 
 let activeWallet: Wallet | undefined
 const apis = {
@@ -136,22 +115,12 @@ const apis = {
       return (await provider.getBalance(address))
     },
 
-    getTokenBalance: async ({ address, contractAddress, tokenType = '', tokenId }): Promise<bigint> => {
-      if (!utils.isValidTokenType(tokenType)) {
-        throw new Error(`Unknown token type: ${tokenType}`)
-      }
-      const c = getTokenContract[tokenType](contractAddress)
-      if (tokenType === 'ERC20') {
-        return (await c.balanceOf(address)) as bigint
-      } else if (tokenType === 'ERC721') {
-        const owner = (await c.ownerOf(tokenId)) as string
-        return owner.toLowerCase() === address.toLowerCase() ? 1n : 0n
-      } else if (tokenType === 'ERC1155') {
-        return c.balanceOf(address, tokenId) as bigint
-      } else {
-        throw Error('unreachable')
-      }
-    },
+    getTokenBalance: ({ address, contractAddress, tokenType = '', tokenId }): Promise<bigint> => web3.getTokenBalance({
+      address,
+      contractAddress,
+      tokenType,
+      tokenId
+    }),
 
     getTokenMetadata: async ({ tokenType, contractAddress, tokenId }): Promise<TokenMetaData> => {
       if (!utils.isValidTokenType(tokenType)) {
@@ -266,7 +235,7 @@ const apis = {
       return {}
     },
     getNFTType: async (contractAddress): Promise<string | null> => {
-      const c = new Contract(contractAddress, IERC165, provider)
+      const c = getTokenContract.ERC165(contractAddress)
       const is721 = await c.supportsInterface(Constants.TokenInterfaces.ERC721) as boolean
       if (is721) {
         return 'ERC721'
