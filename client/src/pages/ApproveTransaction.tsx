@@ -180,7 +180,15 @@ export interface ApproveTransactionQuery {
 const ApproveTransactionPage = (): React.JSX.Element => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { caller, comment, amount: inputAmount, dest, calldata: calldataB64Encoded, phone, callback: callbackEncoded } = querystring.parse(location.search) as ApproveTransactionQuery
+  const {
+    caller,
+    comment,
+    amount: inputAmount,
+    dest,
+    calldata: calldataB64Encoded,
+    phone,
+    callback: callbackEncoded
+  } = querystring.parse(location.search) as ApproveTransactionQuery
 
   const callback = utils.safeURL(Buffer.from(decodeURIComponent(callbackEncoded ?? ''), 'base64').toString())
 
