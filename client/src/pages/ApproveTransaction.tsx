@@ -42,7 +42,15 @@ export interface ApproveTransactionParams {
   onComplete?: (txr: TransactionReceipt) => any
 }
 
-export const ApproveTransaction = ({ calldata, caller, callback, comment, inputAmount, dest, onComplete }: ApproveTransactionParams): React.JSX.Element => {
+export const ApproveTransaction = ({
+  calldata,
+  caller,
+  callback,
+  comment,
+  inputAmount,
+  dest,
+  onComplete
+}: ApproveTransactionParams): React.JSX.Element => {
   const wallet = useSelector((state: RootState) => state.wallet || {})
   const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
 
@@ -152,7 +160,11 @@ export const ApproveTransaction = ({ calldata, caller, callback, comment, inputA
                   <SmallText>Method: {calldata.method}</SmallText>
                   <SmallText>Parameters:</SmallText>
                   {(calldata.parameters ?? []).map((p, i) => {
-                    return <SmallText style={{ wordBreak: 'break-all' }} key={`${i}`}>{JSON.stringify(pick(p, ['name', 'value', 'type']))}</SmallText>
+                    return (
+                      <SmallText style={{ wordBreak: 'break-all' }} key={`${i}`}>
+                        {JSON.stringify(pick(p, ['name', 'value', 'type']))}
+                      </SmallText>
+                    )
                   })}
                 </>)}
           </>}
@@ -220,7 +232,16 @@ const ApproveTransactionPage = (): React.JSX.Element => {
     )
   }
 
-  return <ApproveTransaction comment={comment} callback={callback} caller={caller} inputAmount={inputAmount} dest={dest} calldata={calldata} />
+  return (
+    <ApproveTransaction
+      comment={comment}
+      callback={callback}
+      caller={caller}
+      inputAmount={inputAmount}
+      dest={dest}
+      calldata={calldata}
+    />
+  )
 }
 
 export default ApproveTransactionPage
