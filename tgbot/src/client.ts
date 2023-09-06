@@ -6,6 +6,10 @@ import { newSession } from './controller.ts'
 import start, { CommandHandler } from '../commands/start.ts'
 import { balance, balanceToken } from '../commands/balance.ts'
 import { send, sendToken } from 'commands/send.ts'
+import tokenAddress from 'commands/tokenAddress.ts'
+import open from 'commands/openWallet.ts'
+import lookup from 'commands/lookup.ts'
+import recover from 'commands/recover.ts'
 
 export let client: TelegramClient
 
@@ -71,10 +75,10 @@ export async function listen (): Promise<void> {
       [/^\/balance (?<token>\w+)$/, balanceToken],
       [/^\/send (?<to>\w+) (?<amount>\w+)$/, send],
       [/^\/send (?<to>\w+) (?<amount>\w+) (?<token>\w+)$/, sendToken],
-      [/^\/tokenaddress (?<tokenLabel>\w+)$/, start],
-      [/^\/open$/, start],
-      [/^\/recover$/, start],
-      [/^\/lookup (?<tgUserName>\w+)$/, start],
+      [/^\/tokenaddress (?<tokenLabel>\w+)$/, tokenAddress],
+      [/^\/open$/, open],
+      [/^\/recover$/, recover],
+      [/^\/lookup (?<tgUserName>\w+)$/, lookup],
     ]
 
     const from = update.message.peerId as Api.PeerUser

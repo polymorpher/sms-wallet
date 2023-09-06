@@ -1,24 +1,20 @@
-import { Api } from "telegram";
 import { SendMessageParams } from "telegram/client/messages";
-import { type Button } from 'telegram/tl/custom/button.js'
 import { newSession } from '../src/controller.ts'
 import getButtons from "../ui/button.ts"
 import config from '../config.ts'
 
 export type CommandHandler = (userId: string, arg: Record<string, string>) => Promise<SendMessageParams | string>
 
-const buildOpenWalletButton = async (userId: string): Promise<Button | Api.ReplyInlineMarkup | null> => {
+const start: CommandHandler = async (userId) => {
   const sessionId = await newSession(userId)
 
   if (!sessionId) {
-    return null
+    return 'Hello! h1wallet is temporarily unavailable on Telegram. Please try again later or contact support.'
   }
 
-  const url = `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}`
-  console.log(url)
   // return new Button(new Api.KeyboardButtonSimpleWebView({ text: 'Open Wallet', url }))
 
-  return getButtons([
+  const buttons = getButtons([
     [
       'Open Wallet',
       `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}`
@@ -32,14 +28,6 @@ const buildOpenWalletButton = async (userId: string): Promise<Button | Api.Reply
       `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}`
     ]
   ])
-}
-
-const start: CommandHandler = async (userId) => {
-  const buttons = await buildOpenWalletButton(userId)
-
-  if (!buttons) {
-    return 'Hello! h1wallet is temporarily unavailable on Telegram. Please try again later or contact support.'
-  }
 
   return {
     message: `
