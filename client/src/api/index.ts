@@ -5,7 +5,7 @@ import {
   hashMessage,
   isAddress,
   type ContractTransactionResponse,
-  Contract,
+  type Contract
 } from 'ethers'
 import config from '../config'
 import Constants from '../../../shared/constants'
@@ -115,7 +115,7 @@ const apis = {
       return (await provider.getBalance(address))
     },
 
-    getTokenBalance: ({ address, contractAddress, tokenType = '', tokenId }): Promise<bigint> => web3.getTokenBalance({
+    getTokenBalance: async ({ address, contractAddress, tokenType = '', tokenId }): Promise<bigint> => await web3.getTokenBalance({
       address,
       contractAddress,
       tokenType,

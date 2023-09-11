@@ -1,6 +1,6 @@
 import { JsonRpcProvider, Contract } from 'ethers'
-import utils from './utils.ts'
-import config from './config.ts'
+import utils from './utils'
+import config from './config'
 import IERC165 from './abi/IERC165.json'
 import IERC1155MetadataURI from './abi/IERC1155MetadataURI.json'
 import IERC1155 from './abi/IERC1155.json'
