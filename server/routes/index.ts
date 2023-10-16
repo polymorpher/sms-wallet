@@ -44,7 +44,7 @@ router.post('/signup', reqCheck, mustNotExist, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid user handler type' })
   }
   const seed = utils.keccak(`${config.otp.salt}${eseed}`)
-  const hash = utils.hexView(utils.keccak(`${userHandle}${eseed}${ekey}${address}`))
+  const hash = utils.ethers.hashMessage(`${userHandle}${eseed}${ekey}${address}`)
   console.log('[Received]', { hash, userHandle, eseed, ekey })
   const success = Cache.set(hash, { userHandle, seed: utils.hexView(seed), ekey, hash }, 120)
   if (!success) {
