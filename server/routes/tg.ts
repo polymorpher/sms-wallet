@@ -6,7 +6,7 @@ import utils from '../utils.ts'
 import { User } from '../src/data/user.ts'
 import { parseUserHandle, partialReqCheck } from './middleware.ts'
 import { isEqual, pick } from 'lodash-es'
-import { Setting } from 'src/data/setting.ts'
+import { Setting } from '../src/data/setting.ts'
 const Cache = new NodeCache()
 const router = express.Router()
 

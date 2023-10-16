@@ -112,7 +112,7 @@ const apis = {
       }
     },
     getBalance: async ({ address }: { address: string }): Promise<bigint> => {
-      return (await provider.getBalance(address))
+      return provider.getBalance(address)
     },
 
     getTokenBalance: async ({ address, contractAddress, tokenType = '', tokenId }): Promise<bigint> => await web3.getTokenBalance({
