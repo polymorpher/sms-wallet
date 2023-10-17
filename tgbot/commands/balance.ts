@@ -1,7 +1,7 @@
-import web3 from "../../shared/web3";
-import { CommandHandler } from "./start.ts";
-import { Base } from "src/controller.ts";
-import sharedUtils from '../../shared/utils'
+import web3 from '../../shared/web3.ts'
+import type { CommandHandler } from './start.ts'
+import { Base } from '../src/controller.ts'
+import sharedUtils from '../../shared/utils.ts'
 
 export const balance: CommandHandler = async (userId) => {
   const { data } = await Base.post('/lookup', { destPhone: `tg:${userId}`})

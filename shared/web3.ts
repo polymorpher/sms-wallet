@@ -26,7 +26,7 @@ export const getTokenMetadataContract = {
 
 const web3 = {
   getBalance: async ({ address }: { address: string }): Promise<bigint> => {
-    return provider.getBalance(address)
+    return await provider.getBalance(address)
   },
 
   getTokenBalance: async ({ address, contractAddress, tokenType = '', tokenId }): Promise<bigint> => {
