@@ -5,11 +5,11 @@ import config from '../config.ts'
 import { newSession } from './controller.ts'
 import start, { CommandHandler } from '../commands/start.ts'
 import { balance, balanceToken } from '../commands/balance.ts'
-import { send, sendToken } from 'commands/send.ts'
-import tokenAddress from 'commands/tokenAddress.ts'
-import open from 'commands/openWallet.ts'
-import lookup from 'commands/lookup.ts'
-import recover from 'commands/recover.ts'
+import { send, sendToken } from '../commands/send.ts'
+import tokenAddress from '../commands/tokenAddress.ts'
+import open from '../commands/openWallet.ts'
+import lookup from '../commands/lookup.ts'
+import recover from '../commands/recover.ts'
 
 export let client: TelegramClient
 

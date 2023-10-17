@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 dotenv.config()
 const require = createRequire(import.meta.url)
 
-const DEBUG = process.env.RELAYER_DEBUG === 'true' || process.env.RELAYER_DEBUG === '1'
+const DEBUG = process.env.DEBUG === 'true' || process.env.DEBUG === '1'
 const config = {
   debug: DEBUG,
   verbose: process.env.VERBOSE === 'true' || process.env.VERBOSE === '1',
