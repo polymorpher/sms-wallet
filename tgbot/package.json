@@ -5,8 +5,8 @@
   "type": "module",
   "main": "app.ts",
   "scripts": {
-    "start": "ts-node-esm ./bin/run.ts",
-    "debug": "DEBUG=true ts-node-esm ./bin/run.ts"
+    "start": "node --experimental-specifier-resolution=node --loader ts-node/esm ./bin/run.ts",
+    "debug": "DEBUG=true node --experimental-specifier-resolution=node --loader ts-node/esm ./bin/run.ts"
   },
   "dependencies": {
     "axios": "^1.4.0",

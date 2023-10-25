@@ -1,8 +1,6 @@
 import { TelegramClient, Api, sessions } from 'telegram'
-import { type Button } from 'telegram/tl/custom/button.js'
 import fs from 'fs/promises'
-import config from '../config.ts'
-import { newSession } from './controller.ts'
+import config from '../config'
 import start, { CommandHandler } from '../commands/start.ts'
 import { balance, balanceToken } from '../commands/balance.ts'
 import { send, sendToken } from '../commands/send.ts'
@@ -40,23 +38,11 @@ export async function init (): Promise<void> {
   await saveSession()
 }
 
-const buildOpenWalletButton = async (userId: string): Promise<Button | Api.ReplyInlineMarkup | null> => {
-  const sessionId = await newSession(userId)
-  if (!sessionId) {
-    return null
-  }
-  const url = `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}`
-  console.log(url)
-  // return new Button(new Api.KeyboardButtonSimpleWebView({ text: 'Open Wallet', url }))
-  return new Api.ReplyInlineMarkup({ rows: [new Api.KeyboardButtonRow({ buttons: [new Api.KeyboardButtonWebView({ text: 'Open Wallet', url })] })] })
-}
-
 export async function listen (): Promise<void> {
   if (!client) {
     return
   }
 
-  // const openWalletButton = new Api.ReplyInlineMarkup({ rows: [new Api.KeyboardButtonRow({ buttons: [new Api.KeyboardButtonWebView({ text: 'Open Wallet', url: 'https://smswallet.xyz/?tg' })] })] })
   client.addEventHandler(async (update) => {
     // console.log(update)
     const chatID = Number(update?.message?.chatId)

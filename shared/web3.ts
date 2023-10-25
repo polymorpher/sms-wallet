@@ -1,13 +1,13 @@
 import { JsonRpcProvider, Contract } from 'ethers'
 import utils from './utils'
 import config from './config'
-import IERC165 from './abi/IERC165.json'
-import IERC1155MetadataURI from './abi/IERC1155MetadataURI.json'
-import IERC1155 from './abi/IERC1155.json'
-import IERC721Metadata from './abi/IERC721Metadata.json'
-import IERC721 from './abi/IERC721.json'
-import IERC20Metadata from './abi/IERC20Metadata.json'
-import IERC20 from './abi/IERC20.json'
+import IERC165 from './abi/IERC165.json' assert { type: 'json' }
+import IERC1155MetadataURI from './abi/IERC1155MetadataURI.json' assert { type: 'json' }
+import IERC1155 from './abi/IERC1155.json' assert { type: 'json' }
+import IERC721Metadata from './abi/IERC721Metadata.json' assert { type: 'json' }
+import IERC721 from './abi/IERC721.json' assert { type: 'json' }
+import IERC20Metadata from './abi/IERC20Metadata.json' assert { type: 'json' }
+import IERC20 from './abi/IERC20.json' assert { type: 'json' }
 
 export const provider = new JsonRpcProvider(config.rpc)
 
