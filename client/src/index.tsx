@@ -12,6 +12,7 @@ import 'react-phone-number-input/style.css'
 import { HistoryRouter } from 'redux-first-history/rr6'
 import { PersistGate } from 'redux-persist/es/integration/react'
 import { Loading } from './components/Misc'
+import { MultipleWalletProvider } from './hooks/useMultipleWallet'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 document.body.ontouchstart = function (): void {}
@@ -26,7 +27,9 @@ if (container != null) {
     <Provider store={store}>
       <PersistGate loading={<Loading/>} persistor={persistor}>
         <HistoryRouter history={history}>
-          <Routes />
+          <MultipleWalletProvider>
+            <Routes />
+          </MultipleWalletProvider>
           <ToastContainer />
         </HistoryRouter>
       </PersistGate>

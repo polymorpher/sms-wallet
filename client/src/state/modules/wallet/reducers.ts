@@ -3,7 +3,7 @@ import walletActions, { type TrackedToken } from './actions'
 import uniq from 'lodash/fp/uniq'
 import omit from 'lodash/fp/omit'
 
-export type WalletState = Record<string, {
+export type Wallet = {
   trackedTokens?: TrackedToken[]
   selectedToken?: string
   phone: string
@@ -11,7 +11,9 @@ export type WalletState = Record<string, {
   pk: string
   eseed: string
   p?: string
-}>
+}
+
+export type WalletState = Record<string, Wallet>
 
 export const initialState: WalletState = {}
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BaseText, Desc, Title } from '../components/Text'
 import { toast } from 'react-toastify'
 import { Button, Input } from '../components/Controls'
@@ -13,6 +13,7 @@ import { globalActions } from '../state/modules/global'
 import { type RootState } from '../state/rootReducer'
 import { type NextAction } from '../state/modules/global/actions'
 import querystring from 'query-string'
+import useMultipleWallet from '../hooks/useMultipleWallet'
 
 const TgRecover = (): React.JSX.Element => {
   const navigate = useNavigate()
@@ -22,6 +23,7 @@ const TgRecover = (): React.JSX.Element => {
   const [password, setPassword] = useState('')
   const qs = querystring.parse(location.search) as Record<string, string>
   const { userId, sessionId } = qs
+  const fullId = `tg:${userId}`
 
   const restore = async (): Promise<void> => {
     let p: undefined | Uint8Array
@@ -35,7 +37,7 @@ const TgRecover = (): React.JSX.Element => {
       return
     }
     setVerifying(true)
-    const fullId = `tg:${userId}`
+
     try {
       const eseed = utils.computePartialParameters({ phone: fullId, p })
       const { success, ekey, address, error } = await apis.server.tgRestore({ userId, eseed, sessionId })
@@ -62,7 +64,6 @@ const TgRecover = (): React.JSX.Element => {
           navigate({ pathname: next.path, search: next.query })
           return
         }
-        navigate(paths.wallet)
       }, 1000)
     } catch (ex: any) {
       console.error(ex)
@@ -71,6 +72,15 @@ const TgRecover = (): React.JSX.Element => {
       setVerifying(false)
     }
   }
+
+  const { switchWallet, containWallet } = useMultipleWallet()
+
+  useEffect(() => {
+    if (containWallet(fullId)) {
+      switchWallet(fullId)
+      navigate(paths.wallet)
+    }
+  }, [containWallet, switchWallet, navigate])
 
   return (
     <MainContainer>
