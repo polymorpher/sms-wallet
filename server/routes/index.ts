@@ -169,16 +169,21 @@ router.post('/restore-verify', partialReqCheck, async (req, res) => {
 // allows an existing user to lookup another user's address by their phone number, iff the phone number exists and the target user does not choose to hide its phone-address mapping (under `hide` parameter in settings)
 router.post('/lookup', async (req, res) => {
   const { address, signature, destPhone } = req.body
+
   if (!address || !signature || !destPhone) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'require address, signature, destPhone' })
   }
+
   if (!utils.isValidAddress(address)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid address' })
   }
-  const { isValid, userHandle } = parseUserHandle(destPhone)
+
+  const { isValid, userHandle, userType } = parseUserHandle(destPhone)
+
   if (!isValid) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: userType === UserType.Phone ? 'bad phone number' : 'bad telegram id'})
   }
+
   const message = `${userHandle} ${Math.floor(Date.now() / (config.defaultSignatureValidDuration)) * config.defaultSignatureValidDuration}`
   // console.log(message, signature)
   const expectedAddress = utils.recover(message, signature)
