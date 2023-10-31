@@ -204,7 +204,7 @@ const Recover = (): React.JSX.Element => {
                     inputComponent={InvisibleInput}
                     defaultCountry='US'
                     placeholder='Enter phone number'
-                    value={phone} onChange={setPhone}
+                    value={phone} onChange={e => { setPhone(e ?? '') }}
                   />
                   <Input
                     style={!p && revealPassword ? { width: 288, marginTop: 36, marginBottom: 16 } : { border: 'none', position: 'absolute', width: 0, margin: 0 }}

@@ -1,31 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import MainContainer from '../components/Container'
-import { useDispatch, useSelector } from 'react-redux'
-import { type RootState } from '../state/rootReducer'
-import { type WalletState } from '../state/modules/wallet/reducers'
-import apis from '../api'
+import { useDispatch } from 'react-redux'
 import { Navigate, useNavigate } from 'react-router'
 import paths from './paths'
 import { BaseText, DescLeft, LinkText, SmallText } from '../components/Text'
 import { Col, Row } from '../components/Layout'
 import { Button, LinkWrarpper } from '../components/Controls'
-import { globalActions } from '../state/modules/global'
-import { utils } from '../utils'
 import { walletActions } from '../state/modules/wallet'
 import { toast } from 'react-toastify'
+import useMultipleWallet from '../hooks/useMultipleWallet'
 
 const SaveRecoverySecret = (): React.JSX.Element => {
   const [tgDest, setTgDest] = useState('')
   const [emailDest, setEmailDest] = useState('')
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
-
-  const state = wallet[address ?? '']
-  const pk = state?.pk
-  const phone = state?.phone
-  const p = state?.p
+  const { wallet } = useMultipleWallet()
+  const address = wallet?.address
+  const pk = wallet?.pk
+  const phone = wallet?.phone
+  const p = wallet?.p
 
   useEffect(() => {
     if (!pk || !p || !phone) {
@@ -41,7 +35,11 @@ const SaveRecoverySecret = (): React.JSX.Element => {
   }, [phone, p, pk, address])
 
   const cleanup = (): void => {
-    dispatch(walletActions.updateWallet({ ...state, p: '' }))
+    if (!wallet) {
+      return
+    }
+
+    dispatch(walletActions.updateWallet({ ...wallet, p: '' }))
     toast.info('Recovery secret is cleaned up')
     navigate(paths.wallet)
   }

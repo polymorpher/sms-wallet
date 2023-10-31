@@ -18,8 +18,9 @@ import styled from 'styled-components'
 import { Navigate, useNavigate } from 'react-router'
 import { type RootState } from '../state/rootReducer'
 import { type NextAction } from '../state/modules/global/actions'
-import { type WalletState } from '../state/modules/wallet/reducers'
 import config from "../config";
+import useMultipleWallet from '../hooks/useMultipleWallet'
+
 const randomSeed = (): Uint8Array => {
   const otpSeedBuffer = new Uint8Array(32)
   return window.crypto.getRandomValues(otpSeedBuffer)
@@ -45,7 +46,6 @@ const Signup = (): React.JSX.Element => {
   const [qrCodeData, setQrCodeData] = useState('')
   const next = useSelector<RootState, NextAction>(state => state.global.next || {})
   const prefilledPhone = useSelector<RootState, string>(state => state.global.prefilledPhone ?? '')
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
   const [triedSave, setTriedSave] = useState(false)
   const [useQR, setUseQR] = useState(false)
 
@@ -146,7 +146,9 @@ const Signup = (): React.JSX.Element => {
     // onDone && onDone()
   }
 
-  const existingAddress = !hash && Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
+  const { wallet } = useMultipleWallet()
+  const existingAddress = !hash && wallet?.address
+
   if (existingAddress) {
     console.log('redirecting because wallet exists:', existingAddress)
     return <Navigate to={paths.wallet} />

@@ -1,8 +1,13 @@
 import { TelegramClient, Api, sessions } from 'telegram'
-import { type Button } from 'telegram/tl/custom/button.js'
 import fs from 'fs/promises'
-import config from '../config.ts'
-import { newSession } from './controller.ts'
+import config from '../config'
+import start, { CommandHandler } from '../commands/start.ts'
+import { balance, balanceToken } from '../commands/balance.ts'
+import { send, sendToken } from '../commands/send.ts'
+import tokenAddress from '../commands/tokenAddress.ts'
+import open from '../commands/openWallet.ts'
+import lookup from '../commands/lookup.ts'
+import recover from '../commands/recover.ts'
 
 export let client: TelegramClient
 
@@ -33,23 +38,11 @@ export async function init (): Promise<void> {
   await saveSession()
 }
 
-const buildOpenWalletButton = async (userId: string): Promise<Button | Api.ReplyInlineMarkup | null> => {
-  const sessionId = await newSession(userId)
-  if (!sessionId) {
-    return null
-  }
-  const url = `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}`
-  console.log(url)
-  // return new Button(new Api.KeyboardButtonSimpleWebView({ text: 'Open Wallet', url }))
-  return new Api.ReplyInlineMarkup({ rows: [new Api.KeyboardButtonRow({ buttons: [new Api.KeyboardButtonWebView({ text: 'Open Wallet', url })] })] })
-}
-
 export async function listen (): Promise<void> {
   if (!client) {
     return
   }
 
-  // const openWalletButton = new Api.ReplyInlineMarkup({ rows: [new Api.KeyboardButtonRow({ buttons: [new Api.KeyboardButtonWebView({ text: 'Open Wallet', url: 'https://smswallet.xyz/?tg' })] })] })
   client.addEventHandler(async (update) => {
     // console.log(update)
     const chatID = Number(update?.message?.chatId)
@@ -62,21 +55,35 @@ export async function listen (): Promise<void> {
       return
     }
 
-    if (update.message.message.startsWith('/start')) {
-      console.log(update.message)
-      const from = update.message.peerId as Api.PeerUser
+    const commands: [RegExp, CommandHandler][] = [
+      [/^\/start$/, start],
+      [/^\/balance$/, balance],
+      [/^\/balance (?<token>\w+)$/, balanceToken],
+      [/^\/send (?<to>\w+) (?<amount>\w+)$/, send],
+      [/^\/send (?<to>\w+) (?<amount>\w+) (?<token>\w+)$/, sendToken],
+      [/^\/tokenaddress (?<tokenLabel>\w+)$/, tokenAddress],
+      [/^\/open$/, open],
+      [/^\/recover$/, recover],
+      [/^\/lookup (?<tgUserName>\w+)$/, lookup],
+    ]
 
-      // console.log(from)
-      const userId = from.userId.toString()
-      const button = await buildOpenWalletButton(userId)
-      if (!button) {
-        await client.sendMessage(chatID, { message: 'Hello! h1wallet is temporarily unavailable on Telegram. Please try again later or contact support.' })
+    const from = update.message.peerId as Api.PeerUser
+    const userId = from.userId.toString()
+
+    for (const [regex, handler] of commands) {
+      const match = regex.exec(update.message.message)
+
+      if (match) {
+        const message = await handler(userId, match.groups!)
+
+        if (typeof message === "string") {
+          await client.sendMessage(chatID, { message })
+        } else {
+          await client.sendMessage(chatID, message)
+        }
+        
         return
       }
-      await client.sendMessage(chatID, {
-        message: 'Hello! Please open your wallet using the button below',
-        buttons: button
-      })
     }
   })
 }

@@ -23,6 +23,7 @@ import {
   type UseMetadataParams,
   type UseMetadataResult
 } from './types'
+import useMultipleWallet from '../hooks/useMultipleWallet'
 
 export const MetadataURITransformer = (url?: string): string | undefined => {
   const IPFSIO = /https:\/\/ipfs\.io\/ipfs\/(.+)/
@@ -352,9 +353,9 @@ const NFTSendModal = ({ modelVisible, setModelVisible, maxQuantity, contractAddr
   const [to, setTo] = useState('')
   const [amount, setAmount] = useState('1')
   const [isSending, setIsSending] = useState(false)
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
-  const pk = wallet[address ?? '']?.pk
+  const { wallet } = useMultipleWallet()
+  const pk = wallet?.pk
+  const address = wallet?.address
 
   const send = async (): Promise<void> => {
     if (!address || !pk) {
@@ -489,9 +490,9 @@ const NFTViewer = ({ visible, setVisible, onClose, contractAddress, resolvedImag
   const [sendModelVisible, setSendModalVisible] = useState(false)
   const [managementVisible, setManagementVisible] = useState(false)
   const [isTracking, setIsTracking] = useState(false)
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
-  const pk = wallet[address ?? '']?.pk
+  const { wallet } = useMultipleWallet()
+  const address = wallet?.address
+  const pk = wallet?.pk
   const key = utils.computeTokenKey({ contractAddress, tokenId, tokenType }).string
   const balance = BigInt(useSelector<RootState, string>(state => state.balance?.[address ?? '']?.tokenBalances?.[key] || ''))
 
@@ -611,9 +612,9 @@ const NFTTracker = ({ visible, setVisible }: NFTTrackerParams): React.JSX.Elemen
   const [contract, setContract] = useState('')
   const [tokenId, setTokenId] = useState('')
   const [isTracking, setIsTracking] = useState(false)
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
-  const pk = wallet[address ?? '']?.pk
+  const { wallet } = useMultipleWallet()
+  const address = wallet?.address
+  const pk = wallet?.pk
 
   const track = async (): Promise<void> => {
     if (!address || !pk) {

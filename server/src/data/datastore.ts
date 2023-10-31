@@ -28,7 +28,7 @@ export function mock (): void {
     server.stderr.on('data', handler)
     server.on('close', data => { console.log('Mock DS is shutting down. If this is unintended please run cmd manually to debug') })
     server.on('error', err => { console.log(`Mock DS error: ${err}`) })
-    process.on('exit', module.exports.shut)
+    process.on('exit', shut)
     process.on('uncaughtException', err => {
       console.error(`UncaughtException [${err}].`)
       shut()

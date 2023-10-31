@@ -4,7 +4,6 @@ dotenv.config({ path: './.env.wallet' })
 const DEBUG = process.env.DEBUG === 'true' || process.env.DEBUG === '1'
 const config = {
   debug: DEBUG,
-  provider: process.env.DEFAULT_RPC ?? 'https://api.harmony.one',
   wallet: {
     server: process.env.WALLET_SERVER ?? 'https://backend.smswallet.xyz',
     client: process.env.WALLET_CLIENT ?? 'https://smswallet.xyz',

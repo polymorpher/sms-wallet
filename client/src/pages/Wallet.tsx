@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import paths from './paths'
 import { Address, BaseText, Desc, Label } from '../components/Text'
@@ -16,24 +16,54 @@ import NFTShowcase from './NFT'
 import { walletActions } from '../state/modules/wallet'
 import { type RootState } from '../state/rootReducer'
 import { type WalletState } from '../state/modules/wallet/reducers'
-import { Navigate } from 'react-router'
+import { Navigate, useLocation, useNavigate } from 'react-router'
+import useMultipleWallet from '../hooks/useMultipleWallet'
+
+const switchDestinationType = (prev: string): string => {
+  switch (prev) {
+    case 'address':
+      return 'phone'
+    case 'phone':
+      return 'tgid'
+    case 'tgid':
+    default:
+      return 'address'
+  }
+}
+
+enum DestinationType {
+  'address' = 'crypto address',
+  'phone' = 'phone number',
+  'tgid' = 'telegram id'
+}
 
 const Wallet = (): React.JSX.Element => {
-  // const history = useHistory()
   const dispatch = useDispatch()
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
+  const wallets = useSelector<RootState, WalletState>(state => state.wallet || {})
+  const { wallet } = useMultipleWallet()
+  const address = wallet?.address
   const balance = useSelector<RootState, string>(state => state.balance[address ?? '']?.balance || '0')
+  const location = useLocation()
+  const navigate = useNavigate()
+  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search])
 
-  const [to, setTo] = useState('')
   const [amount, setAmount] = useState('')
-  const [sendModalVisible, setSendModalVisible] = useState(false)
-  const [phone, setPhone] = useState('')
-  const [isAddressInput, setIsAddressInput] = useState(false)
+  const [sendModalVisible, setSendModalVisible] = useState(queryParams.get('send-money') === '1')
+  const [destinationType, setDestinationType] = useState<'address' | 'phone' | 'tgid'>('address')
+  const [destination, setDestination] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [showFullAddress, setShowFullAddress] = useState(false)
 
   const { formatted } = utils.computeBalance(balance)
+
+  useEffect(() => {
+    if (sendModalVisible) {
+      navigate({ search: '?send-money=1' })
+    } else {
+      navigate({})
+    }
+  }, [queryParams, navigate, sendModalVisible])
+
   useEffect(() => {
     if (!address) {
       return
@@ -48,7 +78,7 @@ const Wallet = (): React.JSX.Element => {
   }, [dispatch, address])
 
   useEffect(() => {
-    const keys = Object.keys(wallet)
+    const keys = Object.keys(wallets)
     for (const k of keys) {
       if (k.startsWith('_')) {
         continue
@@ -58,9 +88,9 @@ const Wallet = (): React.JSX.Element => {
         dispatch(walletActions.deleteWallet(k))
       }
     }
-  }, [wallet, dispatch])
+  }, [wallet, dispatch, wallets])
 
-  const pk = wallet[address ?? '']?.pk
+  const pk = wallet?.pk
 
   if (!pk || !address) {
     return <Navigate to={paths.signup} />
@@ -82,26 +112,35 @@ const Wallet = (): React.JSX.Element => {
       toast.error('Amount exceeds balance')
       return
     }
-    let dest = to
-    if (isAddressInput) {
-      if (!(dest?.startsWith('0x')) || !apis.web3.isValidAddress(dest)) {
-        toast.error('Invalid address')
+
+    let dest = destination
+
+    switch (destinationType) {
+      case 'address':
+        if (!(dest?.startsWith('0x')) || !apis.web3.isValidAddress(dest)) {
+          toast.error('Invalid address')
+        }
         return
-      }
-    } else {
-      try {
-        const signature = apis.web3.signWithNonce(phone, pk)
-        dest = await apis.server.lookup({ destPhone: phone, address, signature })
-        if (!apis.web3.isValidAddress(dest)) {
-          toast.error(`Cannot find recipient with phone number ${phone}`)
+
+      case 'tgid':
+        dest = 'tg:' + dest
+        break
+
+      case 'phone':
+        try {
+          const signature = apis.web3.signWithNonce(destination, pk)
+          dest = await apis.server.lookup({ destPhone: dest, address, signature })
+          if (!apis.web3.isValidAddress(dest)) {
+            toast.error(`Cannot find recipient with ${DestinationType[destinationType]} ${destination}`)
+            return
+          }
+        } catch (ex) {
+          console.error(ex)
+          toast.error(`Error in looking up recipient: ${processError(ex)}`)
           return
         }
-      } catch (ex) {
-        console.error(ex)
-        toast.error(`Error in looking up recipient: ${processError(ex)}`)
-        return
-      }
     }
+
     toast.info('Submitting transaction...')
     try {
       apis.web3.changeAccount(pk)
@@ -159,21 +198,33 @@ const Wallet = (): React.JSX.Element => {
         <Row style={{ position: 'relative' }}>
 
           <Label>To</Label>
-          {!isAddressInput &&
-            <PhoneInput
-              margin='16px'
-              inputComponent={Input}
-              defaultCountry='US'
-              placeholder='phone number of recipient'
-              value={phone} onChange={e => { setPhone(e ?? '') }}
-            />}
-          {isAddressInput &&
-            <Input
-              onChange={({ target: { value } }) => { setTo(value) }}
-              placeholder='0x1234abcde...'
-              $width='100%' value={to} $margin='16px' style={{ fontSize: 10, flex: 1 }}
-            />}
-          <FloatingSwitch href='#' onClick={() => { setIsAddressInput(!isAddressInput) }}>use {isAddressInput ? 'phone number' : 'crypto address'}</FloatingSwitch>
+          {destinationType === 'phone'
+            ? (
+              <PhoneInput
+                margin='16px'
+                inputComponent={Input}
+                defaultCountry='US'
+                placeholder='phone number of recipient'
+                value={destination}
+                onChange={e => setDestination(e ?? '')}
+              />
+              )
+            : (
+              <Input
+                onChange={e => setDestination(e.target.value)}
+                placeholder={destinationType === 'address' ? '0x1234abcde...' : 'telegramid'}
+                $width='100%'
+                value={destination}
+                $margin='16px'
+                style={{ fontSize: 10, flex: 1 }}
+              />
+              )}
+          <FloatingSwitch
+            href='#'
+            onClick={() => setDestinationType(switchDestinationType)}
+          >
+            switch to {DestinationType[switchDestinationType(destinationType)]}
+          </FloatingSwitch>
         </Row>
         <Row>
           <Label>Amount</Label>

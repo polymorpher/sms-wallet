@@ -14,7 +14,7 @@
       "allowImportingTsExtensions": true,
       "allowJs": true,
       "paths": {
-        "*.ts": ["*"]
+        "*": ["*.ts"]
       },
       "typeRoots": ["./types"]
     },

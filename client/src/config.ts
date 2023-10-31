@@ -44,7 +44,6 @@ const config = {
   },
   gasPrice: Number(process.env.GAS_PRICE ?? 1000),
   chainId: Number(process.env.CHAIN_ID ?? 1666600000),
-  rpc: process.env.RPC ?? 'https://api.s0.t.hmny.io',
   rootUrl: process.env.ROOT_URL ?? 'https://smswallet.xyz',
   explorer: process.env.EXPLORER_URL ?? 'https://explorer.harmony.one/#/tx/{{txId}}',
   explorerHistory: process.env.EXPLORER_URL ?? 'https://explorer.harmony.one/#/address/{{address}}',

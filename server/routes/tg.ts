@@ -4,8 +4,9 @@ import { StatusCodes } from 'http-status-codes'
 import NodeCache from 'node-cache'
 import utils from '../utils.ts'
 import { User } from '../src/data/user.ts'
-import { partialReqCheck } from './middleware.ts'
+import { parseUserHandle, partialReqCheck } from './middleware.ts'
 import { isEqual, pick } from 'lodash-es'
+import { Setting } from '../src/data/setting.ts'
 const Cache = new NodeCache()
 const router = express.Router()
 
@@ -113,6 +114,30 @@ router.post('/restore', partialReqCheck, async (req, res) => {
   }
 
   res.json({ success: true, ekey: u.ekey, address: u.address })
+})
+
+router.post('/lookup', isFromBot, async (req, res) => {
+  const { destPhone } = req.body
+
+  const { isValid, userHandle } = parseUserHandle(destPhone)
+
+  if (!isValid) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
+  }
+
+  const u = await User.findByUserHandle(userHandle)
+
+  if (!u) {
+    return res.json({ address: '' })
+  }
+
+  const s = await Setting.get(u.id)
+
+  if (s?.hide) {
+    return res.json({ address: '' })
+  }
+
+  return res.json({ address: u.address })
 })
 
 export default router

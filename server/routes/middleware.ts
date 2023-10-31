@@ -25,12 +25,12 @@ export function parseUserHandle (id: string): ParsedUserHandle {
 
 export const requirePhone = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { phone: userId } = req.body
-  const { isValid, userHandle } = parseUserHandle(userId)
+  const { isValid, userHandle, userType } = parseUserHandle(userId)
   if (!isValid) {
     res.status(StatusCodes.BAD_REQUEST).json({ error: 'bad phone number' })
     return
   }
-  req.processedBody = { ...req.processedBody, userHandle }
+  req.processedBody = { ...req.processedBody, userHandle, userType }
   next()
 }
 

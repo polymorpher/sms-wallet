@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { Navigate, useNavigate, useParams } from 'react-router'
 import paths from './paths'
 import MainContainer from '../components/Container'
@@ -11,15 +11,15 @@ import { ApproveTransaction, decodeCalldata } from './ApproveTransaction'
 import { Button } from '../components/Controls'
 import { TailSpin } from 'react-loading-icons'
 import { globalActions } from '../state/modules/global'
-import { type RootState } from '../state/rootReducer'
-import { type WalletState } from '../state/modules/wallet/reducers'
 import querystring from 'query-string'
+import useMultipleWallet from '../hooks/useMultipleWallet'
 
 const Request = (): React.JSX.Element => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
+  const { wallet } = useMultipleWallet()
+  const address = wallet?.address
+  const pk = wallet?.pk
   const match = useParams()
   const { id } = match ?? {}
   const qs = querystring.parse(location.search) as Record<string, string>
@@ -33,7 +33,6 @@ const Request = (): React.JSX.Element => {
   } = request ?? {}
   const calldata = decodeCalldata(calldataB64Encoded)
   const callback = utils.safeURL(callbackURL ?? '')
-  const pk = wallet[address ?? '']?.pk
 
   useEffect(() => {
     if (phone) {
