@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import paths from './paths'
 import { Address, BaseText, Desc, Label } from '../components/Text'
@@ -16,24 +16,37 @@ import NFTShowcase from './NFT'
 import { walletActions } from '../state/modules/wallet'
 import { type RootState } from '../state/rootReducer'
 import { type WalletState } from '../state/modules/wallet/reducers'
-import { Navigate } from 'react-router'
+import { Navigate, useLocation, useNavigate } from 'react-router'
 
 const Wallet = (): React.JSX.Element => {
-  // const history = useHistory()
   const dispatch = useDispatch()
   const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
   const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
   const balance = useSelector<RootState, string>(state => state.balance[address ?? '']?.balance || '0')
+  const location = useLocation()
+  const navigate = useNavigate()
+  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   const [to, setTo] = useState('')
   const [amount, setAmount] = useState('')
-  const [sendModalVisible, setSendModalVisible] = useState(false)
+  const [sendModalVisible, setSendModalVisible] = useState(queryParams.get('send-money') === '1')
   const [phone, setPhone] = useState('')
   const [isAddressInput, setIsAddressInput] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [showFullAddress, setShowFullAddress] = useState(false)
 
   const { formatted } = utils.computeBalance(balance)
+
+  useEffect(() => {
+    if (sendModalVisible) {
+      navigate({
+        search: '?send-money=1'
+      })
+    } else {
+      navigate({})
+    }
+  }, [queryParams, navigate, sendModalVisible])
+
   useEffect(() => {
     if (!address) {
       return

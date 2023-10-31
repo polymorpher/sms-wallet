@@ -18,7 +18,7 @@ const TgRouter = (): React.JSX.Element => {
 
   if (address && pk && phone) {
     console.log('redirecting to existing wallet', address)
-    return <Navigate to={{ pathname: paths.wallet, search: '?tg' }} />
+    return <Navigate to={{ pathname: paths.wallet, search: location.search }} />
   }
 
   // TODO: delete address if pk and phone are not present

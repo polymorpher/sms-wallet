@@ -24,6 +24,7 @@ export default {
     https: process.env.HTTP === undefined,
     http2: process.env.HTTP === undefined,
     historyApiFallback: true,
+    allowedHosts: 'all',
     hot: false,
     client: {
       overlay: false,

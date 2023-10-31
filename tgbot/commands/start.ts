@@ -25,7 +25,7 @@ const start: CommandHandler = async (userId) => {
     ],
     [
       'Send Money',
-      `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}`
+      `${config.wallet.client}/tg?userId=${userId}&sessionId=${sessionId}&send-money=1`
     ]
   ])
 
