@@ -17,11 +17,13 @@ import { walletActions } from '../state/modules/wallet'
 import { type RootState } from '../state/rootReducer'
 import { type WalletState } from '../state/modules/wallet/reducers'
 import { Navigate, useLocation, useNavigate } from 'react-router'
+import useMultipleWallet from '../hooks/useMultipleWallet'
 
 const Wallet = (): React.JSX.Element => {
   const dispatch = useDispatch()
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet || {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
+  const wallets = useSelector<RootState, WalletState>(state => state.wallet || {})
+  const { wallet } = useMultipleWallet()
+  const address = wallet?.address
   const balance = useSelector<RootState, string>(state => state.balance[address ?? '']?.balance || '0')
   const location = useLocation()
   const navigate = useNavigate()
@@ -61,7 +63,7 @@ const Wallet = (): React.JSX.Element => {
   }, [dispatch, address])
 
   useEffect(() => {
-    const keys = Object.keys(wallet)
+    const keys = Object.keys(wallets)
     for (const k of keys) {
       if (k.startsWith('_')) {
         continue
@@ -73,7 +75,7 @@ const Wallet = (): React.JSX.Element => {
     }
   }, [wallet, dispatch])
 
-  const pk = wallet[address ?? '']?.pk
+  const pk = wallet?.pk
 
   if (!pk || !address) {
     return <Navigate to={paths.signup} />

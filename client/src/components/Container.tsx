@@ -5,25 +5,21 @@ import MenuIcon from '../../assets/menu.svg'
 import { Col, Main, Modal, Row } from './Layout'
 import { Button, LinkWrarpper } from './Controls'
 import { walletActions } from '../state/modules/wallet'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import paths from '../pages/paths'
-import apis from '../api/index'
 import { useNavigate } from 'react-router'
-import { type RootState } from '../state/rootReducer'
-import { type WalletState } from '../state/modules/wallet/reducers'
 import config from '../config'
+import useMultipleWallet from '../hooks/useMultipleWallet'
 
 const MainContainer = ({ children, withMenu = false }): React.JSX.Element => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet ?? {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
+  const { wallet } = useMultipleWallet()
 
   const [menuVisible, setMenuVisible] = useState(false)
   const [logoutModalVisible, setLogoutModalVisible] = useState(false)
 
-  const state = wallet[address ?? '']
-  const p = state?.p
+  const p = wallet?.p
   const logout = (): void => {
     dispatch(walletActions.deleteAllWallet())
     setLogoutModalVisible(false)
@@ -44,7 +40,7 @@ const MainContainer = ({ children, withMenu = false }): React.JSX.Element => {
             <IconImg onClick={() => { setMenuVisible(!menuVisible) }} src={MenuIcon as string} />
             {menuVisible &&
               <MenuItems>
-                {wallet && <MenuItemLink onClick={() => { navigate(paths.wallet) }}>{wallet[address ?? ''].phone}</MenuItemLink>}
+                {wallet && <MenuItemLink onClick={() => { navigate(paths.wallet) }}>{wallet.phone}</MenuItemLink>}
                 <MenuItemLink onClick={() => { setLogoutModalVisible(true) }}>Logout</MenuItemLink>
               </MenuItems>}
           </MenuIconContainer>}

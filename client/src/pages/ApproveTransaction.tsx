@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import paths from './paths'
 import MainContainer from '../components/Container'
 import querystring from 'query-string'
@@ -11,10 +11,9 @@ import { Row } from '../components/Layout'
 import { utils } from '../utils'
 import { pick } from 'lodash'
 import { globalActions } from '../state/modules/global'
-import { type RootState } from '../state/rootReducer'
-import { type WalletState } from '../state/modules/wallet/reducers'
 import { type TransactionReceipt } from 'ethers'
 import { Navigate, useNavigate } from 'react-router'
+import useMultipleWallet from '../hooks/useMultipleWallet'
 
 export interface CallData {
   method?: string
@@ -51,16 +50,15 @@ export const ApproveTransaction = ({
   dest,
   onComplete
 }: ApproveTransactionParams): React.JSX.Element => {
-  const wallet = useSelector((state: RootState) => state.wallet || {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e))
+  const { wallet } = useMultipleWallet()
 
   const [showDetails, setShowDetails] = useState(false)
   const { balance: amount, formatted: amountFormatted } = utils.toBalance(inputAmount ?? '0')
 
-  if (!address || !wallet[address]?.pk) {
+  if (wallet?.pk === undefined) {
     return <Navigate to={paths.signup} />
   }
-  const pk = wallet[address]?.pk
+  const pk = wallet.pk
 
   const execute = async (): Promise<void> => {
     if (!calldata) {
@@ -105,7 +103,7 @@ export const ApproveTransaction = ({
         const returnUrl = new URL(callback)
         returnUrl.searchParams.append('success', 'true')
         returnUrl.searchParams.append('hash', receipt.hash)
-        returnUrl.searchParams.append('address', address)
+        returnUrl.searchParams.append('address', wallet.address)
         toast.success(`Returning to app at ${returnUrl.hostname}`)
         setTimeout(() => {
           location.href = returnUrl.href
@@ -205,10 +203,8 @@ const ApproveTransactionPage = (): React.JSX.Element => {
   const callback = utils.safeURL(Buffer.from(decodeURIComponent(callbackEncoded ?? ''), 'base64').toString())
 
   const calldata = decodeCalldata(calldataB64Encoded)
-
-  const wallet = useSelector<RootState, WalletState>(state => state.wallet ?? {})
-  const address = Object.keys(wallet).find(e => apis.web3.isValidAddress(e)) ?? ''
-  const pk = wallet[address]?.pk
+  const { wallet } = useMultipleWallet()
+  const pk = wallet?.pk
 
   useEffect(() => {
     if (phone) {
