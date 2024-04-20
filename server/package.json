@@ -5,8 +5,8 @@
   "type": "module",
   "main": "app.ts",
   "scripts": {
-    "start": "ts-node-esm ./bin/run.ts",
-    "debug": "DEBUG=true ts-node-esm ./bin/run.ts"
+    "start": "NODE_OPTIONS=\"--loader ts-node/esm\" node ./bin/run.ts",
+    "debug": "DEBUG=true NODE_OPTIONS=\"--loader ts-node/esm\" node ./bin/run.ts"
   },
   "dependencies": {
     "@google-cloud/datastore": "^7.0.0",
