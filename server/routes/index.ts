@@ -17,7 +17,7 @@ import {
   parseUserHandle,
   partialReqCheck,
   reqCheck,
-  requirePhone
+  requirePhone, limiter
 } from './middleware.ts'
 // noinspection ES6PreferShortImport
 import { type ProcessedBody, UserType } from '../types/index.ts'
@@ -38,7 +38,7 @@ router.get('/health', async (req, res) => {
   res.send('OK').end()
 })
 
-router.post('/signup', reqCheck, mustNotExist, async (req, res) => {
+router.post('/signup', reqCheck, mustNotExist, limiter({ max: 3 }), async (req, res) => {
   const { userHandle, eseed, ekey, address, userType } = req.processedBody as ProcessedBody
   if (userType !== UserType.Phone) {
     return res.status(StatusCodes.BAD_REQUEST).json({ error: 'invalid user handler type' })

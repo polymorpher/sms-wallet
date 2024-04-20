@@ -6,6 +6,15 @@ import utils from '../utils.ts'
 import { type NextFunction, type Request, type Response } from 'express'
 // noinspection ES6PreferShortImport
 import { type ProcessedBody, UserType } from '../types/index.ts'
+import rateLimit from 'express-rate-limit'
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const limiter = (args?) => rateLimit({
+  windowMs: 1000 * 60,
+  max: 60,
+  keyGenerator: req => req.fingerprint?.hash ?? '',
+  ...args
+})
 
 export interface ParsedUserHandle {
   isValid: boolean
